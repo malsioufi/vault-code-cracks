@@ -47,6 +47,9 @@ const translations = {
     off: 'OFF',
     comingSoon: 'Coming Soon',
     round: 'Round',
+    maxTries: 'Max Tries',
+    unlimited: 'Unlimited',
+    outOfTries: 'Out of tries!',
   },
   ar: {
     title: 'كاسر الخزنة',

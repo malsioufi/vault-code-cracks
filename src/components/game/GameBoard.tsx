@@ -35,13 +35,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const triesLeft = config.maxTries !== null ? config.maxTries - playerHistory.length : null;
+
   // Timer
   useEffect(() => {
     if (gameOver) return;
     timerRef.current = setInterval(() => {
       setTimer((prev) => {
         if (prev <= 1) {
-          // Time's up - skip turn
           if (isPlayerTurn) {
             if (config.botMode === 'active') {
               setIsPlayerTurn(false);
@@ -99,6 +100,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
       if (feedback.matches === config.codeLength) {
         setGameOver(true);
         setResult('win');
+      } else if (config.maxTries !== null && newHistory.length >= config.maxTries) {
+        setGameOver(true);
+        setResult('lose');
       } else if (config.botMode === 'active') {
         setIsPlayerTurn(false);
         setTimer(TURN_TIME);
@@ -116,7 +120,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const timerColor = timer <= 10 ? 'bg-destructive' : timer <= 20 ? 'bg-warning' : 'bg-primary';
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 pb-8">
+    <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
       {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-4">
         <button
@@ -127,6 +131,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
         </button>
         <div className="font-mono text-xs text-muted-foreground">
           {config.codeLength} {t('digits')} | {t(config.aiDifficulty)}
+          {triesLeft !== null && !gameOver && (
+            <span className="ms-2 text-warning">| {triesLeft} {t('turnsLeft')}</span>
+          )}
         </div>
       </div>
 
@@ -212,7 +219,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
         )}
 
         {/* Player History */}
-        <GuessHistory history={playerHistory} codeLength={config.codeLength} />
+        <GuessHistory
+          history={playerHistory}
+          codeLength={config.codeLength}
+          secret={secret}
+          gameOver={gameOver}
+        />
 
         {/* AI History (Active Bot) */}
         {config.botMode === 'active' && aiHistory.length > 0 && (
@@ -220,7 +232,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
             <h3 className="font-mono text-xs text-warning uppercase tracking-widest mb-3">
               {t('aiVault')}
             </h3>
-            <GuessHistory history={aiHistory} codeLength={config.codeLength} />
+            <GuessHistory
+              history={aiHistory}
+              codeLength={config.codeLength}
+              secret={playerSecret}
+              gameOver={gameOver}
+            />
           </div>
         )}
       </div>

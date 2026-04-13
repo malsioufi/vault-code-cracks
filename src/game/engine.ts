@@ -3,6 +3,7 @@ export interface GameConfig {
   allowDuplicates: boolean;
   aiDifficulty: 'easy' | 'medium' | 'hard';
   botMode: 'active' | 'passive';
+  maxTries: number | null; // null = unlimited
 }
 
 export interface Feedback {
@@ -34,7 +35,6 @@ export function evaluateGuess(guess: number[], secret: number[]): Feedback {
   const secretCounts = new Map<number, number>();
   const guessCounts = new Map<number, number>();
 
-  // First pass: find exact matches
   for (let i = 0; i < guess.length; i++) {
     if (guess[i] === secret[i]) {
       matches++;
@@ -44,7 +44,6 @@ export function evaluateGuess(guess: number[], secret: number[]): Feedback {
     }
   }
 
-  // Second pass: find shifts
   for (const [digit, count] of guessCounts) {
     if (secretCounts.has(digit)) {
       shifts += Math.min(count, secretCounts.get(digit)!);
@@ -53,6 +52,36 @@ export function evaluateGuess(guess: number[], secret: number[]): Feedback {
 
   const glitches = guess.length - matches - shifts;
   return { matches, shifts, glitches };
+}
+
+export function getDigitStatuses(guess: number[], secret: number[]): ('match' | 'shift' | 'glitch')[] {
+  const statuses: ('match' | 'shift' | 'glitch')[] = new Array(guess.length).fill('glitch');
+  const secretUsed = new Array(secret.length).fill(false);
+  const guessUsed = new Array(guess.length).fill(false);
+
+  // First pass: exact matches
+  for (let i = 0; i < guess.length; i++) {
+    if (guess[i] === secret[i]) {
+      statuses[i] = 'match';
+      secretUsed[i] = true;
+      guessUsed[i] = true;
+    }
+  }
+
+  // Second pass: shifts
+  for (let i = 0; i < guess.length; i++) {
+    if (guessUsed[i]) continue;
+    for (let j = 0; j < secret.length; j++) {
+      if (secretUsed[j]) continue;
+      if (guess[i] === secret[j]) {
+        statuses[i] = 'shift';
+        secretUsed[j] = true;
+        break;
+      }
+    }
+  }
+
+  return statuses;
 }
 
 // AI strategies
@@ -65,7 +94,6 @@ export function aiGuessMedium(
   allowDuplicates: boolean,
   history: GuessEntry[]
 ): number[] {
-  // Try random guesses, filtering out ones that contradict history
   for (let attempt = 0; attempt < 1000; attempt++) {
     const candidate = generateSecret(length, allowDuplicates);
     if (isConsistentWithHistory(candidate, history)) {
@@ -81,7 +109,6 @@ export function aiGuessHard(
   history: GuessEntry[]
 ): number[] {
   if (history.length === 0) {
-    // Start with a strategic first guess
     if (allowDuplicates) {
       return Array.from({ length }, (_, i) => i % 10);
     }
