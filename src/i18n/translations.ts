@@ -97,6 +97,9 @@ const translations = {
     off: 'إيقاف',
     comingSoon: 'قريباً',
     round: 'الجولة',
+    maxTries: 'عدد المحاولات',
+    unlimited: 'غير محدود',
+    outOfTries: 'نفدت المحاولات!',
   },
 } as const;
 
