@@ -87,7 +87,7 @@ const DigitInput: React.FC<DigitInputProps> = ({
   const allFilled = digits.every((d) => d !== '');
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" dir="ltr">
       <div className="flex gap-2 justify-center">
         {digits.map((digit, i) => (
           <input

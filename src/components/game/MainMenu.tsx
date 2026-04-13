@@ -27,12 +27,14 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       {/* Language Toggle */}
-      <button
-        onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-        className="absolute top-4 right-4 px-3 py-1.5 rounded-md bg-muted text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
-      >
-        {lang === 'en' ? 'العربية' : 'English'}
-      </button>
+      <div className="fixed top-4 end-4 z-50">
+        <button
+          onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+          className="px-3 py-1.5 rounded-md bg-card text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
+        >
+          {lang === 'en' ? 'العربية' : 'English'}
+        </button>
+      </div>
 
       {/* Title */}
       <div className="text-center mb-12">
