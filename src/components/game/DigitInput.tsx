@@ -6,6 +6,7 @@ interface DigitInputProps {
   allowDuplicates: boolean;
   onSubmit: (digits: number[]) => void;
   disabled?: boolean;
+  submitLabel?: string;
 }
 
 const DigitInput: React.FC<DigitInputProps> = ({
@@ -13,6 +14,7 @@ const DigitInput: React.FC<DigitInputProps> = ({
   allowDuplicates,
   onSubmit,
   disabled = false,
+  submitLabel,
 }) => {
   const { t } = useLanguage();
   const [digits, setDigits] = React.useState<string[]>(Array(codeLength).fill(''));
@@ -119,7 +121,7 @@ const DigitInput: React.FC<DigitInputProps> = ({
             : 'bg-muted text-muted-foreground cursor-not-allowed'
         }`}
       >
-        {t('guess')}
+        {submitLabel || t('guess')}
       </button>
     </div>
   );

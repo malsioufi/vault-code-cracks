@@ -22,11 +22,8 @@ const TURN_TIME = 30;
 const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const { t } = useLanguage();
   const [secret] = useState(() => generateSecret(config.codeLength, config.allowDuplicates));
-  const [playerSecret] = useState(() =>
-    config.botMode === 'active'
-      ? generateSecret(config.codeLength, config.allowDuplicates)
-      : []
-  );
+  const [playerSecret, setPlayerSecret] = useState<number[]>([]);
+  const [settingSecret, setSettingSecret] = useState(config.botMode === 'active');
   const [playerHistory, setPlayerHistory] = useState<GuessEntry[]>([]);
   const [aiHistory, setAiHistory] = useState<GuessEntry[]>([]);
   const [gameOver, setGameOver] = useState(false);
@@ -39,7 +36,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
 
   // Timer
   useEffect(() => {
-    if (gameOver) return;
+    if (gameOver || settingSecret) return;
     timerRef.current = setInterval(() => {
       setTimer((prev) => {
         if (prev <= 1) {
@@ -56,7 +53,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [gameOver, isPlayerTurn, config.botMode]);
+  }, [gameOver, isPlayerTurn, config.botMode, settingSecret]);
 
   // AI turn
   useEffect(() => {
@@ -116,8 +113,48 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
     setResult('lose');
   };
 
+  const handleSetSecret = useCallback(
+    (digits: number[]) => {
+      setPlayerSecret(digits);
+      setSettingSecret(false);
+      setTimer(TURN_TIME);
+    },
+    []
+  );
+
   const timerPercent = (timer / TURN_TIME) * 100;
   const timerColor = timer <= 10 ? 'bg-destructive' : timer <= 20 ? 'bg-warning' : 'bg-primary';
+
+  // Secret setting phase for active bot
+  if (settingSecret) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-4 pb-8">
+        <div className="w-full max-w-md space-y-6 text-center">
+          <div className="p-6 rounded-lg bg-card cyber-border scanline">
+            <h2 className="font-mono text-xl font-bold text-secondary text-glow-secondary mb-2">
+              {t('setYourSecret')}
+            </h2>
+            <p className="font-mono text-sm text-muted-foreground mb-6">
+              {t('setSecretHint')}
+            </p>
+            <DigitInput
+              codeLength={config.codeLength}
+              allowDuplicates={config.allowDuplicates}
+              onSubmit={handleSetSecret}
+              disabled={false}
+              submitLabel={t('confirmSecret')}
+            />
+          </div>
+          <button
+            onClick={onBack}
+            className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+          >
+            ← {t('backToMenu')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
