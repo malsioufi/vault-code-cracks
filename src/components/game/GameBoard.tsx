@@ -36,7 +36,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
 
   // Timer
   useEffect(() => {
-    if (gameOver) return;
+    if (gameOver || settingSecret) return;
     timerRef.current = setInterval(() => {
       setTimer((prev) => {
         if (prev <= 1) {
@@ -53,7 +53,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [gameOver, isPlayerTurn, config.botMode]);
+  }, [gameOver, isPlayerTurn, config.botMode, settingSecret]);
 
   // AI turn
   useEffect(() => {
