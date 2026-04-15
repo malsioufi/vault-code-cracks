@@ -50,6 +50,9 @@ const translations = {
     maxTries: 'Max Tries',
     unlimited: 'Unlimited',
     outOfTries: 'Out of tries!',
+    setYourSecret: 'Set Your Vault Code',
+    setSecretHint: 'Choose a secret code for the AI to crack',
+    confirmSecret: 'Lock Vault',
   },
   ar: {
     title: 'كاسر الخزنة',
@@ -100,6 +103,9 @@ const translations = {
     maxTries: 'عدد المحاولات',
     unlimited: 'غير محدود',
     outOfTries: 'نفدت المحاولات!',
+    setYourSecret: 'عيّن رمز خزنتك',
+    setSecretHint: 'اختر رمزاً سرياً ليحاول الذكاء الاصطناعي كسره',
+    confirmSecret: 'أقفل الخزنة',
   },
 } as const;
 

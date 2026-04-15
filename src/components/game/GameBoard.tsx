@@ -22,11 +22,8 @@ const TURN_TIME = 30;
 const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const { t } = useLanguage();
   const [secret] = useState(() => generateSecret(config.codeLength, config.allowDuplicates));
-  const [playerSecret] = useState(() =>
-    config.botMode === 'active'
-      ? generateSecret(config.codeLength, config.allowDuplicates)
-      : []
-  );
+  const [playerSecret, setPlayerSecret] = useState<number[]>([]);
+  const [settingSecret, setSettingSecret] = useState(config.botMode === 'active');
   const [playerHistory, setPlayerHistory] = useState<GuessEntry[]>([]);
   const [aiHistory, setAiHistory] = useState<GuessEntry[]>([]);
   const [gameOver, setGameOver] = useState(false);
