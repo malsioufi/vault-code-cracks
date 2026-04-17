@@ -14,16 +14,234 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      guesses: {
+        Row: {
+          created_at: string
+          glitches: number
+          guess: number[]
+          id: string
+          matches: number
+          player_id: string
+          room_id: string
+          round_number: number
+          shifts: number
+        }
+        Insert: {
+          created_at?: string
+          glitches: number
+          guess: number[]
+          id?: string
+          matches: number
+          player_id: string
+          room_id: string
+          round_number?: number
+          shifts: number
+        }
+        Update: {
+          created_at?: string
+          glitches?: number
+          guess?: number[]
+          id?: string
+          matches?: number
+          player_id?: string
+          room_id?: string
+          round_number?: number
+          shifts?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guesses_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matchmaking_queue: {
+        Row: {
+          allow_duplicates: boolean
+          code_length: number
+          joined_at: string
+          max_tries: number | null
+          mode: Database["public"]["Enums"]["room_mode"]
+          user_id: string
+        }
+        Insert: {
+          allow_duplicates: boolean
+          code_length: number
+          joined_at?: string
+          max_tries?: number | null
+          mode: Database["public"]["Enums"]["room_mode"]
+          user_id: string
+        }
+        Update: {
+          allow_duplicates?: boolean
+          code_length?: number
+          joined_at?: string
+          max_tries?: number | null
+          mode?: Database["public"]["Enums"]["room_mode"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      presence: {
+        Row: {
+          disconnected_at: string | null
+          last_seen_at: string
+          player_id: string
+          room_id: string
+        }
+        Insert: {
+          disconnected_at?: string | null
+          last_seen_at?: string
+          player_id: string
+          room_id: string
+        }
+        Update: {
+          disconnected_at?: string | null
+          last_seen_at?: string
+          player_id?: string
+          room_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presence_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          is_guest: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          id: string
+          is_guest?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_guest?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      room_secrets: {
+        Row: {
+          created_at: string
+          player_id: string
+          room_id: string
+          secret: number[]
+        }
+        Insert: {
+          created_at?: string
+          player_id: string
+          room_id: string
+          secret: number[]
+        }
+        Update: {
+          created_at?: string
+          player_id?: string
+          room_id?: string
+          secret?: number[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_secrets_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          allow_duplicates: boolean
+          code: string
+          code_length: number
+          created_at: string
+          current_turn: string | null
+          finished_at: string | null
+          guest_id: string | null
+          host_id: string
+          id: string
+          is_quick_match: boolean
+          max_tries: number | null
+          mode: Database["public"]["Enums"]["room_mode"]
+          status: Database["public"]["Enums"]["room_status"]
+          turn_started_at: string | null
+          updated_at: string
+          winner_id: string | null
+        }
+        Insert: {
+          allow_duplicates?: boolean
+          code: string
+          code_length?: number
+          created_at?: string
+          current_turn?: string | null
+          finished_at?: string | null
+          guest_id?: string | null
+          host_id: string
+          id?: string
+          is_quick_match?: boolean
+          max_tries?: number | null
+          mode?: Database["public"]["Enums"]["room_mode"]
+          status?: Database["public"]["Enums"]["room_status"]
+          turn_started_at?: string | null
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Update: {
+          allow_duplicates?: boolean
+          code?: string
+          code_length?: number
+          created_at?: string
+          current_turn?: string | null
+          finished_at?: string | null
+          guest_id?: string | null
+          host_id?: string
+          id?: string
+          is_quick_match?: boolean
+          max_tries?: number | null
+          mode?: Database["public"]["Enums"]["room_mode"]
+          status?: Database["public"]["Enums"]["room_status"]
+          turn_started_at?: string | null
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_room_participant: {
+        Args: { _room_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      room_mode: "turn_based" | "simultaneous"
+      room_status:
+        | "waiting"
+        | "setting_secrets"
+        | "playing"
+        | "finished"
+        | "abandoned"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +368,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      room_mode: ["turn_based", "simultaneous"],
+      room_status: [
+        "waiting",
+        "setting_secrets",
+        "playing",
+        "finished",
+        "abandoned",
+      ],
+    },
   },
 } as const
