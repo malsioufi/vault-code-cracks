@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { GameConfig } from '@/game/engine';
 
@@ -7,6 +8,7 @@ interface MainMenuProps {
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
+  const navigate = useNavigate();
   const { t, lang, setLang } = useLanguage();
   const [codeLength, setCodeLength] = React.useState(4);
   const [allowDuplicates, setAllowDuplicates] = React.useState(false);
@@ -55,10 +57,10 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
           {t('soloMode')}
         </button>
         <button
-          disabled
-          className="w-full py-4 rounded-lg bg-card cyber-border font-mono text-lg text-muted-foreground opacity-50 cursor-not-allowed"
+          onClick={() => navigate('/online')}
+          className="w-full py-4 rounded-lg bg-card cyber-border font-mono text-lg text-secondary hover:glow-secondary transition-all duration-300"
         >
-          {t('onlineMode')} — {t('comingSoon')}
+          {t('onlineMode')}
         </button>
       </div>
 
