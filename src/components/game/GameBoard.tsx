@@ -21,7 +21,10 @@ const TURN_TIME = 30;
 
 const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const { t } = useLanguage();
-  const [secret] = useState(() => generateSecret(config.codeLength, config.allowDuplicates));
+  const [gameId, setGameId] = useState(0);
+  const [secret, setSecret] = useState<number[]>(() =>
+    generateSecret(config.codeLength, config.allowDuplicates),
+  );
   const [playerSecret, setPlayerSecret] = useState<number[]>([]);
   const [settingSecret, setSettingSecret] = useState(config.botMode === 'active');
   const [playerHistory, setPlayerHistory] = useState<GuessEntry[]>([]);
@@ -31,6 +34,19 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const [timer, setTimer] = useState(TURN_TIME);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const handlePlayAgain = useCallback(() => {
+    setSecret(generateSecret(config.codeLength, config.allowDuplicates));
+    setPlayerSecret([]);
+    setSettingSecret(config.botMode === 'active');
+    setPlayerHistory([]);
+    setAiHistory([]);
+    setGameOver(false);
+    setResult(null);
+    setTimer(TURN_TIME);
+    setIsPlayerTurn(true);
+    setGameId((g) => g + 1);
+  }, [config]);
 
   const triesLeft = config.maxTries !== null ? config.maxTries - playerHistory.length : null;
 
