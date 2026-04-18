@@ -121,6 +121,8 @@ const translations = {
     accept: 'Accept',
     decline: 'Decline',
     playAgain: 'Play Again',
+    you: 'You',
+    aiPlayer: 'AI',
   },
   ar: {
     title: 'كاسر الخزنة',
@@ -242,6 +244,8 @@ const translations = {
     accept: 'قبول',
     decline: 'رفض',
     playAgain: 'العب مجدداً',
+    you: 'أنت',
+    aiPlayer: 'الذكاء الاصطناعي',
   },
 } as const;
 

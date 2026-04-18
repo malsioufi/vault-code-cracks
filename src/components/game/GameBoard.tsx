@@ -225,7 +225,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
           <p className="font-mono text-sm text-muted-foreground mb-3">
             🏆 {t('winnerIs')}:{' '}
             <span className={result === 'win' ? 'text-primary text-glow-primary' : 'text-destructive'}>
-              {result === 'win' ? t('yourVault').replace(/.*/, lang === 'ar' ? 'أنت' : 'You') : 'AI'}
+              {result === 'win' ? t('you') : t('aiPlayer')}
             </span>
           </p>
           <p className="font-mono text-sm text-muted-foreground mb-1">
