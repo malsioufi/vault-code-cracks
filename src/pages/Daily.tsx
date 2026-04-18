@@ -10,6 +10,8 @@ import {
 import { evaluateGuess, getDigitStatuses, type GuessEntry } from '@/game/engine';
 import DigitInput from '@/components/game/DigitInput';
 import GuessHistory from '@/components/game/GuessHistory';
+import DailyLeaderboard from '@/components/game/DailyLeaderboard';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 function formatCountdown(ms: number): string {
@@ -23,6 +25,7 @@ function formatCountdown(ms: number): string {
 const Daily: React.FC = () => {
   const navigate = useNavigate();
   const { t, lang, setLang } = useLanguage();
+  const { user } = useAuth();
   const { config, todayRecord, stats, loading, isSignedIn, saveResult } = useDailyPuzzle();
   const [history, setHistory] = useState<GuessEntry[]>([]);
   const [gameOver, setGameOver] = useState(false);
@@ -247,6 +250,13 @@ const Daily: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Leaderboard */}
+      <DailyLeaderboard
+        date={config.date}
+        currentUserId={user?.id ?? null}
+        hasFinished={gameOver && won}
+      />
 
       {/* History */}
       <div className="w-full max-w-md">

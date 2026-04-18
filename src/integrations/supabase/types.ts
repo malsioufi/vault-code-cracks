@@ -265,6 +265,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_daily_leaderboard: {
+        Args: { _date?: string }
+        Returns: {
+          attempts_used: number
+          display_name: string
+          finished_at: string
+          is_guest: boolean
+          rank: number
+          user_id: string
+        }[]
+      }
       get_daily_streak: {
         Args: { _user_id: string }
         Returns: {
