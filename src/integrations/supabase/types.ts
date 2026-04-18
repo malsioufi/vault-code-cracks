@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_results: {
+        Row: {
+          allow_duplicates: boolean
+          attempts_used: number
+          code_length: number
+          created_at: string
+          guesses: Json
+          max_tries: number
+          puzzle_date: string
+          user_id: string
+          won: boolean
+        }
+        Insert: {
+          allow_duplicates: boolean
+          attempts_used: number
+          code_length: number
+          created_at?: string
+          guesses?: Json
+          max_tries: number
+          puzzle_date: string
+          user_id: string
+          won: boolean
+        }
+        Update: {
+          allow_duplicates?: boolean
+          attempts_used?: number
+          code_length?: number
+          created_at?: string
+          guesses?: Json
+          max_tries?: number
+          puzzle_date?: string
+          user_id?: string
+          won?: boolean
+        }
+        Relationships: []
+      }
       guesses: {
         Row: {
           created_at: string
@@ -229,6 +265,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_daily_streak: {
+        Args: { _user_id: string }
+        Returns: {
+          best_streak: number
+          current_streak: number
+          total_played: number
+          total_won: number
+        }[]
+      }
       is_room_participant: {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean
