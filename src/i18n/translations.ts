@@ -230,6 +230,18 @@ const translations = {
     shareCopied: 'تم نسخ النتيجة',
     shareFailed: 'تعذّر مشاركة النتيجة',
     signInForCloudStreak: 'سجّل الدخول لحفظ سلسلتك عبر الأجهزة.',
+    // Winner / rematch
+    winnerIs: 'الفائز',
+    youWonShort: 'لقد فزت!',
+    youLostShort: 'لقد خسرت',
+    drawTitle: 'تعادل',
+    rematch: 'مباراة إعادة',
+    rematchSent: 'تم إرسال طلب الإعادة — بانتظار الخصم...',
+    rematchInviteTitle: 'طلب مباراة إعادة',
+    rematchInviteBody: 'يريد خصمك مباراة إعادة بنفس الإعدادات.',
+    accept: 'قبول',
+    decline: 'رفض',
+    playAgain: 'العب مجدداً',
   },
 } as const;
 
