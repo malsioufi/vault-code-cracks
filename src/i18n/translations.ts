@@ -97,6 +97,18 @@ const translations = {
     forfeitConfirm: 'Forfeit this match? Your opponent will win.',
     mustSignIn: 'Sign in to access this room',
     roomNotFound: 'Room not found',
+    // Daily puzzle
+    dailyPuzzle: 'Daily Puzzle',
+    dailySubtitle: 'One puzzle. One chance. Resets at UTC midnight.',
+    streak: 'Streak',
+    bestStreak: 'Best',
+    played: 'Played',
+    wins: 'Wins',
+    nextPuzzleIn: 'Next puzzle in',
+    shareResult: 'Share Result',
+    shareCopied: 'Result copied to clipboard',
+    shareFailed: 'Could not share result',
+    signInForCloudStreak: 'Sign in to save your streak across devices.',
   },
   ar: {
     title: 'كاسر الخزنة',
@@ -194,6 +206,18 @@ const translations = {
     forfeitConfirm: 'انسحب من هذه المباراة؟ سيفوز الخصم.',
     mustSignIn: 'سجل الدخول للوصول لهذه الغرفة',
     roomNotFound: 'الغرفة غير موجودة',
+    // Daily puzzle
+    dailyPuzzle: 'اللغز اليومي',
+    dailySubtitle: 'لغز واحد. فرصة واحدة. يُعاد تعيينه عند منتصف الليل بتوقيت UTC.',
+    streak: 'سلسلة',
+    bestStreak: 'الأفضل',
+    played: 'لُعب',
+    wins: 'انتصارات',
+    nextPuzzleIn: 'اللغز التالي خلال',
+    shareResult: 'شارك النتيجة',
+    shareCopied: 'تم نسخ النتيجة',
+    shareFailed: 'تعذّر مشاركة النتيجة',
+    signInForCloudStreak: 'سجّل الدخول لحفظ سلسلتك عبر الأجهزة.',
   },
 } as const;
 

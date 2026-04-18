@@ -62,6 +62,12 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
         >
           {t('onlineMode')}
         </button>
+        <button
+          onClick={() => navigate('/daily')}
+          className="w-full py-4 rounded-lg bg-card cyber-border font-mono text-lg text-warning hover:shadow-[0_0_20px_hsl(var(--warning)/0.5)] transition-all duration-300"
+        >
+          🗓️ {t('dailyPuzzle')}
+        </button>
       </div>
 
       {/* Settings Panel */}
