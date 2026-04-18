@@ -68,6 +68,12 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
         >
           🗓️ {t('dailyPuzzle')}
         </button>
+        <button
+          onClick={() => navigate('/stats')}
+          className="w-full py-3 rounded-lg bg-card cyber-border font-mono text-sm text-muted-foreground hover:text-primary transition-all duration-300"
+        >
+          📊 {t('statsMenu')}
+        </button>
       </div>
 
       {/* Settings Panel */}

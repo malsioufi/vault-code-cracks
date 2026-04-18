@@ -10,6 +10,7 @@ import Online from "./pages/Online.tsx";
 import Room from "./pages/Room.tsx";
 import Auth from "./pages/Auth.tsx";
 import Daily from "./pages/Daily.tsx";
+import Stats from "./pages/Stats.tsx";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/online" element={<Online />} />
             <Route path="/daily" element={<Daily />} />
+            <Route path="/stats" element={<Stats />} />
             <Route path="/room/:code" element={<Room />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
