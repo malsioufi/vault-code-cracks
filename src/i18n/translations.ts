@@ -291,6 +291,13 @@ const translations = {
     guestNoStats: 'الإحصائيات للحسابات فقط',
     createAccountToTrack: 'أنشئ حساباً مجانياً لتتبّع انتصاراتك وهزائمك وسلاسلك عبر الأجهزة.',
     statsMenu: 'إحصائياتي',
+    // Leaderboard
+    leaderboardToday: 'لوحة الصدارة اليوم',
+    top20: 'أفضل 20',
+    noSolversYet: 'لم يحلّها أحد بعد اليوم. كن الأول!',
+    triesShort: 'محاولات',
+    youTag: 'أنت',
+    guestTag: 'ضيف',
   },
 } as const;
 
