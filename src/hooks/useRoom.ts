@@ -29,10 +29,18 @@ interface Guess {
   created_at: string;
 }
 
+export interface RematchEvent {
+  newRoomCode: string;
+  newRoomId: string;
+  fromUserId: string;
+}
+
 export function useRoom(code: string | undefined, userId: string | undefined) {
   const [room, setRoom] = useState<Room | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [mySecret, setMySecret] = useState<number[] | null>(null);
+  const [profiles, setProfiles] = useState<Record<string, string>>({});
+  const [rematchInvite, setRematchInvite] = useState<RematchEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const roomIdRef = useRef<string | null>(null);
@@ -55,6 +63,9 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
       }
       setRoom(data as Room);
       roomIdRef.current = data.id;
+      // Reset rematch invite when entering a new room
+      setRematchInvite(null);
+
       // Fetch guesses
       const { data: gs } = await supabase
         .from('guesses')
@@ -62,6 +73,7 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
         .eq('room_id', data.id)
         .order('created_at', { ascending: true });
       if (!cancelled && gs) setGuesses(gs as Guess[]);
+
       // Fetch own secret
       const { data: sec } = await supabase
         .from('room_secrets')
@@ -70,6 +82,21 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
         .eq('player_id', userId)
         .maybeSingle();
       if (!cancelled && sec) setMySecret(sec.secret as number[]);
+
+      // Fetch participant display names
+      const ids = [data.host_id, data.guest_id].filter(Boolean) as string[];
+      if (ids.length) {
+        const { data: profs } = await supabase
+          .from('profiles')
+          .select('id, display_name')
+          .in('id', ids);
+        if (!cancelled && profs) {
+          const map: Record<string, string> = {};
+          for (const p of profs) map[p.id as string] = p.display_name as string;
+          setProfiles(map);
+        }
+      }
+
       setLoading(false);
     };
 
@@ -81,7 +108,7 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
 
   // Realtime subscriptions
   useEffect(() => {
-    if (!room) return;
+    if (!room || !userId) return;
     const roomId = room.id;
 
     const channel = supabase
@@ -89,19 +116,47 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` },
-        (payload) => setRoom(payload.new as Room),
+        async (payload) => {
+          const newRoom = payload.new as Room;
+          setRoom(newRoom);
+          // If guest just joined and we don't have their profile yet, fetch it.
+          if (newRoom.guest_id && !profiles[newRoom.guest_id]) {
+            const { data: p } = await supabase
+              .from('profiles')
+              .select('id, display_name')
+              .eq('id', newRoom.guest_id)
+              .maybeSingle();
+            if (p) setProfiles((prev) => ({ ...prev, [p.id as string]: p.display_name as string }));
+          }
+        },
       )
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'guesses', filter: `room_id=eq.${roomId}` },
         (payload) => setGuesses((prev) => [...prev, payload.new as Guess]),
       )
+      .on('broadcast', { event: 'rematch' }, ({ payload }) => {
+        const evt = payload as RematchEvent;
+        // Ignore own broadcast
+        if (evt.fromUserId === userId) return;
+        setRematchInvite(evt);
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [room?.id]);
+  }, [room?.id, userId]);
 
-  return { room, guesses, mySecret, setMySecret, loading, error };
+  return {
+    room,
+    guesses,
+    mySecret,
+    setMySecret,
+    profiles,
+    rematchInvite,
+    clearRematchInvite: () => setRematchInvite(null),
+    loading,
+    error,
+  };
 }

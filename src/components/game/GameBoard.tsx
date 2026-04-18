@@ -21,7 +21,10 @@ const TURN_TIME = 30;
 
 const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const { t } = useLanguage();
-  const [secret] = useState(() => generateSecret(config.codeLength, config.allowDuplicates));
+  const [gameId, setGameId] = useState(0);
+  const [secret, setSecret] = useState<number[]>(() =>
+    generateSecret(config.codeLength, config.allowDuplicates),
+  );
   const [playerSecret, setPlayerSecret] = useState<number[]>([]);
   const [settingSecret, setSettingSecret] = useState(config.botMode === 'active');
   const [playerHistory, setPlayerHistory] = useState<GuessEntry[]>([]);
@@ -31,6 +34,19 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const [timer, setTimer] = useState(TURN_TIME);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const handlePlayAgain = useCallback(() => {
+    setSecret(generateSecret(config.codeLength, config.allowDuplicates));
+    setPlayerSecret([]);
+    setSettingSecret(config.botMode === 'active');
+    setPlayerHistory([]);
+    setAiHistory([]);
+    setGameOver(false);
+    setResult(null);
+    setTimer(TURN_TIME);
+    setIsPlayerTurn(true);
+    setGameId((g) => g + 1);
+  }, [config]);
 
   const triesLeft = config.maxTries !== null ? config.maxTries - playerHistory.length : null;
 
@@ -196,7 +212,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
       {gameOver && (
         <div className="w-full max-w-md mb-6 p-6 rounded-lg bg-card cyber-border text-center scanline">
           <h2
-            className={`font-mono text-2xl font-bold mb-2 ${
+            className={`font-mono text-2xl font-bold mb-1 ${
               result === 'win' ? 'text-primary text-glow-primary' : 'text-destructive'
             }`}
           >
@@ -206,10 +222,16 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
               ? t('aiWins')
               : t('youLose')}
           </h2>
+          <p className="font-mono text-sm text-muted-foreground mb-3">
+            🏆 {t('winnerIs')}:{' '}
+            <span className={result === 'win' ? 'text-primary text-glow-primary' : 'text-destructive'}>
+              {result === 'win' ? t('you') : t('aiPlayer')}
+            </span>
+          </p>
           <p className="font-mono text-sm text-muted-foreground mb-1">
             {t('secretWas')}:
           </p>
-          <div className="flex gap-2 justify-center mb-4">
+          <div dir="ltr" className="flex gap-2 justify-center mb-4">
             {secret.map((d, i) => (
               <span
                 key={i}
@@ -219,18 +241,18 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
               </span>
             ))}
           </div>
-          <div className="flex gap-3 justify-center">
+          <div className="flex flex-col gap-2">
             <button
-              onClick={onBack}
-              className="px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+              onClick={handlePlayAgain}
+              className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-mono text-sm font-bold glow-primary hover:opacity-90 transition-all"
             >
-              {t('backToMenu')}
+              🔁 {t('playAgain')}
             </button>
             <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-mono text-sm glow-primary hover:opacity-90 transition-all"
+              onClick={onBack}
+              className="w-full px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
             >
-              {t('newGame')}
+              {t('backToMenu')}
             </button>
           </div>
         </div>
@@ -241,6 +263,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
         {!gameOver && (
           <>
             <DigitInput
+              key={gameId}
               codeLength={config.codeLength}
               allowDuplicates={config.allowDuplicates}
               onSubmit={handleGuess}
