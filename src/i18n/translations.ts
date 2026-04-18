@@ -109,6 +109,18 @@ const translations = {
     shareCopied: 'Result copied to clipboard',
     shareFailed: 'Could not share result',
     signInForCloudStreak: 'Sign in to save your streak across devices.',
+    // Winner / rematch
+    winnerIs: 'Winner',
+    youWonShort: 'You won!',
+    youLostShort: 'You lost',
+    drawTitle: "It's a Draw",
+    rematch: 'Rematch',
+    rematchSent: 'Rematch sent — waiting for opponent...',
+    rematchInviteTitle: 'Rematch invite',
+    rematchInviteBody: 'Your opponent wants a rematch with the same settings.',
+    accept: 'Accept',
+    decline: 'Decline',
+    playAgain: 'Play Again',
   },
   ar: {
     title: 'كاسر الخزنة',
