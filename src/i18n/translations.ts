@@ -142,6 +142,13 @@ const translations = {
     guestNoStats: 'Stats are for accounts only',
     createAccountToTrack: 'Create a free account to track your wins, losses, and streaks across devices.',
     statsMenu: 'My Stats',
+    // Leaderboard
+    leaderboardToday: "Today's Leaderboard",
+    top20: 'Top 20',
+    noSolversYet: 'No one has cracked it yet today. Be the first!',
+    triesShort: 'tries',
+    youTag: 'you',
+    guestTag: 'guest',
   },
   ar: {
     title: 'كاسر الخزنة',
