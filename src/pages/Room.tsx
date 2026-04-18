@@ -319,17 +319,39 @@ const Room: React.FC = () => {
       {/* Game Over */}
       {gameOver && (
         <div className="w-full max-w-md mb-6 p-6 rounded-lg bg-card cyber-border text-center scanline">
-          <h2
-            className={`font-mono text-2xl font-bold mb-2 ${
-              room.winner_id === user.id ? 'text-primary text-glow-primary' : 'text-destructive'
-            }`}
-          >
-            {room.winner_id === user.id
+          {(() => {
+            const iWon = room.winner_id === user.id;
+            const isDraw = !room.winner_id && room.status === 'finished';
+            const winnerName = room.winner_id
+              ? (profiles[room.winner_id] || (room.winner_id === user.id ? (profile?.display_name ?? 'You') : 'Opponent'))
+              : null;
+            const headlineKey = iWon
               ? t('youWin')
+              : isDraw
+              ? t('drawTitle')
               : room.status === 'abandoned'
               ? t('opponentForfeited')
-              : t('opponentWins')}
-          </h2>
+              : t('opponentWins');
+            return (
+              <>
+                <h2
+                  className={`font-mono text-2xl font-bold mb-1 ${
+                    iWon ? 'text-primary text-glow-primary' : isDraw ? 'text-warning' : 'text-destructive'
+                  }`}
+                >
+                  {headlineKey}
+                </h2>
+                {winnerName && !isDraw && (
+                  <p className="font-mono text-sm text-muted-foreground mb-3">
+                    🏆 {t('winnerIs')}:{' '}
+                    <span className={iWon ? 'text-primary text-glow-primary' : 'text-foreground'}>
+                      {winnerName}
+                    </span>
+                  </p>
+                )}
+              </>
+            );
+          })()}
           {opponentSecret && (
             <>
               <p className="font-mono text-sm text-muted-foreground mb-1">{t('opponentSecret')}</p>
@@ -345,13 +367,46 @@ const Room: React.FC = () => {
               </div>
             </>
           )}
-          <div className="flex gap-3 justify-center">
+          <div className="flex flex-col gap-2 items-stretch">
+            <button
+              onClick={handleRematch}
+              disabled={rematchPending}
+              className="w-full px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-mono text-sm font-bold glow-secondary hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {rematchPending ? t('rematchSent') : `🔁 ${t('rematch')}`}
+            </button>
             <button
               onClick={() => navigate('/online')}
-              className="px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+              className="w-full px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
             >
               {t('backToMenu')}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Incoming Rematch Invite */}
+      {rematchInvite && rematchInvite.newRoomCode !== room.code && (
+        <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
+          <div className="w-full max-w-md p-4 rounded-lg bg-card cyber-border glow-secondary text-center space-y-3">
+            <p className="font-mono text-sm text-secondary text-glow-secondary">
+              🔁 {t('rematchInviteTitle')}
+            </p>
+            <p className="font-mono text-xs text-muted-foreground">{t('rematchInviteBody')}</p>
+            <div className="flex gap-2">
+              <button
+                onClick={clearRematchInvite}
+                className="flex-1 py-2 rounded bg-muted text-muted-foreground font-mono text-xs"
+              >
+                {t('decline')}
+              </button>
+              <button
+                onClick={handleAcceptRematch}
+                className="flex-1 py-2 rounded bg-primary text-primary-foreground font-mono text-xs font-bold glow-primary"
+              >
+                {t('accept')}
+              </button>
+            </div>
           </div>
         </div>
       )}
