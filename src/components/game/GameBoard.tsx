@@ -263,6 +263,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
         {!gameOver && (
           <>
             <DigitInput
+              key={gameId}
               codeLength={config.codeLength}
               allowDuplicates={config.allowDuplicates}
               onSubmit={handleGuess}
