@@ -18,7 +18,7 @@ const Room: React.FC = () => {
   const { t } = useLanguage();
   const { user, profile, loading: authLoading } = useAuth();
 
-  const { room, guesses, mySecret, setMySecret, loading, error } = useRoom(code, user?.id);
+  const { room, guesses, mySecret, setMySecret, profiles, rematchInvite, clearRematchInvite, loading, error } = useRoom(code, user?.id);
   const isPlaying = room?.status === 'playing';
   const { opponentDisconnected, opponentLastSeen } = usePresence(room?.id, isPlaying);
 
@@ -26,6 +26,7 @@ const Room: React.FC = () => {
   const [revealedSecrets, setRevealedSecrets] = useState<Record<string, number[]>>({});
   const [timer, setTimer] = useState(TURN_TIME);
   const [reconnectCountdown, setReconnectCountdown] = useState<number | null>(null);
+  const [rematchPending, setRematchPending] = useState(false);
 
   const isHost = room?.host_id === user?.id;
   const opponentId = room ? (isHost ? room.guest_id : room.host_id) : null;
@@ -109,6 +110,31 @@ const Room: React.FC = () => {
     if (!confirm(t('forfeitConfirm'))) return;
     await supabase.functions.invoke('forfeit', { body: { roomId: room.id } });
   };
+
+  const handleRematch = useCallback(async () => {
+    if (!room || rematchPending) return;
+    setRematchPending(true);
+    const { data, error: e } = await supabase.functions.invoke('rematch', {
+      body: { previousRoomId: room.id },
+    });
+    if (e || data?.error) {
+      setRematchPending(false);
+      toast.error(data?.error || e?.message || 'Rematch failed');
+      return;
+    }
+    if (data?.room?.code) {
+      navigate(`/room/${data.room.code}`);
+    } else {
+      setRematchPending(false);
+    }
+  }, [room, rematchPending, navigate]);
+
+  const handleAcceptRematch = useCallback(() => {
+    if (!rematchInvite) return;
+    const code = rematchInvite.newRoomCode;
+    clearRematchInvite();
+    navigate(`/room/${code}`);
+  }, [rematchInvite, clearRematchInvite, navigate]);
 
   const copyShare = () => {
     if (!room) return;
