@@ -190,8 +190,12 @@ const Daily: React.FC = () => {
         )}
       </div>
 
-      {/* History — scrollable, takes remaining space, always visible above input */}
-      <div className="w-full max-w-md flex-1 min-h-0 overflow-y-auto mb-2">
+      {/* History — scrollable, takes remaining space, always visible above input.
+          Reserves bottom space (~190px) so the fixed input never covers the latest row. */}
+      <div
+        className="w-full max-w-md flex-1 min-h-0 overflow-y-auto mb-2"
+        style={{ paddingBottom: !gameOver && triesLeft > 0 ? '190px' : undefined }}
+      >
         {history.length === 0 ? (
           <p className="font-mono text-xs text-muted-foreground text-center py-6">
             {t('attempt')} 1/{config.maxTries}
@@ -237,18 +241,22 @@ const Daily: React.FC = () => {
       )}
 
       {/* Input pinned to bottom so history above always stays visible */}
+      {/* Input fixed to viewport bottom so it stays above the OS keyboard
+          and doesn't push the history out of view when focused. */}
       {!gameOver && triesLeft > 0 && (
-        <div className="w-full max-w-md shrink-0 bg-background pt-1">
-          <div className="flex justify-between font-mono text-xs text-muted-foreground mb-2">
-            <span>{t('attempt')} {history.length + 1}/{config.maxTries}</span>
-            <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>
+        <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
+          <div className="w-full max-w-md mx-auto">
+            <div className="flex justify-between font-mono text-xs text-muted-foreground mb-2">
+              <span>{t('attempt')} {history.length + 1}/{config.maxTries}</span>
+              <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>
+            </div>
+            <DigitInput
+              codeLength={config.codeLength}
+              allowDuplicates={config.allowDuplicates}
+              onSubmit={handleGuess}
+              disabled={gameOver}
+            />
           </div>
-          <DigitInput
-            codeLength={config.codeLength}
-            allowDuplicates={config.allowDuplicates}
-            onSubmit={handleGuess}
-            disabled={gameOver}
-          />
         </div>
       )}
     </div>
