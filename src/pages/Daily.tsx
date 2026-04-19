@@ -131,7 +131,7 @@ const Daily: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
+    <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
       {/* Language Toggle */}
       <div className="fixed top-4 end-4 z-50">
         <button
@@ -143,7 +143,7 @@ const Daily: React.FC = () => {
       </div>
 
       {/* Header */}
-      <div className="w-full max-w-md flex items-center justify-between mb-4 mt-2">
+      <div className="w-full max-w-md flex items-center justify-between mb-2 mt-1 shrink-0">
         <button
           onClick={() => navigate('/')}
           className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
@@ -154,61 +154,34 @@ const Daily: React.FC = () => {
       </div>
 
       {/* Title */}
-      <div className="w-full max-w-md text-center mb-4">
-        <h1 className="font-mono text-2xl font-bold text-secondary text-glow-secondary">
+      <div className="w-full max-w-md text-center mb-2 shrink-0">
+        <h1 className="font-mono text-xl font-bold text-secondary text-glow-secondary">
           {t('dailyPuzzle')}
         </h1>
-        <p className="font-mono text-xs text-muted-foreground mt-1">{t('dailySubtitle')}</p>
       </div>
 
-      {/* Today's config card */}
-      <div className="w-full max-w-md mb-4 p-4 rounded-lg bg-card cyber-border scanline">
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div>
-            <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-              {t('codeLength')}
-            </div>
-            <div className="font-mono text-lg text-primary text-glow-primary">{config.codeLength}</div>
-          </div>
-          <div>
-            <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-              {t('allowDuplicates')}
-            </div>
-            <div className={`font-mono text-lg ${config.allowDuplicates ? 'text-warning' : 'text-muted-foreground'}`}>
+      {/* Compact info strip: settings + streak collapsed into one row */}
+      <div className="w-full max-w-md mb-2 p-2 rounded-lg bg-card cyber-border shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 font-mono text-[11px]">
+          <span className="text-muted-foreground">
+            {t('codeLength')}: <span className="text-primary font-bold">{config.codeLength}</span>
+          </span>
+          <span className="text-muted-foreground">
+            {t('allowDuplicates')}:{' '}
+            <span className={config.allowDuplicates ? 'text-warning font-bold' : 'text-muted-foreground'}>
               {config.allowDuplicates ? t('on') : t('off')}
-            </div>
-          </div>
-          <div>
-            <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
-              {t('maxTries')}
-            </div>
-            <div className="font-mono text-lg text-primary text-glow-primary">{config.maxTries}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Streak strip */}
-      <div className="w-full max-w-md mb-4 p-3 rounded-lg bg-muted/40 cyber-border">
-        <div className="grid grid-cols-4 gap-2 text-center">
-          <div>
-            <div className="font-mono text-[10px] text-muted-foreground uppercase">{t('streak')}</div>
-            <div className="font-mono text-lg text-primary">{stats.current}</div>
-          </div>
-          <div>
-            <div className="font-mono text-[10px] text-muted-foreground uppercase">{t('bestStreak')}</div>
-            <div className="font-mono text-lg text-secondary">{stats.best}</div>
-          </div>
-          <div>
-            <div className="font-mono text-[10px] text-muted-foreground uppercase">{t('played')}</div>
-            <div className="font-mono text-lg text-foreground">{stats.played}</div>
-          </div>
-          <div>
-            <div className="font-mono text-[10px] text-muted-foreground uppercase">{t('wins')}</div>
-            <div className="font-mono text-lg text-foreground">{stats.won}</div>
-          </div>
+            </span>
+          </span>
+          <span className="text-muted-foreground">
+            {t('maxTries')}: <span className="text-primary font-bold">{config.maxTries}</span>
+          </span>
+          <span className="text-muted-foreground">
+            🔥 <span className="text-primary font-bold">{stats.current}</span>
+            <span className="opacity-60"> / {stats.best}</span>
+          </span>
         </div>
         {!isSignedIn && (
-          <p className="mt-2 font-mono text-[10px] text-muted-foreground text-center">
+          <p className="mt-1 font-mono text-[10px] text-muted-foreground text-center">
             {t('signInForCloudStreak')}{' '}
             <button onClick={() => navigate('/auth')} className="text-secondary underline">
               {t('signIn')}
@@ -217,8 +190,55 @@ const Daily: React.FC = () => {
         )}
       </div>
 
+      {/* History — scrollable, takes remaining space, always visible above input */}
+      <div className="w-full max-w-md flex-1 min-h-0 overflow-y-auto mb-2">
+        {history.length === 0 ? (
+          <p className="font-mono text-xs text-muted-foreground text-center py-6">
+            {t('attempt')} 1/{config.maxTries}
+          </p>
+        ) : (
+          <GuessHistory
+            history={history}
+            codeLength={config.codeLength}
+            secret={config.secret}
+            gameOver={gameOver}
+          />
+        )}
+      </div>
+
+      {/* Game over panel */}
+      {gameOver && (
+        <div className="w-full max-w-md mb-2 p-4 rounded-lg bg-card cyber-border text-center scanline shrink-0">
+          <h2 className={`font-mono text-lg font-bold mb-2 ${won ? 'text-primary text-glow-primary' : 'text-destructive'}`}>
+            {won ? t('youWin') : t('youLose')}
+          </h2>
+          <p className="font-mono text-[11px] text-muted-foreground mb-1">{t('secretWas')}:</p>
+          <div className="flex gap-1.5 justify-center mb-2">
+            {config.secret.map((d, i) => (
+              <span
+                key={i}
+                className="w-8 h-8 flex items-center justify-center rounded bg-primary text-primary-foreground font-mono text-sm font-bold"
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+          <div className="font-mono text-[11px] text-muted-foreground mb-2">
+            {t('nextPuzzleIn')}:{' '}
+            <span className="text-secondary text-glow-secondary">{formatCountdown(countdown)}</span>
+          </div>
+          <button
+            onClick={handleShare}
+            className="w-full py-2 rounded-lg bg-secondary text-secondary-foreground font-mono text-sm font-bold glow-secondary hover:opacity-90 transition-all"
+          >
+            📋 {t('shareResult')}
+          </button>
+        </div>
+      )}
+
+      {/* Input pinned to bottom so history above always stays visible */}
       {!gameOver && triesLeft > 0 && (
-        <div className="w-full max-w-md mb-3">
+        <div className="w-full max-w-md shrink-0 bg-background pt-1">
           <div className="flex justify-between font-mono text-xs text-muted-foreground mb-2">
             <span>{t('attempt')} {history.length + 1}/{config.maxTries}</span>
             <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>
@@ -231,45 +251,6 @@ const Daily: React.FC = () => {
           />
         </div>
       )}
-
-      {gameOver && (
-        <div className="w-full max-w-md mb-4 p-5 rounded-lg bg-card cyber-border text-center scanline">
-          <h2 className={`font-mono text-xl font-bold mb-2 ${won ? 'text-primary text-glow-primary' : 'text-destructive'}`}>
-            {won ? t('youWin') : t('youLose')}
-          </h2>
-          <p className="font-mono text-xs text-muted-foreground mb-1">{t('secretWas')}:</p>
-          <div className="flex gap-1.5 justify-center mb-3">
-            {config.secret.map((d, i) => (
-              <span
-                key={i}
-                className="w-9 h-9 flex items-center justify-center rounded bg-primary text-primary-foreground font-mono text-base font-bold"
-              >
-                {d}
-              </span>
-            ))}
-          </div>
-          <div className="font-mono text-xs text-muted-foreground mb-2">
-            {t('nextPuzzleIn')}:{' '}
-            <span className="text-secondary text-glow-secondary">{formatCountdown(countdown)}</span>
-          </div>
-          <button
-            onClick={handleShare}
-            className="w-full mt-2 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-mono text-sm font-bold glow-secondary hover:opacity-90 transition-all"
-          >
-            📋 {t('shareResult')}
-          </button>
-        </div>
-      )}
-
-      {/* History */}
-      <div className="w-full max-w-md">
-        <GuessHistory
-          history={history}
-          codeLength={config.codeLength}
-          secret={config.secret}
-          gameOver={gameOver}
-        />
-      </div>
     </div>
   );
 };
