@@ -190,8 +190,12 @@ const Daily: React.FC = () => {
         )}
       </div>
 
-      {/* History — scrollable, takes remaining space, always visible above input */}
-      <div className="w-full max-w-md flex-1 min-h-0 overflow-y-auto mb-2">
+      {/* History — scrollable, takes remaining space, always visible above input.
+          Reserves bottom space (~190px) so the fixed input never covers the latest row. */}
+      <div
+        className="w-full max-w-md flex-1 min-h-0 overflow-y-auto mb-2"
+        style={{ paddingBottom: !gameOver && triesLeft > 0 ? '190px' : undefined }}
+      >
         {history.length === 0 ? (
           <p className="font-mono text-xs text-muted-foreground text-center py-6">
             {t('attempt')} 1/{config.maxTries}
