@@ -33,14 +33,15 @@ const Daily: React.FC = () => {
   const [countdown, setCountdown] = useState(msUntilNextUtcMidnight());
 
   // Hydrate from existing record (already played today).
-  // Only hydrate ONCE on initial mount, before the user has interacted.
-  // After the user has submitted any guess (or hydration ran), we never
-  // overwrite local history — otherwise an effect re-run could replace the
-  // freshly-submitted feedback with a recomputed snapshot, which historically
-  // showed up as the result table looking "shifted by one row".
+  // Only hydrate ONCE, after the data hook finishes loading and BEFORE the
+  // user has submitted any guess locally. After that, we never overwrite
+  // local history — otherwise an effect re-run could replace freshly-submitted
+  // feedback with a recomputed snapshot, which historically showed up as the
+  // result table looking "shifted by one row".
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
     if (hydrated) return;
+    if (loading) return;
     if (history.length > 0) return;
     if (todayRecord) {
       const rebuilt: GuessEntry[] = todayRecord.guesses.map((g) => ({
@@ -52,7 +53,7 @@ const Daily: React.FC = () => {
       setWon(todayRecord.won);
     }
     setHydrated(true);
-  }, [todayRecord, config.secret, hydrated, history.length]);
+  }, [loading, todayRecord, config.secret, hydrated, history.length]);
 
   // Live countdown
   useEffect(() => {
