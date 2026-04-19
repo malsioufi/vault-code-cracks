@@ -251,13 +251,6 @@ const Daily: React.FC = () => {
         </div>
       )}
 
-      {/* Leaderboard */}
-      <DailyLeaderboard
-        date={config.date}
-        currentUserId={user?.id ?? null}
-        hasFinished={gameOver && won}
-      />
-
       {/* History */}
       <div className="w-full max-w-md">
         <GuessHistory

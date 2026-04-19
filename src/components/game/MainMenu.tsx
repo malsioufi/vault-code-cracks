@@ -2,14 +2,25 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { GameConfig } from '@/game/engine';
+import DailyLeaderboard from '@/components/game/DailyLeaderboard';
+import { useAuth } from '@/hooks/useAuth';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
 }
 
+const getUtcDateString = (): string => {
+  const now = new Date();
+  const yyyy = now.getUTCFullYear();
+  const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(now.getUTCDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
   const navigate = useNavigate();
   const { t, lang, setLang } = useLanguage();
+  const { user } = useAuth();
   const [codeLength, setCodeLength] = React.useState(4);
   const [allowDuplicates, setAllowDuplicates] = React.useState(false);
   const [difficulty, setDifficulty] = React.useState<'easy' | 'medium' | 'hard'>('medium');
@@ -75,6 +86,13 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
           📊 {t('statsMenu')}
         </button>
       </div>
+
+      {/* Daily Leaderboard */}
+      <DailyLeaderboard
+        date={getUtcDateString()}
+        currentUserId={user?.id ?? null}
+        hasFinished={false}
+      />
 
       {/* Settings Panel */}
       <div id="settings-panel" className="w-full max-w-sm mt-6 p-5 rounded-lg bg-card cyber-border scanline space-y-5">
