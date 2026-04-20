@@ -80,6 +80,20 @@ const Daily: React.FC = () => {
     }
   };
 
+  // Closeness: best (matches + 0.5 * shifts) across all guesses, as % of code length.
+  // 100% only when fully solved. Anything <100% counts as a loss.
+  const closeness = useMemo(() => {
+    if (history.length === 0) return 0;
+    const len = config.codeLength;
+    let bestScore = 0;
+    for (const h of history) {
+      const score = h.feedback.matches + 0.5 * h.feedback.shifts;
+      if (score > bestScore) bestScore = score;
+    }
+    const pct = Math.round((bestScore / len) * 100);
+    return won ? 100 : Math.min(99, pct);
+  }, [history, config.codeLength, won]);
+
   const shareText = useMemo(() => {
     if (!gameOver) return '';
     const grid = buildShareGrid(
