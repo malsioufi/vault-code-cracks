@@ -32,8 +32,10 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const [gameOver, setGameOver] = useState(false);
   const [result, setResult] = useState<'win' | 'lose' | 'ai-win' | null>(null);
   const [timer, setTimer] = useState(TURN_TIME);
+  const [elapsed, setElapsed] = useState(0);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isPassive = config.botMode === 'passive';
 
   const handlePlayAgain = useCallback(() => {
     setSecret(generateSecret(config.codeLength, config.allowDuplicates));
@@ -44,32 +46,43 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
     setGameOver(false);
     setResult(null);
     setTimer(TURN_TIME);
+    setElapsed(0);
     setIsPlayerTurn(true);
     setGameId((g) => g + 1);
   }, [config]);
 
   const triesLeft = config.maxTries !== null ? config.maxTries - playerHistory.length : null;
 
-  // Timer
+  // Timer: count-up for passive bot, count-down per turn for active bot
   useEffect(() => {
     if (gameOver || settingSecret) return;
-    timerRef.current = setInterval(() => {
-      setTimer((prev) => {
-        if (prev <= 1) {
-          if (isPlayerTurn) {
-            if (config.botMode === 'active') {
+    if (isPassive) {
+      timerRef.current = setInterval(() => {
+        setElapsed((e) => e + 1);
+      }, 1000);
+    } else {
+      timerRef.current = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            if (isPlayerTurn) {
               setIsPlayerTurn(false);
             }
+            return TURN_TIME;
           }
-          return TURN_TIME;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+          return prev - 1;
+        });
+      }, 1000);
+    }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [gameOver, isPlayerTurn, config.botMode, settingSecret]);
+  }, [gameOver, isPlayerTurn, isPassive, settingSecret]);
+
+  const formatElapsed = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  };
 
   // AI turn
   useEffect(() => {
