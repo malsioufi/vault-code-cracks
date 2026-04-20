@@ -64,7 +64,9 @@ const Daily: React.FC = () => {
   const triesLeft = config.maxTries - history.length;
 
   // Closeness across an arbitrary list of guesses, given a known win flag.
-  // Uses (matches + 0.5 * shifts) / codeLength. 100% only on wins; otherwise capped at 99%.
+  // Per-guess score = (matches + 0.5 * shifts) / codeLength.
+  // Final closeness = average of (best score, mean score across all guesses).
+  // 100% only on wins; otherwise capped at 99%.
   const computeCloseness = (
     entries: GuessEntry[],
     didWin: boolean,
@@ -72,11 +74,15 @@ const Daily: React.FC = () => {
   ): number => {
     if (entries.length === 0) return 0;
     let bestScore = 0;
+    let sumScores = 0;
     for (const h of entries) {
       const score = h.feedback.matches + 0.5 * h.feedback.shifts;
       if (score > bestScore) bestScore = score;
+      sumScores += score;
     }
-    const pct = Math.round((bestScore / codeLength) * 100);
+    const bestPct = (bestScore / codeLength) * 100;
+    const avgPct = (sumScores / entries.length / codeLength) * 100;
+    const pct = Math.round((bestPct + avgPct) / 2);
     return didWin ? 100 : Math.min(99, pct);
   };
 
