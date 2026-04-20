@@ -23,6 +23,7 @@ interface DailyRow {
   attempts_used: number;
   max_tries: number;
   code_length: number;
+  closeness?: number;
 }
 
 interface Stats {
@@ -61,7 +62,7 @@ const Stats: React.FC = () => {
           .limit(50),
         supabase
           .from('daily_results')
-          .select('puzzle_date, won, attempts_used, max_tries, code_length')
+          .select('puzzle_date, won, attempts_used, max_tries, code_length, closeness')
           .eq('user_id', user.id)
           .order('puzzle_date', { ascending: false })
           .limit(30),
@@ -123,6 +124,15 @@ const Stats: React.FC = () => {
     const losses = daily.length - wins;
     const winRate = daily.length > 0 ? Math.round((wins / daily.length) * 100) : 0;
     return { played: daily.length, wins, losses, draws: 0, winRate };
+  }, [daily]);
+
+  const avgCloseness = useMemo(() => {
+    if (daily.length === 0) return 0;
+    const total = daily.reduce(
+      (sum, d) => sum + (typeof d.closeness === 'number' ? d.closeness : (d.won ? 100 : 0)),
+      0,
+    );
+    return Math.round(total / daily.length);
   }, [daily]);
 
   // ----- gated views -----
@@ -238,6 +248,20 @@ const Stats: React.FC = () => {
           <StatCell label={t('streak')} value={dailyStreak.current} valueClass="text-warning" />
           <StatCell label={t('bestStreak')} value={dailyStreak.best} valueClass="text-secondary text-glow-secondary" />
         </div>
+        {dailyStats.played > 0 && (
+          <div className="mt-3">
+            <div className="flex items-center justify-between font-mono text-[11px] text-muted-foreground mb-1">
+              <span>{t('avgCloseness')}</span>
+              <span className="text-secondary text-glow-secondary font-bold">{avgCloseness}%</span>
+            </div>
+            <div className="h-2 w-full rounded-full bg-muted overflow-hidden cyber-border">
+              <div
+                className="h-full bg-secondary transition-all"
+                style={{ width: `${avgCloseness}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Recent matches */}

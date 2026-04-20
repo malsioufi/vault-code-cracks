@@ -14,6 +14,7 @@ export interface DailyResultRecord {
   won: boolean;
   attemptsUsed: number;
   guesses: number[][];
+  closeness: number;
 }
 
 export interface StreakStats {
@@ -29,7 +30,7 @@ interface UseDailyPuzzleResult {
   stats: StreakStats;
   loading: boolean;
   isSignedIn: boolean;
-  saveResult: (won: boolean, guesses: number[][]) => Promise<void>;
+  saveResult: (won: boolean, guesses: number[][], closeness: number) => Promise<void>;
 }
 
 export function useDailyPuzzle(): UseDailyPuzzleResult {
@@ -44,7 +45,7 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
     const [{ data: row }, { data: streak }] = await Promise.all([
       supabase
         .from('daily_results')
-        .select('puzzle_date, won, attempts_used, guesses')
+        .select('puzzle_date, won, attempts_used, guesses, closeness')
         .eq('user_id', uid)
         .eq('puzzle_date', today)
         .maybeSingle(),
@@ -56,6 +57,7 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
         won: row.won as boolean,
         attemptsUsed: row.attempts_used as number,
         guesses: row.guesses as number[][],
+        closeness: Number((row as { closeness?: number }).closeness ?? (row.won ? 100 : 0)),
       });
     } else {
       setTodayRecord(null);
@@ -74,7 +76,17 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
   const loadLocal = useCallback(() => {
     const today = utcDateString();
     const rec = getLocalDailyRecord(today);
-    setTodayRecord(rec);
+    if (rec) {
+      setTodayRecord({
+        date: rec.date,
+        won: rec.won,
+        attemptsUsed: rec.attemptsUsed,
+        guesses: rec.guesses,
+        closeness: typeof rec.closeness === 'number' ? rec.closeness : (rec.won ? 100 : 0),
+      });
+    } else {
+      setTodayRecord(null);
+    }
     setStats(getLocalStreak());
   }, []);
 
@@ -98,13 +110,14 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
   }, [loadServer, loadLocal]);
 
-  const saveResult = useCallback(async (won: boolean, guesses: number[][]) => {
+  const saveResult = useCallback(async (won: boolean, guesses: number[][], closeness: number) => {
     const date = utcDateString();
     const rec: DailyResultRecord = {
       date,
       won,
       attemptsUsed: guesses.length,
       guesses,
+      closeness,
     };
     setTodayRecord(rec);
     if (userId) {
@@ -117,10 +130,11 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
         max_tries: config.maxTries,
         allow_duplicates: config.allowDuplicates,
         guesses,
-      });
+        closeness,
+      } as never);
       if (!error) await loadServer(userId);
     } else {
-      saveLocalDailyRecord(rec);
+      saveLocalDailyRecord({ date, won, attemptsUsed: guesses.length, guesses, closeness });
       setStats(getLocalStreak());
     }
   }, [userId, config, loadServer]);
