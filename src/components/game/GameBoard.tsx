@@ -205,20 +205,33 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
 
       {/* Timer Bar */}
       <div className="w-full max-w-md mb-6">
-        <div className="flex justify-between items-center mb-1">
-          <span className="font-mono text-xs text-muted-foreground">
-            {isPlayerTurn ? t('yourTurn') : t('aiTurn')}
-          </span>
-          <span className={`font-mono text-sm ${timer <= 10 ? 'text-destructive' : 'text-primary'}`}>
-            {timer}s
-          </span>
-        </div>
-        <div className="h-1 bg-muted rounded-full overflow-hidden">
-          <div
-            className={`h-full ${timerColor} transition-all duration-1000 ease-linear rounded-full`}
-            style={{ width: `${timerPercent}%` }}
-          />
-        </div>
+        {isPassive ? (
+          <div className="flex justify-between items-center">
+            <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider">
+              {t('elapsed') ?? 'Elapsed'}
+            </span>
+            <span className="font-mono text-sm text-primary text-glow-primary">
+              ⏱ {formatElapsed(elapsed)}
+            </span>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-mono text-xs text-muted-foreground">
+                {isPlayerTurn ? t('yourTurn') : t('aiTurn')}
+              </span>
+              <span className={`font-mono text-sm ${timer <= 10 ? 'text-destructive' : 'text-primary'}`}>
+                {timer}s
+              </span>
+            </div>
+            <div className="h-1 bg-muted rounded-full overflow-hidden">
+              <div
+                className={`h-full ${timerColor} transition-all duration-1000 ease-linear rounded-full`}
+                style={{ width: `${timerPercent}%` }}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Game Over Modal */}
