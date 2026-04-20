@@ -63,6 +63,23 @@ const Daily: React.FC = () => {
 
   const triesLeft = config.maxTries - history.length;
 
+  // Closeness across an arbitrary list of guesses, given a known win flag.
+  // Uses (matches + 0.5 * shifts) / codeLength. 100% only on wins; otherwise capped at 99%.
+  const computeCloseness = (
+    entries: GuessEntry[],
+    didWin: boolean,
+    codeLength: number,
+  ): number => {
+    if (entries.length === 0) return 0;
+    let bestScore = 0;
+    for (const h of entries) {
+      const score = h.feedback.matches + 0.5 * h.feedback.shifts;
+      if (score > bestScore) bestScore = score;
+    }
+    const pct = Math.round((bestScore / codeLength) * 100);
+    return didWin ? 100 : Math.min(99, pct);
+  };
+
   const handleGuess = (digits: number[]) => {
     if (gameOver) return;
     const feedback = evaluateGuess(digits, config.secret);
@@ -72,27 +89,21 @@ const Daily: React.FC = () => {
     if (feedback.matches === config.codeLength) {
       setGameOver(true);
       setWon(true);
-      void saveResult(true, next.map((e) => e.guess));
+      const c = computeCloseness(next, true, config.codeLength);
+      void saveResult(true, next.map((e) => e.guess), c);
     } else if (next.length >= config.maxTries) {
       setGameOver(true);
       setWon(false);
-      void saveResult(false, next.map((e) => e.guess));
+      const c = computeCloseness(next, false, config.codeLength);
+      void saveResult(false, next.map((e) => e.guess), c);
     }
   };
 
-  // Closeness: best (matches + 0.5 * shifts) across all guesses, as % of code length.
-  // 100% only when fully solved. Anything <100% counts as a loss.
-  const closeness = useMemo(() => {
-    if (history.length === 0) return 0;
-    const len = config.codeLength;
-    let bestScore = 0;
-    for (const h of history) {
-      const score = h.feedback.matches + 0.5 * h.feedback.shifts;
-      if (score > bestScore) bestScore = score;
-    }
-    const pct = Math.round((bestScore / len) * 100);
-    return won ? 100 : Math.min(99, pct);
-  }, [history, config.codeLength, won]);
+  // Live closeness for the UI (mirrors the same formula).
+  const closeness = useMemo(
+    () => computeCloseness(history, won, config.codeLength),
+    [history, config.codeLength, won],
+  );
 
   const shareText = useMemo(() => {
     if (!gameOver) return '';
@@ -111,10 +122,11 @@ const Daily: React.FC = () => {
       maxTries: config.maxTries,
       codeLength: config.codeLength,
       allowDuplicates: config.allowDuplicates,
+      closeness,
       grid,
       url: `${window.location.origin}/daily`,
     });
-  }, [gameOver, history, config, won]);
+  }, [gameOver, history, config, won, closeness]);
 
   const handleShare = async () => {
     if (!shareText) return;
