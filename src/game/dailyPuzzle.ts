@@ -112,12 +112,14 @@ export function buildShareText(opts: {
   maxTries: number;
   codeLength: number;
   allowDuplicates: boolean;
+  closeness: number;
   grid: string;
   url: string;
 }): string {
   const score = opts.won ? `${opts.attemptsUsed}/${opts.maxTries}` : `X/${opts.maxTries}`;
   const dup = opts.allowDuplicates ? ' (dup)' : '';
-  return `Vault Breaker — ${opts.date}\n${opts.codeLength}-digit${dup} • ${score}\n\n${opts.grid}\n\n${opts.url}`;
+  const close = `🎯 ${opts.closeness}%`;
+  return `Vault Breaker — ${opts.date}\n${opts.codeLength}-digit${dup} • ${score} • ${close}\n\n${opts.grid}\n\n${opts.url}`;
 }
 
 // ---- Local-only streak storage (for guests / not signed in) ----
@@ -128,6 +130,7 @@ interface LocalRecord {
   won: boolean;
   attemptsUsed: number;
   guesses: number[][];
+  closeness?: number;
 }
 interface LocalState {
   current: number;
