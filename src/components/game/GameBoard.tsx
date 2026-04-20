@@ -208,7 +208,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
         {isPassive ? (
           <div className="flex justify-between items-center">
             <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider">
-              {t('elapsed') ?? 'Elapsed'}
+              {t('elapsed')}
             </span>
             <span className="font-mono text-sm text-primary text-glow-primary">
               ⏱ {formatElapsed(elapsed)}
