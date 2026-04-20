@@ -112,6 +112,7 @@ const translations = {
     signInForCloudStreak: 'Sign in to save your streak across devices.',
     closeness: 'Closeness',
     bestGuess: 'Best guess',
+    avgCloseness: 'Avg closeness',
     // Winner / rematch
     winnerIs: 'Winner',
     youWonShort: 'You won!',
@@ -264,6 +265,7 @@ const translations = {
     signInForCloudStreak: 'سجّل الدخول لحفظ سلسلتك عبر الأجهزة.',
     closeness: 'نسبة القرب',
     bestGuess: 'أفضل محاولة',
+    avgCloseness: 'متوسط القرب',
     // Winner / rematch
     winnerIs: 'الفائز',
     youWonShort: 'لقد فزت!',
