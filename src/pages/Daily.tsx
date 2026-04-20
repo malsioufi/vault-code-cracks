@@ -80,6 +80,20 @@ const Daily: React.FC = () => {
     }
   };
 
+  // Closeness: best (matches + 0.5 * shifts) across all guesses, as % of code length.
+  // 100% only when fully solved. Anything <100% counts as a loss.
+  const closeness = useMemo(() => {
+    if (history.length === 0) return 0;
+    const len = config.codeLength;
+    let bestScore = 0;
+    for (const h of history) {
+      const score = h.feedback.matches + 0.5 * h.feedback.shifts;
+      if (score > bestScore) bestScore = score;
+    }
+    const pct = Math.round((bestScore / len) * 100);
+    return won ? 100 : Math.min(99, pct);
+  }, [history, config.codeLength, won]);
+
   const shareText = useMemo(() => {
     if (!gameOver) return '';
     const grid = buildShareGrid(
@@ -216,6 +230,18 @@ const Daily: React.FC = () => {
           <h2 className={`font-mono text-lg font-bold mb-2 ${won ? 'text-primary text-glow-primary' : 'text-destructive'}`}>
             {won ? t('youWin') : t('youLose')}
           </h2>
+          <div className="mb-3">
+            <div className="flex items-center justify-between font-mono text-[11px] text-muted-foreground mb-1">
+              <span>{t('closeness')}</span>
+              <span className={`font-bold ${won ? 'text-primary' : 'text-warning'}`}>{closeness}%</span>
+            </div>
+            <div className="h-2 w-full rounded-full bg-muted overflow-hidden cyber-border">
+              <div
+                className={`h-full transition-all ${won ? 'bg-primary' : 'bg-warning'}`}
+                style={{ width: `${closeness}%` }}
+              />
+            </div>
+          </div>
           <p className="font-mono text-[11px] text-muted-foreground mb-1">{t('secretWas')}:</p>
           <div className="flex gap-1.5 justify-center mb-2">
             {config.secret.map((d, i) => (

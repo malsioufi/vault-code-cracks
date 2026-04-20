@@ -110,6 +110,8 @@ const translations = {
     shareCopied: 'Result copied to clipboard',
     shareFailed: 'Could not share result',
     signInForCloudStreak: 'Sign in to save your streak across devices.',
+    closeness: 'Closeness',
+    bestGuess: 'Best guess',
     // Winner / rematch
     winnerIs: 'Winner',
     youWonShort: 'You won!',
@@ -260,6 +262,8 @@ const translations = {
     shareCopied: 'تم نسخ النتيجة',
     shareFailed: 'تعذّر مشاركة النتيجة',
     signInForCloudStreak: 'سجّل الدخول لحفظ سلسلتك عبر الأجهزة.',
+    closeness: 'نسبة القرب',
+    bestGuess: 'أفضل محاولة',
     // Winner / rematch
     winnerIs: 'الفائز',
     youWonShort: 'لقد فزت!',
