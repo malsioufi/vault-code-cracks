@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           allow_duplicates: boolean
           attempts_used: number
+          closeness: number
           code_length: number
           created_at: string
           guesses: Json
@@ -29,6 +30,7 @@ export type Database = {
         Insert: {
           allow_duplicates: boolean
           attempts_used: number
+          closeness?: number
           code_length: number
           created_at?: string
           guesses?: Json
@@ -40,6 +42,7 @@ export type Database = {
         Update: {
           allow_duplicates?: boolean
           attempts_used?: number
+          closeness?: number
           code_length?: number
           created_at?: string
           guesses?: Json
