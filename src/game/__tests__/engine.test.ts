@@ -100,12 +100,11 @@ describe('getDigitStatuses', () => {
 
   it('prefers matches over shifts', () => {
     // guess [1,1,2], secret [1,2,3]
-    // pos 0: match, pos 1: shift (matches secret[1]=2? no, 1 vs 2→ check: 1 not remaining → glitch)
+    // pos 0: match (1=1), pos 1: 1 not remaining → glitch, pos 2: 2 in secret[1] → shift
     const result = getDigitStatuses([1, 1, 2], [1, 2, 3]);
     expect(result[0]).toBe('match');
-    // pos 1: 1 is not remaining after pos 0 used secret[0], so glitch
     expect(result[1]).toBe('glitch');
-    expect(result[2]).toBe('match');
+    expect(result[2]).toBe('shift');
   });
 });
 
