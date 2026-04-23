@@ -153,6 +153,8 @@ const translations = {
     triesShort: 'tries',
     youTag: 'you',
     guestTag: 'guest',
+    orSignInWith: 'Or sign in with',
+    signInWithGoogle: 'Sign in with Google',
   },
   ar: {
     title: 'كاسر الخزنة',
