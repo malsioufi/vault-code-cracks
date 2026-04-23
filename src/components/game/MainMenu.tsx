@@ -85,6 +85,14 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
         >
           📊 {t('statsMenu')}
         </button>
+        {!user && (
+          <button
+            onClick={() => navigate('/auth')}
+            className="w-full py-3 rounded-lg bg-primary/10 cyber-border font-mono text-sm text-primary hover:bg-primary/20 transition-all duration-300"
+          >
+            🔑 {t('signIn')}
+          </button>
+        )}
       </div>
 
       {/* Daily Leaderboard */}
