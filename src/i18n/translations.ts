@@ -153,6 +153,8 @@ const translations = {
     triesShort: 'tries',
     youTag: 'you',
     guestTag: 'guest',
+    orSignInWith: 'Or sign in with',
+    signInWithGoogle: 'Sign in with Google',
   },
   ar: {
     title: 'كاسر الخزنة',
@@ -306,6 +308,8 @@ const translations = {
     triesShort: 'محاولات',
     youTag: 'أنت',
     guestTag: 'ضيف',
+    orSignInWith: 'أو سجل الدخول عبر',
+    signInWithGoogle: 'تسجيل الدخول بجوجل',
   },
 } as const;
 
