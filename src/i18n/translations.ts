@@ -308,6 +308,8 @@ const translations = {
     triesShort: 'محاولات',
     youTag: 'أنت',
     guestTag: 'ضيف',
+    orSignInWith: 'أو سجل الدخول عبر',
+    signInWithGoogle: 'تسجيل الدخول بجوجل',
   },
 } as const;
 
