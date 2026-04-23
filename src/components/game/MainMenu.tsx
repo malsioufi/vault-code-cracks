@@ -93,6 +93,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
             🔑 {t('signIn')}
           </button>
         )}
+      </div>
 
       {/* Daily Leaderboard */}
       <DailyLeaderboard
