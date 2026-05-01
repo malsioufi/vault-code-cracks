@@ -10,7 +10,7 @@ type Mode = 'turn_based' | 'simultaneous';
 type Tab = 'create' | 'join' | 'quick';
 
 const Online: React.FC = () => {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { user, profile, loading, signInAsGuest, signOut } = useAuth();
 
