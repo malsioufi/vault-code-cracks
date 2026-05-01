@@ -4,7 +4,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { GameConfig } from '@/game/engine';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import { useAuth } from '@/hooks/useAuth';
-import { ChevronDown, Settings2, Trophy, BarChart3, LogIn, Globe } from 'lucide-react';
+import { ChevronDown, Trophy, BarChart3, LogIn, Globe } from 'lucide-react';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
@@ -104,14 +104,6 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
 
         {/* Secondary controls */}
         <div className="w-full max-w-xs mt-6 flex items-center justify-center gap-2">
-          <button
-            onClick={() => setShowSettings((s) => !s)}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-md font-mono text-[11px] text-muted-foreground hover:text-primary transition-colors"
-          >
-            <Settings2 className="w-3.5 h-3.5" />
-            {t('settings')}
-            <ChevronDown className={`w-3 h-3 transition-transform ${showSettings ? 'rotate-180' : ''}`} />
-          </button>
           <button
             onClick={() => setShowLeaderboard((s) => !s)}
             className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-md font-mono text-[11px] text-muted-foreground hover:text-primary transition-colors"
