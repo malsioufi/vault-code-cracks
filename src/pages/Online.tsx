@@ -144,19 +144,22 @@ const Online: React.FC = () => {
         >
           ← {t('backToMenu')}
         </button>
-        {user && (
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs text-muted-foreground">
-              {profile?.display_name}
-            </span>
-            <button
-              onClick={signOut}
-              className="font-mono text-xs text-muted-foreground hover:text-destructive transition-colors"
-            >
-              {t('signOut')}
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <LangToggle />
+          {user && (
+            <>
+              <span className="font-mono text-xs text-muted-foreground">
+                {profile?.display_name}
+              </span>
+              <button
+                onClick={signOut}
+                className="font-mono text-xs text-muted-foreground hover:text-destructive transition-colors"
+              >
+                {t('signOut')}
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="text-center mb-6">
