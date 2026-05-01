@@ -81,10 +81,10 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
         {/* Primary CTA */}
         <div className="w-full max-w-xs space-y-2.5">
           <button
-            onClick={handleStart}
+            onClick={() => setShowSettings(true)}
             className="w-full py-4 rounded-lg bg-primary text-primary-foreground font-mono font-bold text-base glow-primary hover:opacity-90 transition-all"
           >
-            ▶ {t('startMission')}
+            ▶ {t('soloPlayer')}
           </button>
 
           <button
