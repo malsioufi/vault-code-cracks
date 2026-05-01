@@ -253,6 +253,13 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
                 </div>
               </div>
             )}
+
+            <button
+              onClick={handleStart}
+              className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-mono font-bold text-sm glow-primary hover:opacity-90 transition-all"
+            >
+              ▶ {t('startMission')}
+            </button>
           </div>
         )}
       </main>
