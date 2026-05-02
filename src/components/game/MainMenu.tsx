@@ -4,7 +4,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { GameConfig } from '@/game/engine';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import { useAuth } from '@/hooks/useAuth';
-import { ChevronDown, Trophy, BarChart3, LogIn } from 'lucide-react';
+import { ChevronDown, Trophy, BarChart3, LogIn, Globe } from 'lucide-react';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
@@ -45,9 +45,11 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
       <header className="w-full px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-          className="px-3 py-1.5 rounded-md bg-card text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-muted-foreground hover:text-primary font-mono text-xs transition-colors"
+          aria-label="Toggle language"
         >
-          {lang === 'en' ? 'العربية' : 'English'}
+          <Globe className="w-3.5 h-3.5" />
+          {lang === 'en' ? 'AR' : 'EN'}
         </button>
 
         {!user ? (
