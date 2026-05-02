@@ -195,7 +195,8 @@ const Room: React.FC = () => {
   // ---- WAITING (host alone) ----
   if (room.status === 'waiting') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 relative">
+        <div className="absolute top-3 end-3"><LanguageToggle /></div>
         <div className="w-full max-w-md p-6 rounded-lg bg-card cyber-border scanline text-center space-y-4">
           <h2 className="font-mono text-secondary text-glow-secondary uppercase tracking-widest text-sm">
             {t('waitingForOpponent')}
@@ -227,7 +228,8 @@ const Room: React.FC = () => {
   // ---- SETTING SECRETS ----
   if (room.status === 'setting_secrets') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 relative">
+        <div className="absolute top-3 end-3"><LanguageToggle /></div>
         <div className="w-full max-w-md p-6 rounded-lg bg-card cyber-border scanline text-center space-y-4">
           <h2 className="font-mono text-secondary text-glow-secondary uppercase tracking-widest text-sm">
             {t('setYourSecret')}
