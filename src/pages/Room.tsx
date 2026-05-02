@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import DigitInput from '@/components/game/DigitInput';
 import GuessHistory from '@/components/game/GuessHistory';
 import { GuessEntry } from '@/game/engine';
+import LanguageToggle from '@/components/LanguageToggle';
 
 const TURN_TIME = 30;
 
@@ -268,15 +269,18 @@ const Room: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
       {/* Header */}
-      <div className="w-full max-w-md flex items-center justify-between mb-4">
+      <div className="w-full max-w-md flex items-center justify-between gap-2 mb-4">
         <button
           onClick={() => navigate('/online')}
-          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors shrink-0"
         >
           ← {t('backToMenu')}
         </button>
-        <div dir="ltr" className="font-mono text-xs text-muted-foreground">
-          #{room.code}
+        <div className="flex items-center gap-2 min-w-0">
+          <div dir="ltr" className="font-mono text-xs text-muted-foreground truncate">
+            #{room.code}
+          </div>
+          <LanguageToggle />
         </div>
       </div>
 
