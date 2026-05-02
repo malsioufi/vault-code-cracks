@@ -13,6 +13,7 @@ import GuessHistory from '@/components/game/GuessHistory';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import LanguageToggle from '@/components/LanguageToggle';
 
 function formatCountdown(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));
