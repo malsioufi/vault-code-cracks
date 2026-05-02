@@ -36,7 +36,7 @@ interface Stats {
 }
 
 const Stats: React.FC = () => {
-  const { t, lang, setLang } = useLanguage();
+  const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const [rooms, setRooms] = useState<RoomRow[]>([]);
