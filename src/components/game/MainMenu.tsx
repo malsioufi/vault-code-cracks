@@ -18,7 +18,7 @@ const getUtcDateString = (): string => {
 
 const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
   const navigate = useNavigate();
-  const { t, lang, setLang } = useLanguage();
+  const { t } = useLanguage();
   const { user } = useAuth();
 
   const [showSettings, setShowSettings] = React.useState(false);
