@@ -45,11 +45,9 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
       <header className="w-full px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-muted-foreground hover:text-primary font-mono text-xs transition-colors"
-          aria-label="Toggle language"
+          className="px-3 py-1.5 rounded-md bg-card text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
         >
-          <Globe className="w-3.5 h-3.5" />
-          {lang === 'en' ? 'AR' : 'EN'}
+          {lang === 'en' ? 'العربية' : 'English'}
         </button>
 
         {!user ? (
