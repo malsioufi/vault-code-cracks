@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import LanguageToggle from '@/components/LanguageToggle';
 
 interface RoomRow {
   id: string;
@@ -35,7 +36,7 @@ interface Stats {
 }
 
 const Stats: React.FC = () => {
-  const { t, lang, setLang } = useLanguage();
+  const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const [rooms, setRooms] = useState<RoomRow[]>([]);
@@ -195,12 +196,7 @@ const Stats: React.FC = () => {
     <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
       {/* Language toggle */}
       <div className="fixed top-4 end-4 z-50">
-        <button
-          onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-          className="px-3 py-1.5 rounded-md bg-card text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
-        >
-          {lang === 'en' ? 'العربية' : 'English'}
-        </button>
+        <LanguageToggle />
       </div>
 
       {/* Header */}
