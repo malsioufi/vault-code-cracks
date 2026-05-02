@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
-import LangToggle from '@/components/LangToggle';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -10,7 +9,7 @@ type Mode = 'turn_based' | 'simultaneous';
 type Tab = 'create' | 'join' | 'quick';
 
 const Online: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const { user, profile, loading, signInAsGuest, signOut } = useAuth();
 
@@ -144,22 +143,19 @@ const Online: React.FC = () => {
         >
           ← {t('backToMenu')}
         </button>
-        <div className="flex items-center gap-2">
-          <LangToggle />
-          {user && (
-            <>
-              <span className="font-mono text-xs text-muted-foreground">
-                {profile?.display_name}
-              </span>
-              <button
-                onClick={signOut}
-                className="font-mono text-xs text-muted-foreground hover:text-destructive transition-colors"
-              >
-                {t('signOut')}
-              </button>
-            </>
-          )}
-        </div>
+        {user && (
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-muted-foreground">
+              {profile?.display_name}
+            </span>
+            <button
+              onClick={signOut}
+              className="font-mono text-xs text-muted-foreground hover:text-destructive transition-colors"
+            >
+              {t('signOut')}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="text-center mb-6">

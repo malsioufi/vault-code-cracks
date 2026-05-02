@@ -11,7 +11,6 @@ import { evaluateGuess, getDigitStatuses, type GuessEntry } from '@/game/engine'
 import DigitInput from '@/components/game/DigitInput';
 import GuessHistory from '@/components/game/GuessHistory';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
-import LangToggle from '@/components/LangToggle';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -25,7 +24,7 @@ function formatCountdown(ms: number): string {
 
 const Daily: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const { user } = useAuth();
   const { config, todayRecord, stats, loading, isSignedIn, saveResult } = useDailyPuzzle();
   const [history, setHistory] = useState<GuessEntry[]>([]);
@@ -165,6 +164,16 @@ const Daily: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
+      {/* Language Toggle */}
+      <div className="fixed top-4 end-4 z-50">
+        <button
+          onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+          className="px-3 py-1.5 rounded-md bg-card text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
+        >
+          {lang === 'en' ? 'العربية' : 'English'}
+        </button>
+      </div>
+
       {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-2 mt-1 shrink-0">
         <button
@@ -173,10 +182,7 @@ const Daily: React.FC = () => {
         >
           ← {t('backToMenu')}
         </button>
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-muted-foreground">{config.date} UTC</span>
-          <LangToggle />
-        </div>
+        <div className="font-mono text-xs text-muted-foreground">{config.date} UTC</div>
       </div>
 
       {/* Title */}
