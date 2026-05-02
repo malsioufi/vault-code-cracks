@@ -4,6 +4,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { lovable } from '@/integrations/lovable/index';
 import { toast } from 'sonner';
+import LanguageToggle from '@/components/LanguageToggle';
 
 const Auth: React.FC = () => {
   const { t } = useLanguage();
@@ -64,12 +65,15 @@ const Auth: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6">
-      <button
-        onClick={() => navigate('/')}
-        className="self-start max-w-md w-full text-muted-foreground font-mono text-sm hover:text-foreground transition-colors mb-4"
-      >
-        ← {t('backToMenu')}
-      </button>
+      <div className="w-full max-w-md flex items-center justify-between gap-2 mb-4">
+        <button
+          onClick={() => navigate('/')}
+          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors shrink-0"
+        >
+          ← {t('backToMenu')}
+        </button>
+        <LanguageToggle />
+      </div>
 
       <form
         onSubmit={handleSubmit}
