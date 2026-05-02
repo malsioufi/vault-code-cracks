@@ -4,7 +4,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { GameConfig } from '@/game/engine';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import { useAuth } from '@/hooks/useAuth';
-import { ChevronDown, Trophy, BarChart3, LogIn, Globe } from 'lucide-react';
+import { ChevronDown, Trophy, BarChart3, LogIn } from 'lucide-react';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
