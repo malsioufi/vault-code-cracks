@@ -13,7 +13,6 @@ import GuessHistory from '@/components/game/GuessHistory';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import LanguageToggle from '@/components/LanguageToggle';
 
 function formatCountdown(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -25,7 +24,7 @@ function formatCountdown(ms: number): string {
 
 const Daily: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const { user } = useAuth();
   const { config, todayRecord, stats, loading, isSignedIn, saveResult } = useDailyPuzzle();
   const [history, setHistory] = useState<GuessEntry[]>([]);
@@ -165,18 +164,25 @@ const Daily: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
+      {/* Language Toggle */}
+      <div className="fixed top-4 end-4 z-50">
+        <button
+          onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+          className="px-3 py-1.5 rounded-md bg-card text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
+        >
+          {lang === 'en' ? 'العربية' : 'English'}
+        </button>
+      </div>
+
       {/* Header */}
-      <div className="w-full max-w-md flex items-center justify-between gap-2 mb-2 mt-1 shrink-0">
+      <div className="w-full max-w-md flex items-center justify-between mb-2 mt-1 shrink-0">
         <button
           onClick={() => navigate('/')}
-          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors shrink-0"
+          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
         >
           ← {t('backToMenu')}
         </button>
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="font-mono text-xs text-muted-foreground truncate">{config.date} UTC</div>
-          <LanguageToggle />
-        </div>
+        <div className="font-mono text-xs text-muted-foreground">{config.date} UTC</div>
       </div>
 
       {/* Title */}

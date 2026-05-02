@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import LanguageToggle from '@/components/LanguageToggle';
 
 interface RoomRow {
   id: string;
@@ -36,7 +35,7 @@ interface Stats {
 }
 
 const Stats: React.FC = () => {
-  const { t, lang } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const [rooms, setRooms] = useState<RoomRow[]>([]);
@@ -194,18 +193,25 @@ const Stats: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
+      {/* Language toggle */}
+      <div className="fixed top-4 end-4 z-50">
+        <button
+          onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+          className="px-3 py-1.5 rounded-md bg-card text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
+        >
+          {lang === 'en' ? 'العربية' : 'English'}
+        </button>
+      </div>
+
       {/* Header */}
-      <div className="w-full max-w-md flex items-center justify-between gap-2 mb-4 mt-2">
+      <div className="w-full max-w-md flex items-center justify-between mb-4 mt-2">
         <button
           onClick={() => navigate('/')}
-          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors shrink-0"
+          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
         >
           ← {t('backToMenu')}
         </button>
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="font-mono text-xs text-muted-foreground truncate">{profile?.display_name}</div>
-          <LanguageToggle />
-        </div>
+        <div className="font-mono text-xs text-muted-foreground">{profile?.display_name}</div>
       </div>
 
       <div className="w-full max-w-md text-center mb-4">

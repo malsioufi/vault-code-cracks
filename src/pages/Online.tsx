@@ -4,7 +4,6 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import LanguageToggle from '@/components/LanguageToggle';
 
 type Mode = 'turn_based' | 'simultaneous';
 type Tab = 'create' | 'join' | 'quick';
@@ -137,29 +136,26 @@ const Online: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-6">
-      <div className="w-full max-w-md flex items-center justify-between gap-2 mb-6">
+      <div className="w-full max-w-md flex items-center justify-between mb-6">
         <button
           onClick={() => navigate('/')}
-          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors shrink-0"
+          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
         >
           ← {t('backToMenu')}
         </button>
-        <div className="flex items-center gap-2 min-w-0">
-          {user && (
-            <>
-              <span className="font-mono text-xs text-muted-foreground truncate">
-                {profile?.display_name}
-              </span>
-              <button
-                onClick={signOut}
-                className="font-mono text-xs text-muted-foreground hover:text-destructive transition-colors shrink-0"
-              >
-                {t('signOut')}
-              </button>
-            </>
-          )}
-          <LanguageToggle />
-        </div>
+        {user && (
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-muted-foreground">
+              {profile?.display_name}
+            </span>
+            <button
+              onClick={signOut}
+              className="font-mono text-xs text-muted-foreground hover:text-destructive transition-colors"
+            >
+              {t('signOut')}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="text-center mb-6">

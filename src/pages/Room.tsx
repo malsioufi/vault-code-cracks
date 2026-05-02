@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import DigitInput from '@/components/game/DigitInput';
 import GuessHistory from '@/components/game/GuessHistory';
 import { GuessEntry } from '@/game/engine';
-import LanguageToggle from '@/components/LanguageToggle';
 
 const TURN_TIME = 30;
 
@@ -195,8 +194,7 @@ const Room: React.FC = () => {
   // ---- WAITING (host alone) ----
   if (room.status === 'waiting') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 relative">
-        <div className="absolute top-3 end-3"><LanguageToggle /></div>
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6">
         <div className="w-full max-w-md p-6 rounded-lg bg-card cyber-border scanline text-center space-y-4">
           <h2 className="font-mono text-secondary text-glow-secondary uppercase tracking-widest text-sm">
             {t('waitingForOpponent')}
@@ -228,8 +226,7 @@ const Room: React.FC = () => {
   // ---- SETTING SECRETS ----
   if (room.status === 'setting_secrets') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6 relative">
-        <div className="absolute top-3 end-3"><LanguageToggle /></div>
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6">
         <div className="w-full max-w-md p-6 rounded-lg bg-card cyber-border scanline text-center space-y-4">
           <h2 className="font-mono text-secondary text-glow-secondary uppercase tracking-widest text-sm">
             {t('setYourSecret')}
@@ -271,18 +268,15 @@ const Room: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
       {/* Header */}
-      <div className="w-full max-w-md flex items-center justify-between gap-2 mb-4">
+      <div className="w-full max-w-md flex items-center justify-between mb-4">
         <button
           onClick={() => navigate('/online')}
-          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors shrink-0"
+          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
         >
           ← {t('backToMenu')}
         </button>
-        <div className="flex items-center gap-2 min-w-0">
-          <div dir="ltr" className="font-mono text-xs text-muted-foreground truncate">
-            #{room.code}
-          </div>
-          <LanguageToggle />
+        <div dir="ltr" className="font-mono text-xs text-muted-foreground">
+          #{room.code}
         </div>
       </div>
 
