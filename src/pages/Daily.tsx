@@ -24,7 +24,7 @@ function formatCountdown(ms: number): string {
 
 const Daily: React.FC = () => {
   const navigate = useNavigate();
-  const { t, lang, setLang } = useLanguage();
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { config, todayRecord, stats, loading, isSignedIn, saveResult } = useDailyPuzzle();
   const [history, setHistory] = useState<GuessEntry[]>([]);
