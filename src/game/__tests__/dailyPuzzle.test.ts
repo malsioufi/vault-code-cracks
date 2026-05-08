@@ -2,7 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   getDailyConfig,
   utcDateString,
+  dailyDateString,
   msUntilNextUtcMidnight,
+  msUntilNextDailyMidnight,
   buildShareGrid,
   buildShareText,
   getLocalDailyRecord,
