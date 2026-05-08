@@ -162,6 +162,7 @@ const translations = {
     subtitle: 'فك الشفرة. اكسر الخزنة.',
     soloMode: 'وضع فردي',
     onlineMode: 'أونلاين',
+    trainingMode: 'تدريب',
     settings: 'الإعدادات',
     codeLength: 'طول الرمز',
     allowDuplicates: 'السماح بالتكرار',
