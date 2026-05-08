@@ -5,7 +5,7 @@ import { useDailyPuzzle } from '@/hooks/useDailyPuzzle';
 import {
   buildShareGrid,
   buildShareText,
-  msUntilNextUtcMidnight,
+  msUntilNextDailyMidnight,
 } from '@/game/dailyPuzzle';
 import { evaluateGuess, getDigitStatuses, type GuessEntry } from '@/game/engine';
 import DigitInput from '@/components/game/DigitInput';
@@ -30,7 +30,7 @@ const Daily: React.FC = () => {
   const [history, setHistory] = useState<GuessEntry[]>([]);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
-  const [countdown, setCountdown] = useState(msUntilNextUtcMidnight());
+  const [countdown, setCountdown] = useState(msUntilNextDailyMidnight());
 
   // Hydrate from existing record (already played today).
   // Only hydrate ONCE, after the data hook finishes loading and BEFORE the
@@ -57,7 +57,7 @@ const Daily: React.FC = () => {
 
   // Live countdown
   useEffect(() => {
-    const id = setInterval(() => setCountdown(msUntilNextUtcMidnight()), 1000);
+    const id = setInterval(() => setCountdown(msUntilNextDailyMidnight()), 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -182,7 +182,7 @@ const Daily: React.FC = () => {
         >
           ← {t('backToMenu')}
         </button>
-        <div className="font-mono text-xs text-muted-foreground">{config.date} UTC</div>
+        <div className="font-mono text-xs text-muted-foreground">{config.date} • Berlin</div>
       </div>
 
       {/* Title */}

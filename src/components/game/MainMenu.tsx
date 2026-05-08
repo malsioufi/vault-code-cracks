@@ -4,16 +4,12 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { GameConfig } from '@/game/engine';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import { useAuth } from '@/hooks/useAuth';
-import { ChevronDown, Settings2, Trophy, BarChart3, LogIn, Globe } from 'lucide-react';
+import { dailyDateString } from '@/game/dailyPuzzle';
+import { ChevronDown, Settings2, Trophy, BarChart3, LogIn, Globe, Dumbbell } from 'lucide-react';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
 }
-
-const getUtcDateString = (): string => {
-  const now = new Date();
-  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
-};
 
 const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
   const navigate = useNavigate();
@@ -95,6 +91,26 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
           </button>
 
           <button
+            onClick={() => {
+              const lengths = [3, 4, 5, 6];
+              const len = lengths[Math.floor(Math.random() * lengths.length)];
+              const dup = Math.random() < 0.5;
+              const tries = Math.min(15, ({ 3: 5, 4: 7, 5: 9, 6: 11 } as Record<number, number>)[len] + (dup ? 2 : 0));
+              onStartSolo({
+                codeLength: len,
+                allowDuplicates: dup,
+                aiDifficulty: 'medium',
+                botMode: 'passive',
+                maxTries: tries,
+              });
+            }}
+            className="w-full py-3 rounded-lg bg-card cyber-border font-mono text-sm text-secondary hover:glow-secondary transition-all inline-flex items-center justify-center gap-2"
+          >
+            <Dumbbell className="w-4 h-4" />
+            {t('trainingMode')}
+          </button>
+
+          <button
             onClick={() => navigate('/daily')}
             className="w-full py-3 rounded-lg bg-card cyber-border font-mono text-sm text-warning hover:shadow-[0_0_20px_hsl(var(--warning)/0.5)] transition-all"
           >
@@ -134,7 +150,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
         {showLeaderboard && (
           <div className="w-full max-w-md mt-4">
             <DailyLeaderboard
-              date={getUtcDateString()}
+              date={dailyDateString()}
               currentUserId={user?.id ?? null}
               hasFinished={false}
             />

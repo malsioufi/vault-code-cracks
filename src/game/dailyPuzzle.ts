@@ -1,5 +1,29 @@
 // Deterministic daily puzzle generator. Same settings + same secret for all users
-// worldwide on the same UTC date. Reset at UTC midnight.
+// worldwide on the same Europe/Berlin date. Reset at midnight Berlin time
+// (handles DST automatically via Intl).
+
+const DAILY_TZ = 'Europe/Berlin';
+
+function getZonedParts(d: Date, timeZone: string): { y: number; m: number; day: number; h: number; min: number; s: number } {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  });
+  const parts: Record<string, string> = {};
+  for (const p of fmt.formatToParts(d)) {
+    if (p.type !== 'literal') parts[p.type] = p.value;
+  }
+  return {
+    y: Number(parts.year),
+    m: Number(parts.month),
+    day: Number(parts.day),
+    // '24' can occur for midnight in some ICU versions — normalize to 0
+    h: Number(parts.hour) % 24,
+    min: Number(parts.minute),
+    s: Number(parts.second),
+  };
+}
 
 export interface DailyConfig {
   date: string;          // YYYY-MM-DD (UTC)
@@ -42,6 +66,12 @@ export function utcDateString(d: Date = new Date()): string {
   return `${y}-${m}-${day}`;
 }
 
+// Daily puzzle date = current calendar date in Europe/Berlin.
+export function dailyDateString(d: Date = new Date()): string {
+  const { y, m, day } = getZonedParts(d, DAILY_TZ);
+  return `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
 export function msUntilNextUtcMidnight(now: Date = new Date()): number {
   const next = new Date(Date.UTC(
     now.getUTCFullYear(),
@@ -50,6 +80,14 @@ export function msUntilNextUtcMidnight(now: Date = new Date()): number {
     0, 0, 0, 0,
   ));
   return next.getTime() - now.getTime();
+}
+
+// Milliseconds until the next midnight in Europe/Berlin (DST-aware).
+export function msUntilNextDailyMidnight(now: Date = new Date()): number {
+  const { h, min, s } = getZonedParts(now, DAILY_TZ);
+  const elapsedMs = ((h * 3600) + (min * 60) + s) * 1000 + (now.getTime() % 1000);
+  const dayMs = 24 * 60 * 60 * 1000;
+  return dayMs - elapsedMs;
 }
 
 // Difficulty score → reasonable max tries. Cap at 15.
@@ -61,7 +99,7 @@ function triesFor(codeLength: number, allowDuplicates: boolean): number {
 }
 
 export function getDailyConfig(date: Date = new Date()): DailyConfig {
-  const dateStr = utcDateString(date);
+  const dateStr = dailyDateString(date);
   const seed = strHash(`vault-breaker-daily::${dateStr}`);
   const rand = mulberry32(seed);
 
@@ -187,8 +225,8 @@ export function saveLocalDailyRecord(rec: LocalRecord): LocalState {
 export function getLocalStreak(): { current: number; best: number; played: number; won: number } {
   const s = readLocal();
   // If last play was older than yesterday and not won today, reset current
-  const today = utcDateString();
-  const yest = utcDateString(new Date(Date.now() - 86400000));
+  const today = dailyDateString();
+  const yest = dailyDateString(new Date(Date.now() - 86400000));
   if (s.lastDate && s.lastDate !== today && s.lastDate !== yest) {
     return { current: 0, best: s.best, played: s.played, won: s.won };
   }

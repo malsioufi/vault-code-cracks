@@ -6,6 +6,7 @@ const translations = {
     subtitle: 'Crack the Code. Break the Vault.',
     soloMode: 'Solo Mode',
     onlineMode: 'Online Mode',
+    trainingMode: 'Training',
     settings: 'Settings',
     codeLength: 'Code Length',
     allowDuplicates: 'Allow Duplicates',
@@ -100,7 +101,7 @@ const translations = {
     roomNotFound: 'Room not found',
     // Daily puzzle
     dailyPuzzle: 'Daily Puzzle',
-    dailySubtitle: 'One puzzle. One chance. Resets at UTC midnight.',
+    dailySubtitle: 'One puzzle. One chance. Resets at midnight Berlin time.',
     streak: 'Streak',
     bestStreak: 'Best',
     played: 'Played',
@@ -161,6 +162,7 @@ const translations = {
     subtitle: 'فك الشفرة. اكسر الخزنة.',
     soloMode: 'وضع فردي',
     onlineMode: 'أونلاين',
+    trainingMode: 'تدريب',
     settings: 'الإعدادات',
     codeLength: 'طول الرمز',
     allowDuplicates: 'السماح بالتكرار',
@@ -255,7 +257,7 @@ const translations = {
     roomNotFound: 'الغرفة غير موجودة',
     // Daily puzzle
     dailyPuzzle: 'اللغز اليومي',
-    dailySubtitle: 'لغز واحد. فرصة واحدة. يُعاد تعيينه عند منتصف الليل بتوقيت UTC.',
+    dailySubtitle: 'لغز واحد. فرصة واحدة. يُعاد تعيينه عند منتصف الليل بتوقيت برلين.',
     streak: 'سلسلة',
     bestStreak: 'الأفضل',
     played: 'لُعب',

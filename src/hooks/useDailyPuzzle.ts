@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import {
   DailyConfig,
   getDailyConfig,
-  utcDateString,
+  dailyDateString,
   getLocalDailyRecord,
   getLocalStreak,
   saveLocalDailyRecord,
@@ -41,7 +41,7 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
   const [userId, setUserId] = useState<string | null>(null);
 
   const loadServer = useCallback(async (uid: string) => {
-    const today = utcDateString();
+    const today = dailyDateString();
     const [{ data: row }, { data: streak }] = await Promise.all([
       supabase
         .from('daily_results')
@@ -74,7 +74,7 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
   }, []);
 
   const loadLocal = useCallback(() => {
-    const today = utcDateString();
+    const today = dailyDateString();
     const rec = getLocalDailyRecord(today);
     if (rec) {
       setTodayRecord({
@@ -111,7 +111,7 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
   }, [loadServer, loadLocal]);
 
   const saveResult = useCallback(async (won: boolean, guesses: number[][], closeness: number) => {
-    const date = utcDateString();
+    const date = dailyDateString();
     const rec: DailyResultRecord = {
       date,
       won,
