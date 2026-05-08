@@ -150,7 +150,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
         {showLeaderboard && (
           <div className="w-full max-w-md mt-4">
             <DailyLeaderboard
-              date={getUtcDateString()}
+              date={dailyDateString()}
               currentUserId={user?.id ?? null}
               hasFinished={false}
             />
