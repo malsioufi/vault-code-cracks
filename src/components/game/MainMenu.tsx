@@ -4,16 +4,12 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { GameConfig } from '@/game/engine';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import { useAuth } from '@/hooks/useAuth';
-import { ChevronDown, Settings2, Trophy, BarChart3, LogIn, Globe } from 'lucide-react';
+import { dailyDateString } from '@/game/dailyPuzzle';
+import { ChevronDown, Settings2, Trophy, BarChart3, LogIn, Globe, Dumbbell } from 'lucide-react';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
 }
-
-const getUtcDateString = (): string => {
-  const now = new Date();
-  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
-};
 
 const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
   const navigate = useNavigate();
