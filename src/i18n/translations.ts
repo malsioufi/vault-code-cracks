@@ -160,7 +160,7 @@ const translations = {
   ar: {
     title: 'كاسر الخزنة',
     subtitle: 'فك الشفرة. اكسر الخزنة.',
-    soloMode: 'وضع فردي',
+    soloMode: 'لعبة فردية',
     onlineMode: 'أونلاين',
     trainingMode: 'تدريب',
     settings: 'الإعدادات',
@@ -173,7 +173,7 @@ const translations = {
     botMode: 'وضع البوت',
     activeBot: 'بوت نشط',
     passiveBot: 'بوت سلبي',
-    startMission: 'ابدأ المهمة',
+    startMission: 'لعبة فردية',
     guess: 'إرسال التخمين',
     giveUp: 'استسلام',
     match: 'تطابق',
