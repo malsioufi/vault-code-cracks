@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import {
   DailyConfig,
   getDailyConfig,
-  utcDateString,
+  dailyDateString,
   getLocalDailyRecord,
   getLocalStreak,
   saveLocalDailyRecord,
