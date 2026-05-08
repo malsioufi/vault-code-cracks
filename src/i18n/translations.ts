@@ -6,6 +6,7 @@ const translations = {
     subtitle: 'Crack the Code. Break the Vault.',
     soloMode: 'Solo Mode',
     onlineMode: 'Online Mode',
+    trainingMode: 'Training',
     settings: 'Settings',
     codeLength: 'Code Length',
     allowDuplicates: 'Allow Duplicates',
