@@ -101,7 +101,7 @@ const translations = {
     roomNotFound: 'Room not found',
     // Daily puzzle
     dailyPuzzle: 'Daily Puzzle',
-    dailySubtitle: 'One puzzle. One chance. Resets at UTC midnight.',
+    dailySubtitle: 'One puzzle. One chance. Resets at midnight Berlin time.',
     streak: 'Streak',
     bestStreak: 'Best',
     played: 'Played',
@@ -257,7 +257,7 @@ const translations = {
     roomNotFound: 'الغرفة غير موجودة',
     // Daily puzzle
     dailyPuzzle: 'اللغز اليومي',
-    dailySubtitle: 'لغز واحد. فرصة واحدة. يُعاد تعيينه عند منتصف الليل بتوقيت UTC.',
+    dailySubtitle: 'لغز واحد. فرصة واحدة. يُعاد تعيينه عند منتصف الليل بتوقيت برلين.',
     streak: 'سلسلة',
     bestStreak: 'الأفضل',
     played: 'لُعب',
