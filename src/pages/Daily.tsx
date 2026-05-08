@@ -5,7 +5,7 @@ import { useDailyPuzzle } from '@/hooks/useDailyPuzzle';
 import {
   buildShareGrid,
   buildShareText,
-  msUntilNextUtcMidnight,
+  msUntilNextDailyMidnight,
 } from '@/game/dailyPuzzle';
 import { evaluateGuess, getDigitStatuses, type GuessEntry } from '@/game/engine';
 import DigitInput from '@/components/game/DigitInput';
