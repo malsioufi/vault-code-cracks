@@ -40,7 +40,28 @@ describe('msUntilNextUtcMidnight', () => {
   });
 });
 
-// ─── getDailyConfig ──────────────────────────────────────────────
+// ─── dailyDateString (Europe/Berlin) ─────────────────────────────
+
+describe('dailyDateString (Europe/Berlin)', () => {
+  it('returns Berlin calendar date in winter (UTC+1)', () => {
+    expect(dailyDateString(new Date('2025-01-15T23:30:00Z'))).toBe('2025-01-16');
+  });
+  it('returns Berlin calendar date in summer DST (UTC+2)', () => {
+    expect(dailyDateString(new Date('2025-07-15T21:30:00Z'))).toBe('2025-07-15');
+    expect(dailyDateString(new Date('2025-07-15T22:30:00Z'))).toBe('2025-07-16');
+  });
+});
+
+describe('msUntilNextDailyMidnight', () => {
+  it('counts down to next Berlin midnight (winter)', () => {
+    // 22:00 UTC = 23:00 Berlin → 1h
+    expect(msUntilNextDailyMidnight(new Date('2025-01-15T22:00:00Z'))).toBe(60 * 60 * 1000);
+  });
+  it('counts down to next Berlin midnight (summer DST)', () => {
+    // 21:00 UTC = 23:00 Berlin → 1h
+    expect(msUntilNextDailyMidnight(new Date('2025-07-15T21:00:00Z'))).toBe(60 * 60 * 1000);
+  });
+});
 
 describe('getDailyConfig', () => {
   it('is deterministic for the same date', () => {
