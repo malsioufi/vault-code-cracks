@@ -1,5 +1,29 @@
 // Deterministic daily puzzle generator. Same settings + same secret for all users
-// worldwide on the same UTC date. Reset at UTC midnight.
+// worldwide on the same Europe/Berlin date. Reset at midnight Berlin time
+// (handles DST automatically via Intl).
+
+const DAILY_TZ = 'Europe/Berlin';
+
+function getZonedParts(d: Date, timeZone: string): { y: number; m: number; day: number; h: number; min: number; s: number } {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  });
+  const parts: Record<string, string> = {};
+  for (const p of fmt.formatToParts(d)) {
+    if (p.type !== 'literal') parts[p.type] = p.value;
+  }
+  return {
+    y: Number(parts.year),
+    m: Number(parts.month),
+    day: Number(parts.day),
+    // '24' can occur for midnight in some ICU versions — normalize to 0
+    h: Number(parts.hour) % 24,
+    min: Number(parts.minute),
+    s: Number(parts.second),
+  };
+}
 
 export interface DailyConfig {
   date: string;          // YYYY-MM-DD (UTC)
