@@ -4,7 +4,7 @@ const translations = {
   en: {
     title: 'VAULT BREAKER',
     subtitle: 'Crack the Code. Break the Vault.',
-    soloMode: 'Solo Mode',
+    soloMode: 'Solo Game',
     onlineMode: 'Online Mode',
     trainingMode: 'Training',
     settings: 'Settings',
@@ -17,7 +17,7 @@ const translations = {
     botMode: 'Bot Mode',
     activeBot: 'Active Bot',
     passiveBot: 'Passive Bot',
-    startMission: 'Start Mission',
+    startMission: 'Solo Game',
     guess: 'Submit Guess',
     giveUp: 'Give Up',
     match: 'Match',
