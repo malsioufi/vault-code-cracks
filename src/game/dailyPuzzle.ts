@@ -99,7 +99,7 @@ function triesFor(codeLength: number, allowDuplicates: boolean): number {
 }
 
 export function getDailyConfig(date: Date = new Date()): DailyConfig {
-  const dateStr = utcDateString(date);
+  const dateStr = dailyDateString(date);
   const seed = strHash(`vault-breaker-daily::${dateStr}`);
   const rand = mulberry32(seed);
 
