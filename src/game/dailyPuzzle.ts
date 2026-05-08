@@ -225,8 +225,8 @@ export function saveLocalDailyRecord(rec: LocalRecord): LocalState {
 export function getLocalStreak(): { current: number; best: number; played: number; won: number } {
   const s = readLocal();
   // If last play was older than yesterday and not won today, reset current
-  const today = utcDateString();
-  const yest = utcDateString(new Date(Date.now() - 86400000));
+  const today = dailyDateString();
+  const yest = dailyDateString(new Date(Date.now() - 86400000));
   if (s.lastDate && s.lastDate !== today && s.lastDate !== yest) {
     return { current: 0, best: s.best, played: s.played, won: s.won };
   }
