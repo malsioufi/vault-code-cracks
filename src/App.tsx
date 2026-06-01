@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Online from "./pages/Online.tsx";
+import Solo from "./pages/Solo.tsx";
 import Room from "./pages/Room.tsx";
 import Auth from "./pages/Auth.tsx";
 import Daily from "./pages/Daily.tsx";
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/online" element={<Online />} />
+            <Route path="/solo" element={<Solo />} />
             <Route path="/daily" element={<Daily />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/room/:code" element={<Room />} />
