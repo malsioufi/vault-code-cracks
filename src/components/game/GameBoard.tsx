@@ -11,6 +11,7 @@ import {
 } from '@/game/engine';
 import DigitInput from './DigitInput';
 import GuessHistory from './GuessHistory';
+import { getDifficultyTier, TIER_COLOR } from '@/game/difficulty';
 
 interface GameBoardProps {
   config: GameConfig;
@@ -195,12 +196,22 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
         >
           ← {t('backToMenu')}
         </button>
-        <div className="font-mono text-xs text-muted-foreground">
-          {config.codeLength} {t('digits')} | {t(config.aiDifficulty)}
-          {triesLeft !== null && !gameOver && (
-            <span className="ms-2 text-warning">| {triesLeft} {t('turnsLeft')}</span>
-          )}
-        </div>
+        {(() => {
+          const tier = getDifficultyTier(config.codeLength, config.allowDuplicates, config.maxTries);
+          const tierKey = `tier${tier.charAt(0).toUpperCase() + tier.slice(1)}` as 'tierEasy' | 'tierNormal' | 'tierHard' | 'tierLegendary';
+          return (
+            <div className="font-mono text-[11px] text-muted-foreground flex items-center gap-2 flex-wrap justify-end">
+              <span>{config.codeLength} {t('digits')}</span>
+              <span className={config.allowDuplicates ? 'text-warning' : 'opacity-60'}>
+                {config.allowDuplicates ? '⇆ dup' : 'no dup'}
+              </span>
+              <span className={`${TIER_COLOR[tier]} font-bold`}>{t(tierKey)}</span>
+              {triesLeft !== null && !gameOver && (
+                <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Timer Bar */}
