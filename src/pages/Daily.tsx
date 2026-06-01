@@ -13,6 +13,7 @@ import GuessHistory from '@/components/game/GuessHistory';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { getDifficultyTier, TIER_COLOR } from '@/game/difficulty';
 
 function formatCountdown(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -24,7 +25,7 @@ function formatCountdown(ms: number): string {
 
 const Daily: React.FC = () => {
   const navigate = useNavigate();
-  const { t, lang, setLang } = useLanguage();
+  const { t } = useLanguage();
   const { user } = useAuth();
   const { config, todayRecord, stats, loading, isSignedIn, saveResult } = useDailyPuzzle();
   const [history, setHistory] = useState<GuessEntry[]>([]);
