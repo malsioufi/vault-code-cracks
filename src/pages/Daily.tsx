@@ -165,15 +165,6 @@ const Daily: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
-      {/* Language Toggle */}
-      <div className="fixed top-4 end-4 z-50">
-        <button
-          onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-          className="px-3 py-1.5 rounded-md bg-card text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
-        >
-          {lang === 'en' ? 'العربية' : 'English'}
-        </button>
-      </div>
 
       {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-2 mt-1 shrink-0">
@@ -208,6 +199,15 @@ const Daily: React.FC = () => {
           <span className="text-muted-foreground">
             {t('maxTries')}: <span className="text-primary font-bold">{config.maxTries}</span>
           </span>
+          {(() => {
+            const tier = getDifficultyTier(config.codeLength, config.allowDuplicates, config.maxTries);
+            const tierKey = `tier${tier.charAt(0).toUpperCase() + tier.slice(1)}` as 'tierEasy' | 'tierNormal' | 'tierHard' | 'tierLegendary';
+            return (
+              <span className="text-muted-foreground">
+                {t('difficulty')}: <span className={`${TIER_COLOR[tier]} font-bold`}>{t(tierKey)}</span>
+              </span>
+            );
+          })()}
           <span className="text-muted-foreground">
             🔥 <span className="text-primary font-bold">{stats.current}</span>
             <span className="opacity-60"> / {stats.best}</span>
