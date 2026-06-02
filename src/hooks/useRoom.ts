@@ -49,6 +49,16 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
     if (!code || !userId) return;
     let cancelled = false;
 
+    // Reset state when switching rooms (e.g. rematch navigation)
+    setLoading(true);
+    setError(null);
+    setRoom(null);
+    setGuesses([]);
+    setMySecret(null);
+    setProfiles({});
+    setRematchInvite(null);
+    roomIdRef.current = null;
+
     const fetchRoom = async () => {
       const { data, error: e } = await supabase
         .from('rooms')

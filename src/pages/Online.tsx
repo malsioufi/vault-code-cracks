@@ -29,11 +29,12 @@ const Online: React.FC = () => {
     if (profile?.display_name && !nickname) setNickname(profile.display_name);
   }, [profile]);
 
-  // Quick-match polling: while in queue, poll for a created room as host or guest
+  // Quick-match: subscribe to realtime room creation + fallback poll
   useEffect(() => {
     if (!queued || !user) return;
     let cancelled = false;
-    const interval = setInterval(async () => {
+
+    const checkRoom = async () => {
       const { data } = await supabase
         .from('rooms')
         .select('code')
@@ -43,15 +44,35 @@ const Online: React.FC = () => {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (cancelled) return;
-      if (data?.code) {
-        setQueued(false);
-        navigate(`/room/${data.code}`);
-      }
-    }, 2000);
+      if (cancelled || !data?.code) return;
+      setQueued(false);
+      navigate(`/room/${data.code}`);
+    };
+
+    // Realtime: notify the moment the room row appears with us as host or guest
+    const channel = supabase
+      .channel(`quick-match:${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'rooms', filter: `guest_id=eq.${user.id}` },
+        () => checkRoom(),
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'rooms', filter: `host_id=eq.${user.id}` },
+        () => checkRoom(),
+      )
+      .subscribe();
+
+    // Fallback poll in case realtime is delayed
+    const interval = setInterval(checkRoom, 2000);
+    // Immediate check (covers race where room was created before subscription)
+    checkRoom();
+
     return () => {
       cancelled = true;
       clearInterval(interval);
+      supabase.removeChannel(channel);
     };
   }, [queued, user, navigate]);
 
