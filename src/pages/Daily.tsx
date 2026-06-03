@@ -176,13 +176,6 @@ const Daily: React.FC = () => {
         </h1>
       </div>
 
-      {/* Title */}
-      <div className="w-full max-w-md text-center mb-2 shrink-0">
-        <h1 className="font-mono text-xl font-bold text-secondary text-glow-secondary">
-          {t('dailyPuzzle')}
-        </h1>
-      </div>
-
       {/* Compact info strip: settings + streak collapsed into one row */}
       <div className="w-full max-w-md mb-2 p-2 rounded-lg bg-card cyber-border shrink-0">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 font-mono text-[11px]">
