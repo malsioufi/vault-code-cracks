@@ -164,23 +164,18 @@ const Stats: React.FC = () => {
 
   if (profile?.is_guest) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-4">
-        <div className="max-w-md text-center space-y-3 p-6 rounded-lg bg-card cyber-border scanline">
-          <p className="font-mono text-secondary text-glow-secondary">{t('guestNoStats')}</p>
-          <p className="font-mono text-xs text-muted-foreground">{t('createAccountToTrack')}</p>
-        </div>
-        <div className="flex gap-3">
+      <div className="h-screen flex flex-col items-center px-4 overflow-hidden">
+        <PageHeader />
+        <div className="flex-1 flex flex-col items-center justify-center gap-4">
+          <div className="max-w-md text-center space-y-3 p-6 rounded-lg bg-card cyber-border scanline">
+            <p className="font-mono text-secondary text-glow-secondary">{t('guestNoStats')}</p>
+            <p className="font-mono text-xs text-muted-foreground">{t('createAccountToTrack')}</p>
+          </div>
           <button
             onClick={() => navigate('/auth')}
             className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-mono text-sm glow-primary"
           >
             {t('createAccount')}
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            className="px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm"
-          >
-            {t('backToMenu')}
           </button>
         </div>
       </div>
@@ -188,32 +183,16 @@ const Stats: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
-      {/* Language toggle */}
-      <div className="fixed top-4 end-4 z-50">
-        <button
-          onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-          className="px-3 py-1.5 rounded-md bg-card text-muted-foreground font-mono text-sm cyber-border hover:text-primary transition-colors"
-        >
-          {lang === 'en' ? 'العربية' : 'English'}
-        </button>
-      </div>
+    <div className="h-screen flex flex-col items-center px-4 py-2 overflow-hidden">
+      <PageHeader center={profile?.display_name ?? undefined} />
 
-      {/* Header */}
-      <div className="w-full max-w-md flex items-center justify-between mb-4 mt-2">
-        <button
-          onClick={() => navigate('/')}
-          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
-        >
-          ← {t('backToMenu')}
-        </button>
-        <div className="font-mono text-xs text-muted-foreground">{profile?.display_name}</div>
-      </div>
-
-      <div className="w-full max-w-md text-center mb-4">
+      <div className="w-full max-w-md text-center mb-3 shrink-0">
         <h1 className="font-mono text-2xl font-bold text-primary text-glow-primary">{t('myStats')}</h1>
-        <p className="font-mono text-xs text-muted-foreground mt-1">{t('statsSubtitle')}</p>
+        <p className="font-mono text-[11px] text-muted-foreground mt-1">{t('statsSubtitle')}</p>
       </div>
+
+      <div className="w-full max-w-md flex-1 min-h-0 overflow-y-auto">
+
 
       {/* Online stats card */}
       <div className="w-full max-w-md mb-4 p-4 rounded-lg bg-card cyber-border scanline">
