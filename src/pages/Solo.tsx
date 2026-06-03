@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { GameConfig } from '@/game/engine';
 import GameBoard from '@/components/game/GameBoard';
+import PageHeader from '@/components/PageHeader';
 
 const Solo: React.FC = () => {
   const navigate = useNavigate();
