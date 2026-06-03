@@ -4,6 +4,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import PageHeader from '@/components/PageHeader';
 
 type Mode = 'turn_based' | 'simultaneous';
 type Tab = 'create' | 'join' | 'quick';
@@ -156,34 +157,26 @@ const Online: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-6">
-      <div className="w-full max-w-md flex items-center justify-between mb-6">
-        <button
-          onClick={() => navigate('/')}
-          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
-        >
-          ← {t('backToMenu')}
-        </button>
-        {user && (
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs text-muted-foreground">
-              {profile?.display_name}
-            </span>
+    <div className="h-screen flex flex-col items-center px-4 py-2 overflow-hidden">
+      <PageHeader
+        right={
+          user && (
             <button
               onClick={signOut}
-              className="font-mono text-xs text-muted-foreground hover:text-destructive transition-colors"
+              className="font-mono text-[11px] text-muted-foreground hover:text-destructive transition-colors px-1.5"
             >
               {t('signOut')}
             </button>
-          </div>
-        )}
-      </div>
+          )
+        }
+        center={user ? profile?.display_name : undefined}
+      />
 
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-mono font-bold text-primary text-glow-primary mb-2">
+      <div className="text-center mb-3 shrink-0">
+        <h1 className="text-2xl font-mono font-bold text-primary text-glow-primary">
           {t('onlineMode')}
         </h1>
-        <p className="text-muted-foreground font-mono text-xs">{t('onlineSubtitle')}</p>
+        <p className="text-muted-foreground font-mono text-[11px]">{t('onlineSubtitle')}</p>
       </div>
 
       {!user && (
