@@ -166,15 +166,13 @@ const Daily: React.FC = () => {
   return (
     <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
 
-      {/* Header */}
-      <div className="w-full max-w-md flex items-center justify-between mb-2 mt-1 shrink-0">
-        <button
-          onClick={() => navigate('/')}
-          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
-        >
-          ← {t('backToMenu')}
-        </button>
-        <div className="font-mono text-xs text-muted-foreground">{config.date} • Berlin</div>
+      <PageHeader center={`${config.date} • Berlin`} />
+
+      {/* Title */}
+      <div className="w-full max-w-md text-center mb-2 shrink-0">
+        <h1 className="font-mono text-xl font-bold text-secondary text-glow-secondary">
+          {t('dailyPuzzle')}
+        </h1>
       </div>
 
       {/* Title */}
