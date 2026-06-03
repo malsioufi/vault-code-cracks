@@ -4,6 +4,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { lovable } from '@/integrations/lovable/index';
 import { toast } from 'sonner';
+import PageHeader from '@/components/PageHeader';
 
 const Auth: React.FC = () => {
   const { t } = useLanguage();
@@ -63,13 +64,11 @@ const Auth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6">
-      <button
-        onClick={() => navigate('/')}
-        className="self-start max-w-md w-full text-muted-foreground font-mono text-sm hover:text-foreground transition-colors mb-4"
-      >
-        ← {t('backToMenu')}
-      </button>
+    <div className="h-screen flex flex-col items-center px-4 py-2 overflow-hidden">
+      <PageHeader />
+
+      <div className="flex-1 min-h-0 w-full max-w-md overflow-y-auto flex items-start justify-center">
+
 
       <form
         onSubmit={handleSubmit}
@@ -167,6 +166,7 @@ const Auth: React.FC = () => {
           {t('continueAsGuest')}
         </button>
       </form>
+      </div>
     </div>
   );
 };

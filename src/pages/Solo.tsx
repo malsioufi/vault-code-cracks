@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { GameConfig } from '@/game/engine';
 import GameBoard from '@/components/game/GameBoard';
+import PageHeader from '@/components/PageHeader';
 
 const Solo: React.FC = () => {
-  const navigate = useNavigate();
   const { t } = useLanguage();
 
   const [gameConfig, setGameConfig] = useState<GameConfig | null>(null);
@@ -31,23 +30,16 @@ const Solo: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-6">
-      <div className="w-full max-w-md flex items-center justify-between mb-6">
-        <button
-          onClick={() => navigate('/')}
-          className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
-        >
-          ← {t('backToMenu')}
-        </button>
-      </div>
+    <div className="h-screen flex flex-col items-center px-4 py-2 overflow-hidden">
+      <PageHeader />
 
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-mono font-bold text-primary text-glow-primary mb-2">
+      <div className="text-center mb-3 shrink-0">
+        <h1 className="text-2xl font-mono font-bold text-primary text-glow-primary">
           {t('soloMode')}
         </h1>
       </div>
 
-      <div className="w-full max-w-md p-5 rounded-lg bg-card cyber-border space-y-5">
+      <div className="w-full max-w-md p-4 rounded-lg bg-card cyber-border space-y-3 overflow-y-auto">
         <div>
           <label className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">
             {t('codeLength')}
