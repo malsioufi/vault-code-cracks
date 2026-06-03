@@ -301,6 +301,7 @@ const Stats: React.FC = () => {
           </div>
         )}
       </div>
+      </div>
     </div>
   );
 };
