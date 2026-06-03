@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import PageHeader from '@/components/PageHeader';
 
 interface RoomRow {
   id: string;
@@ -146,20 +147,15 @@ const Stats: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-4">
-        <p className="font-mono text-muted-foreground text-center">{t('statsRequireAccount')}</p>
-        <div className="flex gap-3">
+      <div className="h-screen flex flex-col items-center px-4 overflow-hidden">
+        <PageHeader />
+        <div className="flex-1 flex flex-col items-center justify-center gap-4">
+          <p className="font-mono text-muted-foreground text-center">{t('statsRequireAccount')}</p>
           <button
             onClick={() => navigate('/auth')}
             className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-mono text-sm glow-primary"
           >
             {t('signIn')}
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            className="px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm"
-          >
-            {t('backToMenu')}
           </button>
         </div>
       </div>
