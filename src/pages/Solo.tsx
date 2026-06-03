@@ -39,7 +39,7 @@ const Solo: React.FC = () => {
         </h1>
       </div>
 
-      <div className="w-full max-w-md p-5 rounded-lg bg-card cyber-border space-y-5">
+      <div className="w-full max-w-md p-4 rounded-lg bg-card cyber-border space-y-3 overflow-y-auto">
         <div>
           <label className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">
             {t('codeLength')}
