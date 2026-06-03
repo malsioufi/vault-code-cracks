@@ -11,6 +11,7 @@ import { evaluateGuess, getDigitStatuses, type GuessEntry } from '@/game/engine'
 import DigitInput from '@/components/game/DigitInput';
 import GuessHistory from '@/components/game/GuessHistory';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
+import PageHeader from '@/components/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { getDifficultyTier, TIER_COLOR } from '@/game/difficulty';
