@@ -180,7 +180,9 @@ const Online: React.FC = () => {
       </div>
 
       <div className="w-full max-w-md flex-1 min-h-0 overflow-y-auto flex flex-col">
-        <div className="w-full max-w-md mb-4 p-4 rounded-lg bg-card cyber-border space-y-3">
+        {!user && (
+        <div className="w-full mb-3 p-4 rounded-lg bg-card cyber-border space-y-3">
+
           <label className="text-xs text-muted-foreground font-mono uppercase tracking-wider block">
             {t('nickname')}
           </label>
