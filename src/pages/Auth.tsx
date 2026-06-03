@@ -166,6 +166,7 @@ const Auth: React.FC = () => {
           {t('continueAsGuest')}
         </button>
       </form>
+      </div>
     </div>
   );
 };
