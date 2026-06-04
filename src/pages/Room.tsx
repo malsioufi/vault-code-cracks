@@ -265,24 +265,35 @@ const Room: React.FC = () => {
   const timerPercent = (timer / TURN_TIME) * 100;
   const timerColor = timer <= 10 ? 'bg-destructive' : timer <= 20 ? 'bg-warning' : 'bg-primary';
 
+  const myName = profile?.display_name ?? t('you');
+  const opponentName = opponentId ? (profiles[opponentId] ?? t('opponentLabel')) : t('opponentLabel');
+
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
+    <div className="h-screen flex flex-col items-center px-4 pt-3 pb-2 overflow-hidden">
       {/* Header */}
-      <div className="w-full max-w-md flex items-center justify-between mb-4">
+      <div className="w-full max-w-md flex items-center justify-between mb-2 shrink-0">
         <button
           onClick={() => navigate('/online')}
           className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+          aria-label={t('backToMenu')}
         >
-          ← {t('backToMenu')}
+          ←
         </button>
         <div dir="ltr" className="font-mono text-xs text-muted-foreground">
           #{room.code}
         </div>
       </div>
 
+      {/* Players */}
+      <div className="w-full max-w-md flex items-center justify-between mb-2 font-mono text-[11px] shrink-0">
+        <span className="text-primary truncate max-w-[45%]">👤 {myName}</span>
+        <span className="text-muted-foreground">vs</span>
+        <span className="text-secondary truncate max-w-[45%] text-right">{opponentName} 👤</span>
+      </div>
+
       {/* Status / Turn / Timer */}
       {isPlaying && (
-        <div className="w-full max-w-md mb-4">
+        <div className="w-full max-w-md mb-2 shrink-0">
           <div className="flex justify-between items-center mb-1">
             <span className="font-mono text-xs text-muted-foreground">
               {room.mode === 'turn_based'
@@ -309,81 +320,107 @@ const Room: React.FC = () => {
 
       {/* Reconnect warning */}
       {reconnectCountdown !== null && !gameOver && (
-        <div className="w-full max-w-md mb-4 p-3 rounded bg-destructive/10 cyber-border text-center">
+        <div className="w-full max-w-md mb-2 p-2 rounded bg-destructive/10 cyber-border text-center shrink-0">
           <p className="font-mono text-xs text-destructive">
             {t('opponentDisconnected')} — {reconnectCountdown}s
           </p>
         </div>
       )}
 
-      {/* Game Over */}
-      {gameOver && (
-        <div className="w-full max-w-md mb-6 p-6 rounded-lg bg-card cyber-border text-center scanline">
-          {(() => {
-            const iWon = room.winner_id === user.id;
-            const isDraw = !room.winner_id && room.status === 'finished';
-            const winnerName = room.winner_id
-              ? (profiles[room.winner_id] || (room.winner_id === user.id ? (profile?.display_name ?? 'You') : 'Opponent'))
-              : null;
-            const headlineKey = iWon
-              ? t('youWin')
-              : isDraw
-              ? t('drawTitle')
-              : room.status === 'abandoned'
-              ? t('opponentForfeited')
-              : t('opponentWins');
-            return (
-              <>
-                <h2
-                  className={`font-mono text-2xl font-bold mb-1 ${
-                    iWon ? 'text-primary text-glow-primary' : isDraw ? 'text-warning' : 'text-destructive'
-                  }`}
-                >
-                  {headlineKey}
-                </h2>
-                {winnerName && !isDraw && (
-                  <p className="font-mono text-sm text-muted-foreground mb-3">
-                    🏆 {t('winnerIs')}:{' '}
-                    <span className={iWon ? 'text-primary text-glow-primary' : 'text-foreground'}>
-                      {winnerName}
-                    </span>
-                  </p>
-                )}
-              </>
-            );
-          })()}
-          {opponentSecret && (
-            <>
-              <p className="font-mono text-sm text-muted-foreground mb-1">{t('opponentSecret')}</p>
-              <div dir="ltr" className="flex gap-2 justify-center mb-4">
-                {opponentSecret.map((d, i) => (
-                  <span
-                    key={i}
-                    className="w-10 h-10 flex items-center justify-center rounded bg-primary text-primary-foreground font-mono text-lg font-bold"
+      {/* Scrollable history area */}
+      <div
+        className="w-full max-w-md flex-1 min-h-0 overflow-y-auto"
+        style={{ paddingBottom: isPlaying && !gameOver ? '210px' : undefined }}
+      >
+        {gameOver && (
+          <div className="w-full mb-4 p-6 rounded-lg bg-card cyber-border text-center scanline">
+            {(() => {
+              const iWon = room.winner_id === user.id;
+              const isDraw = !room.winner_id && room.status === 'finished';
+              const winnerName = room.winner_id
+                ? (profiles[room.winner_id] || (room.winner_id === user.id ? myName : opponentName))
+                : null;
+              const headlineKey = iWon
+                ? t('youWin')
+                : isDraw
+                ? t('drawTitle')
+                : room.status === 'abandoned'
+                ? t('opponentForfeited')
+                : t('opponentWins');
+              return (
+                <>
+                  <h2
+                    className={`font-mono text-2xl font-bold mb-1 ${
+                      iWon ? 'text-primary text-glow-primary' : isDraw ? 'text-warning' : 'text-destructive'
+                    }`}
                   >
-                    {d}
-                  </span>
-                ))}
-              </div>
-            </>
-          )}
-          <div className="flex flex-col gap-2 items-stretch">
-            <button
-              onClick={handleRematch}
-              disabled={rematchPending}
-              className="w-full px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-mono text-sm font-bold glow-secondary hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {rematchPending ? t('rematchSent') : `🔁 ${t('rematch')}`}
-            </button>
-            <button
-              onClick={() => navigate('/online')}
-              className="w-full px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
-            >
-              {t('backToMenu')}
-            </button>
+                    {headlineKey}
+                  </h2>
+                  {winnerName && !isDraw && (
+                    <p className="font-mono text-sm text-muted-foreground mb-3">
+                      🏆 {t('winnerIs')}:{' '}
+                      <span className={iWon ? 'text-primary text-glow-primary' : 'text-foreground'}>
+                        {winnerName}
+                      </span>
+                    </p>
+                  )}
+                </>
+              );
+            })()}
+            {opponentSecret && (
+              <>
+                <p className="font-mono text-sm text-muted-foreground mb-1">{t('opponentSecret')}</p>
+                <div dir="ltr" className="flex gap-2 justify-center mb-4">
+                  {opponentSecret.map((d, i) => (
+                    <span
+                      key={i}
+                      className="w-10 h-10 flex items-center justify-center rounded bg-primary text-primary-foreground font-mono text-lg font-bold"
+                    >
+                      {d}
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
+            <div className="flex flex-col gap-2 items-stretch">
+              <button
+                onClick={handleRematch}
+                disabled={rematchPending}
+                className="w-full px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-mono text-sm font-bold glow-secondary hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {rematchPending ? t('rematchSent') : `🔁 ${t('rematch')}`}
+              </button>
+              <button
+                onClick={() => navigate('/online')}
+                className="w-full px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+              >
+                {t('backToMenu')}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        <GuessHistory
+          history={myGuesses}
+          codeLength={room.code_length}
+          secret={opponentSecret}
+          gameOver={gameOver}
+        />
+
+        {oppGuesses.length > 0 && (
+          <div className="mt-4 pt-3 border-t border-border">
+            <h3 className="font-mono text-xs text-warning uppercase tracking-widest mb-2">
+              {opponentName} — {t('opponentGuesses')}
+            </h3>
+            <GuessHistory
+              history={oppGuesses}
+              codeLength={room.code_length}
+              secret={mySecretRevealed}
+              gameOver={gameOver}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Incoming Rematch Invite */}
       {rematchInvite && rematchInvite.newRoomCode !== room.code && (
@@ -411,10 +448,10 @@ const Room: React.FC = () => {
         </div>
       )}
 
-      {/* Player Section */}
-      <div className="w-full max-w-md space-y-4">
-        {isPlaying && (
-          <>
+      {/* Fixed bottom input */}
+      {isPlaying && !gameOver && (
+        <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
+          <div className="w-full max-w-md mx-auto space-y-2">
             <DigitInput
               codeLength={room.code_length}
               allowDuplicates={room.allow_duplicates}
@@ -423,36 +460,13 @@ const Room: React.FC = () => {
             />
             <button
               onClick={handleForfeit}
-              className="w-full py-2 rounded-lg bg-destructive/10 text-destructive font-mono text-sm hover:bg-destructive/20 transition-colors cyber-border"
+              className="w-full py-1.5 rounded-lg bg-destructive/10 text-destructive font-mono text-xs hover:bg-destructive/20 transition-colors cyber-border"
             >
               {t('forfeit')}
             </button>
-          </>
-        )}
-
-        {/* My history */}
-        <GuessHistory
-          history={myGuesses}
-          codeLength={room.code_length}
-          secret={opponentSecret}
-          gameOver={gameOver}
-        />
-
-        {/* Opponent history */}
-        {oppGuesses.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-border">
-            <h3 className="font-mono text-xs text-warning uppercase tracking-widest mb-3">
-              {t('opponentGuesses')}
-            </h3>
-            <GuessHistory
-              history={oppGuesses}
-              codeLength={room.code_length}
-              secret={mySecretRevealed}
-              gameOver={gameOver}
-            />
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
