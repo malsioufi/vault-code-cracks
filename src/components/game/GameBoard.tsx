@@ -11,7 +11,7 @@ import {
 } from '@/game/engine';
 import DigitInput from './DigitInput';
 import GuessHistory from './GuessHistory';
-import { getDifficultyTier, TIER_COLOR } from '@/game/difficulty';
+import { getDifficultyScore, getDifficultyScoreColor } from '@/game/difficulty';
 
 interface GameBoardProps {
   config: GameConfig;
@@ -187,35 +187,32 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-4 pb-8">
+    <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
       {/* Header */}
-      <div className="w-full max-w-md flex items-center justify-between mb-4">
+      <div className="w-full max-w-md flex items-center justify-between mb-3 shrink-0">
         <button
           onClick={onBack}
           className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+          aria-label={t('backToMenu')}
         >
-          ← {t('backToMenu')}
+          ←
         </button>
         {(() => {
-          const tier = getDifficultyTier(config.codeLength, config.allowDuplicates, config.maxTries);
-          const tierKey = `tier${tier.charAt(0).toUpperCase() + tier.slice(1)}` as 'tierEasy' | 'tierNormal' | 'tierHard' | 'tierLegendary';
+          const score = getDifficultyScore(config.codeLength, config.allowDuplicates, config.maxTries);
+          const color = getDifficultyScoreColor(score);
           return (
             <div className="font-mono text-[11px] text-muted-foreground flex items-center gap-2 flex-wrap justify-end">
-              <span>{config.codeLength} {t('digits')}</span>
-              <span className={config.allowDuplicates ? 'text-warning' : 'opacity-60'}>
-                {config.allowDuplicates ? '⇆ dup' : 'no dup'}
-              </span>
-              <span className={`${TIER_COLOR[tier]} font-bold`}>{t(tierKey)}</span>
-              {triesLeft !== null && !gameOver && (
-                <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>
-              )}
+              <span>Len.: <span className="text-primary font-bold">{config.codeLength}</span></span>
+              <span>Dupl.: <span className={config.allowDuplicates ? 'text-warning font-bold' : 'text-muted-foreground'}>{config.allowDuplicates ? t('on') : t('off')}</span></span>
+              {config.maxTries !== null && <span>Tries: <span className="text-primary font-bold">{config.maxTries}</span></span>}
+              <span>Diff.: <span className={`${color} font-bold`}>{score}/10</span></span>
             </div>
           );
         })()}
       </div>
 
       {/* Timer Bar */}
-      <div className="w-full max-w-md mb-6">
+      <div className="w-full max-w-md mb-2 shrink-0">
         {isPassive ? (
           <div className="flex justify-between items-center">
             <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider">
@@ -245,77 +242,58 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
         )}
       </div>
 
-      {/* Game Over Modal */}
-      {gameOver && (
-        <div className="w-full max-w-md mb-6 p-6 rounded-lg bg-card cyber-border text-center scanline">
-          <h2
-            className={`font-mono text-2xl font-bold mb-1 ${
-              result === 'win' ? 'text-primary text-glow-primary' : 'text-destructive'
-            }`}
-          >
-            {result === 'win'
-              ? t('youWin')
-              : result === 'ai-win'
-              ? t('aiWins')
-              : t('youLose')}
-          </h2>
-          <p className="font-mono text-sm text-muted-foreground mb-3">
-            🏆 {t('winnerIs')}:{' '}
-            <span className={result === 'win' ? 'text-primary text-glow-primary' : 'text-destructive'}>
-              {result === 'win' ? t('you') : t('aiPlayer')}
-            </span>
-          </p>
-          <p className="font-mono text-sm text-muted-foreground mb-1">
-            {t('secretWas')}:
-          </p>
-          <div dir="ltr" className="flex gap-2 justify-center mb-4">
-            {secret.map((d, i) => (
-              <span
-                key={i}
-                className="w-10 h-10 flex items-center justify-center rounded bg-primary text-primary-foreground font-mono text-lg font-bold"
-              >
-                {d}
+      {/* Scrollable history area */}
+      <div
+        className="w-full max-w-md flex-1 min-h-0 overflow-y-auto"
+        style={{ paddingBottom: !gameOver ? '190px' : undefined }}
+      >
+        {gameOver && (
+          <div className="w-full mb-4 p-6 rounded-lg bg-card cyber-border text-center scanline">
+            <h2
+              className={`font-mono text-2xl font-bold mb-1 ${
+                result === 'win' ? 'text-primary text-glow-primary' : 'text-destructive'
+              }`}
+            >
+              {result === 'win'
+                ? t('youWin')
+                : result === 'ai-win'
+                ? t('aiWins')
+                : t('youLose')}
+            </h2>
+            <p className="font-mono text-sm text-muted-foreground mb-3">
+              🏆 {t('winnerIs')}:{' '}
+              <span className={result === 'win' ? 'text-primary text-glow-primary' : 'text-destructive'}>
+                {result === 'win' ? t('you') : t('aiPlayer')}
               </span>
-            ))}
+            </p>
+            <p className="font-mono text-sm text-muted-foreground mb-1">{t('secretWas')}:</p>
+            <div dir="ltr" className="flex gap-2 justify-center mb-4">
+              {secret.map((d, i) => (
+                <span
+                  key={i}
+                  className="w-10 h-10 flex items-center justify-center rounded bg-primary text-primary-foreground font-mono text-lg font-bold"
+                >
+                  {d}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={handlePlayAgain}
+                className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-mono text-sm font-bold glow-primary hover:opacity-90 transition-all"
+              >
+                🔁 {t('playAgain')}
+              </button>
+              <button
+                onClick={onBack}
+                className="w-full px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+              >
+                {t('backToMenu')}
+              </button>
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={handlePlayAgain}
-              className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-mono text-sm font-bold glow-primary hover:opacity-90 transition-all"
-            >
-              🔁 {t('playAgain')}
-            </button>
-            <button
-              onClick={onBack}
-              className="w-full px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
-            >
-              {t('backToMenu')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Player Section */}
-      <div className="w-full max-w-md space-y-4">
-        {!gameOver && (
-          <>
-            <DigitInput
-              key={gameId}
-              codeLength={config.codeLength}
-              allowDuplicates={config.allowDuplicates}
-              onSubmit={handleGuess}
-              disabled={!isPlayerTurn || gameOver}
-            />
-            <button
-              onClick={handleGiveUp}
-              className="w-full py-2 rounded-lg bg-destructive/10 text-destructive font-mono text-sm hover:bg-destructive/20 transition-colors cyber-border"
-            >
-              {t('giveUp')}
-            </button>
-          </>
         )}
 
-        {/* Player History */}
         <GuessHistory
           history={playerHistory}
           codeLength={config.codeLength}
@@ -323,7 +301,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
           gameOver={gameOver}
         />
 
-        {/* AI History (Active Bot) */}
         {config.botMode === 'active' && aiHistory.length > 0 && (
           <div className="mt-6 pt-4 border-t border-border">
             <h3 className="font-mono text-xs text-warning uppercase tracking-widest mb-3">
@@ -338,6 +315,33 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
           </div>
         )}
       </div>
+
+      {/* Fixed bottom input */}
+      {!gameOver && (
+        <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
+          <div className="w-full max-w-md mx-auto space-y-2">
+            {triesLeft !== null && (
+              <div className="flex justify-between font-mono text-xs text-muted-foreground">
+                <span>{t('attempt')} {playerHistory.length + 1}{config.maxTries ? `/${config.maxTries}` : ''}</span>
+                <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>
+              </div>
+            )}
+            <DigitInput
+              key={gameId}
+              codeLength={config.codeLength}
+              allowDuplicates={config.allowDuplicates}
+              onSubmit={handleGuess}
+              disabled={!isPlayerTurn || gameOver}
+            />
+            <button
+              onClick={handleGiveUp}
+              className="w-full py-1.5 rounded-lg bg-destructive/10 text-destructive font-mono text-xs hover:bg-destructive/20 transition-colors cyber-border"
+            >
+              {t('giveUp')}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
