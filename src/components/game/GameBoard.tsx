@@ -11,7 +11,7 @@ import {
 } from '@/game/engine';
 import DigitInput from './DigitInput';
 import GuessHistory from './GuessHistory';
-import { getDifficultyTier, TIER_COLOR } from '@/game/difficulty';
+import { getDifficultyScore, getDifficultyScoreColor } from '@/game/difficulty';
 
 interface GameBoardProps {
   config: GameConfig;
@@ -198,8 +198,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
           ←
         </button>
         {(() => {
-          const score = (require('@/game/difficulty') as typeof import('@/game/difficulty')).getDifficultyScore(config.codeLength, config.allowDuplicates, config.maxTries);
-          const color = (require('@/game/difficulty') as typeof import('@/game/difficulty')).getDifficultyScoreColor(score);
+          const score = getDifficultyScore(config.codeLength, config.allowDuplicates, config.maxTries);
+          const color = getDifficultyScoreColor(score);
           return (
             <div className="font-mono text-[11px] text-muted-foreground flex items-center gap-2 flex-wrap justify-end">
               <span>Len.: <span className="text-primary font-bold">{config.codeLength}</span></span>
