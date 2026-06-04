@@ -31,7 +31,7 @@ const MatrixRain: React.FC<{ opacity?: number }> = ({ opacity = 0.18 }) => {
     resize();
     window.addEventListener('resize', resize);
 
-    const chars = '01░▒▓<>/\\|=+*-アイウエオカキクケコサシスセソタチツテト';
+    const chars = '0123456789';
     let raf = 0;
     let last = 0;
     const interval = reduced ? 0 : 55; // ms between frames

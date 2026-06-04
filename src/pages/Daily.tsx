@@ -14,7 +14,7 @@ import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import PageHeader from '@/components/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { getDifficultyTier, TIER_COLOR } from '@/game/difficulty';
+import { getDifficultyScore, getDifficultyScoreColor } from '@/game/difficulty';
 
 function formatCountdown(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -180,23 +180,22 @@ const Daily: React.FC = () => {
       <div className="w-full max-w-md mb-2 p-2 rounded-lg bg-card cyber-border shrink-0">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 font-mono text-[11px]">
           <span className="text-muted-foreground">
-            {t('codeLength')}: <span className="text-primary font-bold">{config.codeLength}</span>
+            Len.: <span className="text-primary font-bold">{config.codeLength}</span>
           </span>
           <span className="text-muted-foreground">
-            {t('allowDuplicates')}:{' '}
+            Dupl.:{' '}
             <span className={config.allowDuplicates ? 'text-warning font-bold' : 'text-muted-foreground'}>
               {config.allowDuplicates ? t('on') : t('off')}
             </span>
           </span>
           <span className="text-muted-foreground">
-            {t('maxTries')}: <span className="text-primary font-bold">{config.maxTries}</span>
+            Tries: <span className="text-primary font-bold">{config.maxTries}</span>
           </span>
           {(() => {
-            const tier = getDifficultyTier(config.codeLength, config.allowDuplicates, config.maxTries);
-            const tierKey = `tier${tier.charAt(0).toUpperCase() + tier.slice(1)}` as 'tierEasy' | 'tierNormal' | 'tierHard' | 'tierLegendary';
+            const score = getDifficultyScore(config.codeLength, config.allowDuplicates, config.maxTries);
             return (
               <span className="text-muted-foreground">
-                {t('difficulty')}: <span className={`${TIER_COLOR[tier]} font-bold`}>{t(tierKey)}</span>
+                Diff.: <span className={`${getDifficultyScoreColor(score)} font-bold`}>{score}/10</span>
               </span>
             );
           })()}
