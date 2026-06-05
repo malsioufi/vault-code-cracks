@@ -16,6 +16,7 @@ interface RoomRow {
   status: 'waiting' | 'setting_secrets' | 'playing' | 'finished' | 'abandoned';
   mode: 'turn_based' | 'simultaneous';
   code_length: number;
+  allow_duplicates: boolean;
   winner_id: string | null;
   finished_at: string | null;
   created_at: string;
