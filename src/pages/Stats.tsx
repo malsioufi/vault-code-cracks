@@ -4,6 +4,9 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import PageHeader from '@/components/PageHeader';
+import AchievementsCard from '@/components/game/AchievementsCard';
+import { useAchievements } from '@/hooks/useAchievements';
+import { UnlockContext } from '@/game/achievements';
 
 interface RoomRow {
   id: string;
