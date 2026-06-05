@@ -4,6 +4,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { lovable } from '@/integrations/lovable/index';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import PageHeader from '@/components/PageHeader';
 
 const Auth: React.FC = () => {
@@ -63,6 +64,25 @@ const Auth: React.FC = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error('Enter your email first');
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success('Recovery link sent. Check your inbox.');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Reset request failed');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col items-center px-4 py-2 overflow-hidden">
       <PageHeader />
@@ -114,6 +134,17 @@ const Auth: React.FC = () => {
         >
           {busy ? '...' : mode === 'signin' ? t('signIn') : t('createAccount')}
         </button>
+
+        {mode === 'signin' && (
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            disabled={busy}
+            className="w-full text-xs text-muted-foreground font-mono hover:text-primary transition-colors"
+          >
+            Forgot your password?
+          </button>
+        )}
 
         <button
           type="button"

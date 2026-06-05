@@ -6,8 +6,7 @@ import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import MatrixRain from '@/components/MatrixRain';
 import { useAuth } from '@/hooks/useAuth';
 import { dailyDateString } from '@/game/dailyPuzzle';
-import { ChevronDown, Trophy, BarChart3, LogIn, Globe, Dumbbell, KeyRound } from 'lucide-react';
-import { toast } from 'sonner';
+import { ChevronDown, Trophy, BarChart3, LogIn, Globe, Dumbbell } from 'lucide-react';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
@@ -151,23 +150,8 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
                 </span>
               }
             />
-            <NeonButton
-              tone="warning"
-              onClick={() =>
-                toast.warning('🔓 ALPHA-NUMERIC VAULT — INCOMING', {
-                  description:
-                    'Soon: a brutal new mode mixing letters AND digits. Bigger keyspace. Harder mind games. Train now — only legends will crack it.',
-                  duration: 6000,
-                })
-              }
-              label={
-                <span className="inline-flex items-center justify-center gap-2">
-                  <KeyRound className="w-4 h-4" />
-                  Letters Mode • Soon
-                </span>
-              }
-            />
           </div>
+
 
           {/* Secondary controls */}
           <div className="w-full max-w-sm mt-3 flex items-center justify-center gap-2 shrink-0">

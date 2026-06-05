@@ -4,6 +4,9 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import PageHeader from '@/components/PageHeader';
+import AchievementsCard from '@/components/game/AchievementsCard';
+import { useAchievements } from '@/hooks/useAchievements';
+import { UnlockContext } from '@/game/achievements';
 
 interface RoomRow {
   id: string;
@@ -13,6 +16,7 @@ interface RoomRow {
   status: 'waiting' | 'setting_secrets' | 'playing' | 'finished' | 'abandoned';
   mode: 'turn_based' | 'simultaneous';
   code_length: number;
+  allow_duplicates: boolean;
   winner_id: string | null;
   finished_at: string | null;
   created_at: string;
@@ -44,6 +48,7 @@ const Stats: React.FC = () => {
   const [profilesMap, setProfilesMap] = useState<Record<string, string>>({});
   const [dailyStreak, setDailyStreak] = useState<{ current: number; best: number }>({ current: 0, best: 0 });
   const [loading, setLoading] = useState(true);
+  const [guessCounts, setGuessCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (authLoading) return;
@@ -56,7 +61,7 @@ const Stats: React.FC = () => {
       const [{ data: roomData }, { data: dailyData }, { data: streakData }] = await Promise.all([
         supabase
           .from('rooms')
-          .select('id, code, host_id, guest_id, status, mode, code_length, winner_id, finished_at, created_at')
+          .select('id, code, host_id, guest_id, status, mode, code_length, allow_duplicates, winner_id, finished_at, created_at')
           .or(`host_id.eq.${user.id},guest_id.eq.${user.id}`)
           .in('status', ['finished', 'abandoned'])
           .order('finished_at', { ascending: false, nullsFirst: false })
@@ -99,10 +104,64 @@ const Stats: React.FC = () => {
         }
       }
 
+      // Fetch this user's guess counts per won room (for achievements)
+      const wonRoomIds = rs.filter((r) => r.winner_id === user.id).map((r) => r.id);
+      if (wonRoomIds.length) {
+        const { data: gs } = await supabase
+          .from('guesses')
+          .select('room_id')
+          .eq('player_id', user.id)
+          .in('room_id', wonRoomIds);
+        if (gs && !cancelled) {
+          const counts: Record<string, number> = {};
+          for (const g of gs) {
+            const rid = g.room_id as string;
+            counts[rid] = (counts[rid] ?? 0) + 1;
+          }
+          setGuessCounts(counts);
+        }
+      }
+
       setLoading(false);
     })();
     return () => { cancelled = true; };
   }, [user, profile, authLoading]);
+
+  // Achievements context
+  const achievementsContext = useMemo<UnlockContext | null>(() => {
+    if (!user || profile?.is_guest) return null;
+    // current online win streak (rooms sorted desc by finished_at)
+    let streak = 0;
+    for (const r of rooms) {
+      if (r.winner_id === user.id) streak += 1;
+      else break;
+    }
+    const wonDaily = daily.filter((d) => d.won);
+    const dailyBestGuessCount = wonDaily.length
+      ? Math.min(...wonDaily.map((d) => d.attempts_used))
+      : 0;
+    return {
+      onlineWins: rooms.filter((r) => r.winner_id === user.id).length,
+      onlineMatches: rooms.map((r) => ({
+        won: r.winner_id === user.id,
+        guessCount: guessCounts[r.id],
+        codeLength: r.code_length,
+        allowDuplicates: r.allow_duplicates,
+        finishedAt: r.finished_at,
+      })),
+      currentWinStreak: streak,
+      dailyWins: wonDaily.length,
+      dailyBestGuessCount,
+      dailyCurrentStreak: dailyStreak.current,
+      dailyBestStreak: dailyStreak.best,
+    };
+  }, [rooms, daily, dailyStreak, guessCounts, user, profile]);
+
+  const { unlocked: unlockedAchievements } = useAchievements({
+    userId: user?.id,
+    isGuest: !!profile?.is_guest,
+    context: achievementsContext,
+  });
 
   const onlineStats = useMemo<Stats>(() => {
     let wins = 0, losses = 0, draws = 0;
@@ -237,6 +296,11 @@ const Stats: React.FC = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Achievements */}
+      <div className="w-full max-w-md mb-4">
+        <AchievementsCard unlocked={unlockedAchievements} />
       </div>
 
       {/* Recent matches */}
