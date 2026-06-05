@@ -298,6 +298,11 @@ const Stats: React.FC = () => {
         )}
       </div>
 
+      {/* Achievements */}
+      <div className="w-full max-w-md mb-4">
+        <AchievementsCard unlocked={unlockedAchievements} />
+      </div>
+
       {/* Recent matches */}
       <div className="w-full max-w-md">
         <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-2">
