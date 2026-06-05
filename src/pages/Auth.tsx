@@ -4,6 +4,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { lovable } from '@/integrations/lovable/index';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import PageHeader from '@/components/PageHeader';
 
 const Auth: React.FC = () => {
