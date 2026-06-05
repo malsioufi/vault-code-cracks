@@ -47,6 +47,7 @@ const Stats: React.FC = () => {
   const [daily, setDaily] = useState<DailyRow[]>([]);
   const [profilesMap, setProfilesMap] = useState<Record<string, string>>({});
   const [dailyStreak, setDailyStreak] = useState<{ current: number; best: number }>({ current: 0, best: 0 });
+  const [loading, setLoading] = useState(true);
   const [guessCounts, setGuessCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
