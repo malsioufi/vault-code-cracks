@@ -12,6 +12,7 @@ import Room from "./pages/Room.tsx";
 import Auth from "./pages/Auth.tsx";
 import Daily from "./pages/Daily.tsx";
 import Stats from "./pages/Stats.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 
 const queryClient = new QueryClient();
 
