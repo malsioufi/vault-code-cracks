@@ -150,23 +150,8 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
                 </span>
               }
             />
-            <NeonButton
-              tone="warning"
-              onClick={() =>
-                toast.warning('🔓 ALPHA-NUMERIC VAULT — INCOMING', {
-                  description:
-                    'Soon: a brutal new mode mixing letters AND digits. Bigger keyspace. Harder mind games. Train now — only legends will crack it.',
-                  duration: 6000,
-                })
-              }
-              label={
-                <span className="inline-flex items-center justify-center gap-2">
-                  <KeyRound className="w-4 h-4" />
-                  Letters Mode • Soon
-                </span>
-              }
-            />
           </div>
+
 
           {/* Secondary controls */}
           <div className="w-full max-w-sm mt-3 flex items-center justify-center gap-2 shrink-0">
