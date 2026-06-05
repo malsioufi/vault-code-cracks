@@ -63,6 +63,25 @@ const Auth: React.FC = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error('Enter your email first');
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success('Recovery link sent. Check your inbox.');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Reset request failed');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col items-center px-4 py-2 overflow-hidden">
       <PageHeader />
