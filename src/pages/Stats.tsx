@@ -61,7 +61,7 @@ const Stats: React.FC = () => {
       const [{ data: roomData }, { data: dailyData }, { data: streakData }] = await Promise.all([
         supabase
           .from('rooms')
-          .select('id, code, host_id, guest_id, status, mode, code_length, winner_id, finished_at, created_at')
+          .select('id, code, host_id, guest_id, status, mode, code_length, allow_duplicates, winner_id, finished_at, created_at')
           .or(`host_id.eq.${user.id},guest_id.eq.${user.id}`)
           .in('status', ['finished', 'abandoned'])
           .order('finished_at', { ascending: false, nullsFirst: false })
