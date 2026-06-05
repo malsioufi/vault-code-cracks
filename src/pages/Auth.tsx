@@ -135,6 +135,17 @@ const Auth: React.FC = () => {
           {busy ? '...' : mode === 'signin' ? t('signIn') : t('createAccount')}
         </button>
 
+        {mode === 'signin' && (
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            disabled={busy}
+            className="w-full text-xs text-muted-foreground font-mono hover:text-primary transition-colors"
+          >
+            Forgot your password?
+          </button>
+        )}
+
         <button
           type="button"
           onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
