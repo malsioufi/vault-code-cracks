@@ -6,8 +6,7 @@ import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import MatrixRain from '@/components/MatrixRain';
 import { useAuth } from '@/hooks/useAuth';
 import { dailyDateString } from '@/game/dailyPuzzle';
-import { ChevronDown, Trophy, BarChart3, LogIn, Globe, Dumbbell, KeyRound } from 'lucide-react';
-import { toast } from 'sonner';
+import { ChevronDown, Trophy, BarChart3, LogIn, Globe, Dumbbell } from 'lucide-react';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
