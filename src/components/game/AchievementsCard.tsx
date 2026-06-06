@@ -7,6 +7,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { Share2, Copy, Download } from 'lucide-react';
+import { toast } from 'sonner';
+import { generateBadgeImage, shareBadgeText } from '@/lib/shareBadge';
 
 interface Props {
   unlockedAt: Record<string, string>;
@@ -169,8 +172,104 @@ const AchievementDetails: React.FC<{
             />
           </div>
         </div>
+
+        {!locked && <ShareActions a={a} unlockedAt={unlockedAt!} />}
       </div>
     </>
+  );
+};
+
+const ShareActions: React.FC<{ a: Achievement; unlockedAt: string }> = ({ a, unlockedAt }) => {
+  const [busy, setBusy] = useState(false);
+
+  const handleShare = async () => {
+    setBusy(true);
+    try {
+      const blob = await generateBadgeImage(a, unlockedAt);
+      const file = new File([blob], `${a.id}-badge.png`, { type: 'image/png' });
+      const text = shareBadgeText(a, unlockedAt);
+      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+      if (nav.canShare && nav.canShare({ files: [file] })) {
+        await nav.share({
+          files: [file],
+          title: `${a.name} — Vault Breaker`,
+          text,
+        });
+      } else if (navigator.share) {
+        await navigator.share({ title: `${a.name} — Vault Breaker`, text });
+      } else {
+        // Fallback: download the image
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${a.id}-badge.png`;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast.success('Badge image downloaded');
+      }
+    } catch (err) {
+      // User cancelled or share failed — only show error if not abort
+      const name = (err as Error)?.name;
+      if (name !== 'AbortError') toast.error('Could not share badge');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleCopyText = async () => {
+    try {
+      await navigator.clipboard.writeText(shareBadgeText(a, unlockedAt));
+      toast.success('Badge text copied');
+    } catch {
+      toast.error('Copy failed');
+    }
+  };
+
+  const handleDownload = async () => {
+    setBusy(true);
+    try {
+      const blob = await generateBadgeImage(a, unlockedAt);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${a.id}-badge.png`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error('Could not generate image');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="pt-2 border-t border-border">
+      <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+        Share badge
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          onClick={handleShare}
+          disabled={busy}
+          className="inline-flex items-center justify-center gap-1.5 py-2 rounded-md bg-primary text-primary-foreground font-mono text-[11px] font-bold glow-primary hover:opacity-90 transition disabled:opacity-50"
+        >
+          <Share2 className="w-3.5 h-3.5" /> Share
+        </button>
+        <button
+          onClick={handleDownload}
+          disabled={busy}
+          className="inline-flex items-center justify-center gap-1.5 py-2 rounded-md bg-muted text-foreground font-mono text-[11px] hover:bg-muted/70 transition disabled:opacity-50"
+        >
+          <Download className="w-3.5 h-3.5" /> Image
+        </button>
+        <button
+          onClick={handleCopyText}
+          className="inline-flex items-center justify-center gap-1.5 py-2 rounded-md bg-muted text-foreground font-mono text-[11px] hover:bg-muted/70 transition"
+        >
+          <Copy className="w-3.5 h-3.5" /> Text
+        </button>
+      </div>
+    </div>
   );
 };
 
