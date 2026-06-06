@@ -303,14 +303,6 @@ const Room: React.FC = () => {
         </div>
       )}
 
-      {/* Reconnect warning */}
-      {reconnectCountdown !== null && !gameOver && (
-        <div className="w-full max-w-md mb-2 p-2 rounded bg-destructive/10 cyber-border text-center shrink-0">
-          <p className="font-mono text-xs text-destructive">
-            {t('opponentDisconnected')} — {reconnectCountdown}s
-          </p>
-        </div>
-      )}
 
       {/* Scrollable history area */}
       <div
