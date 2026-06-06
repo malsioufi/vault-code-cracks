@@ -20,12 +20,11 @@ const Room: React.FC = () => {
 
   const { room, guesses, mySecret, setMySecret, profiles, rematchInvite, clearRematchInvite, loading, error } = useRoom(code, user?.id);
   const isPlaying = room?.status === 'playing';
-  const { opponentDisconnected, opponentLastSeen } = usePresence(room?.id, isPlaying);
+  // Opponent presence is tracked server-side but no longer surfaced in the UI.
 
   const [submitting, setSubmitting] = useState(false);
   const [revealedSecrets, setRevealedSecrets] = useState<Record<string, number[]>>({});
   const [timer, setTimer] = useState(TURN_TIME);
-  const [reconnectCountdown, setReconnectCountdown] = useState<number | null>(null);
   const [rematchPending, setRematchPending] = useState(false);
 
   const isHost = room?.host_id === user?.id;
@@ -45,21 +44,7 @@ const Room: React.FC = () => {
     return () => clearInterval(id);
   }, [room?.turn_started_at, isPlaying]);
 
-  // Reconnect countdown when opponent missing
-  useEffect(() => {
-    if (!opponentLastSeen || !isPlaying) {
-      setReconnectCountdown(null);
-      return;
-    }
-    const tick = () => {
-      const elapsed = Math.floor((Date.now() - new Date(opponentLastSeen).getTime()) / 1000);
-      const left = 30 - elapsed;
-      setReconnectCountdown(left > 0 && left < 25 ? left : null);
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [opponentLastSeen, isPlaying]);
+  // (Opponent reconnect countdown removed — game continues normally regardless of connectivity.)
 
   // Reveal secrets when game ends
   useEffect(() => {
