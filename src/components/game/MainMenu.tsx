@@ -6,7 +6,7 @@ import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import MatrixRain from '@/components/MatrixRain';
 import { useAuth } from '@/hooks/useAuth';
 import { dailyDateString } from '@/game/dailyPuzzle';
-import { ChevronDown, Trophy, BarChart3, LogIn, Globe, Dumbbell } from 'lucide-react';
+import { ChevronDown, Trophy, BarChart3, LogIn, Globe, Dumbbell, Award } from 'lucide-react';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
@@ -164,6 +164,14 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
               <ChevronDown
                 className={`w-3 h-3 transition-transform ${showLeaderboard ? 'rotate-180' : ''}`}
               />
+            </button>
+            <button
+              onClick={() => navigate('/achievements')}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 rounded-md font-mono text-[11px] text-muted-foreground hover:text-primary transition-colors"
+              aria-label="Achievements"
+            >
+              <Award className="w-3.5 h-3.5" />
+              Badges
             </button>
             <button
               onClick={() => navigate('/stats')}

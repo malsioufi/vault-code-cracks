@@ -12,6 +12,7 @@ import Room from "./pages/Room.tsx";
 import Auth from "./pages/Auth.tsx";
 import Daily from "./pages/Daily.tsx";
 import Stats from "./pages/Stats.tsx";
+import Achievements from "./pages/Achievements.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/solo" element={<Solo />} />
             <Route path="/daily" element={<Daily />} />
             <Route path="/stats" element={<Stats />} />
+            <Route path="/achievements" element={<Achievements />} />
             <Route path="/room/:code" element={<Room />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
