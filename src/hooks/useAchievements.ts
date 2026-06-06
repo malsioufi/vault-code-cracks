@@ -10,22 +10,25 @@ interface Args {
 }
 
 export function useAchievements({ userId, isGuest, context }: Args) {
-  const [unlocked, setUnlocked] = useState<Set<string>>(new Set());
+  const [unlockedAt, setUnlockedAt] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   const loadUnlocked = useCallback(async () => {
     if (!userId || isGuest) {
       setLoading(false);
-      return new Set<string>();
+      return {} as Record<string, string>;
     }
     const { data } = await supabase
       .from('user_achievements')
-      .select('achievement_id')
+      .select('achievement_id, unlocked_at')
       .eq('user_id', userId);
-    const set = new Set<string>((data ?? []).map((r) => r.achievement_id as string));
-    setUnlocked(set);
+    const map: Record<string, string> = {};
+    for (const r of data ?? []) {
+      map[r.achievement_id as string] = (r as { unlocked_at: string }).unlocked_at;
+    }
+    setUnlockedAt(map);
     setLoading(false);
-    return set;
+    return map;
   }, [userId, isGuest]);
 
   useEffect(() => {
@@ -39,14 +42,14 @@ export function useAchievements({ userId, isGuest, context }: Args) {
     (async () => {
       const current = await loadUnlocked();
       const eligible = evaluate(context);
-      const fresh = eligible.filter((id) => !current.has(id));
+      const fresh = eligible.filter((id) => !(id in current));
       if (fresh.length === 0 || cancelled) return;
       const rows = fresh.map((achievement_id) => ({ user_id: userId, achievement_id }));
       const { error } = await supabase.from('user_achievements').insert(rows);
       if (error) return;
-      const next = new Set(current);
-      fresh.forEach((id) => next.add(id));
-      setUnlocked(next);
+      const reloaded = await loadUnlocked();
+      if (cancelled) return;
+      setUnlockedAt(reloaded);
       fresh.forEach((id) => {
         const a = ACHIEVEMENTS.find((x) => x.id === id);
         if (!a) return;
@@ -62,5 +65,5 @@ export function useAchievements({ userId, isGuest, context }: Args) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, isGuest, JSON.stringify(context)]);
 
-  return { unlocked, loading, all: ACHIEVEMENTS as Achievement[] };
+  return { unlockedAt, loading, all: ACHIEVEMENTS as Achievement[] };
 }
