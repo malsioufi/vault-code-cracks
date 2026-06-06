@@ -157,7 +157,7 @@ const Stats: React.FC = () => {
     };
   }, [rooms, daily, dailyStreak, guessCounts, user, profile]);
 
-  const { unlocked: unlockedAchievements } = useAchievements({
+  const { unlockedAt: unlockedAchievementsAt } = useAchievements({
     userId: user?.id,
     isGuest: !!profile?.is_guest,
     context: achievementsContext,
@@ -300,7 +300,7 @@ const Stats: React.FC = () => {
 
       {/* Achievements */}
       <div className="w-full max-w-md mb-4">
-        <AchievementsCard unlocked={unlockedAchievements} />
+        <AchievementsCard unlockedAt={unlockedAchievementsAt} context={achievementsContext} />
       </div>
 
       {/* Recent matches */}
