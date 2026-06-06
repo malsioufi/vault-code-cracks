@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useRoom } from '@/hooks/useRoom';
-import { usePresence } from '@/hooks/usePresence';
+// presence intentionally not surfaced as a banner; opponent disconnects don't interrupt the match
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import DigitInput from '@/components/game/DigitInput';
