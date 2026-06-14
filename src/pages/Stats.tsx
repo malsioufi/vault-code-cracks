@@ -77,8 +77,7 @@ const Stats: React.FC = () => {
       ]);
 
       if (cancelled) return;
-      const rs = (roomData ?? []) as RoomRow[];
-      setRooms(rs);
+      let rs = (roomData ?? []) as RoomRow[];
       setDaily((dailyData ?? []) as DailyRow[]);
 
       const s = Array.isArray(streakData) && streakData[0] ? streakData[0] : null;
@@ -89,8 +88,34 @@ const Stats: React.FC = () => {
         });
       }
 
+      // Fetch Battle Royale rooms where user is a participant (non-hosts)
+      const { data: brParticipation } = await supabase
+        .from('room_participants')
+        .select('room_id')
+        .eq('user_id', user.id);
+      const brRoomIds = Array.from(new Set(
+        (brParticipation ?? []).map((p) => p.room_id).filter((id) => !rs.some((r) => r.id === id)),
+      ));
+      if (brRoomIds.length) {
+        const { data: brRooms } = await supabase
+          .from('rooms')
+          .select('id, code, host_id, guest_id, status, mode, code_length, allow_duplicates, winner_id, finished_at, created_at')
+          .in('id', brRoomIds)
+          .in('status', ['finished', 'abandoned']);
+        if (brRooms && !cancelled) {
+          rs = [...rs, ...(brRooms as RoomRow[])];
+          rs.sort((a, b) => {
+            const da = new Date(b.finished_at ?? b.created_at).getTime();
+            const db = new Date(a.finished_at ?? a.created_at).getTime();
+            return da - db;
+          });
+        }
+      }
+      setRooms(rs);
+
       const opponentIds = Array.from(new Set(
-        rs.map((r) => (r.host_id === user.id ? r.guest_id : r.host_id)).filter(Boolean) as string[],
+        rs.filter((r) => r.mode !== 'battle_royale')
+          .map((r) => (r.host_id === user.id ? r.guest_id : r.host_id)).filter(Boolean) as string[],
       ));
       if (opponentIds.length) {
         const { data: profs } = await supabase.rpc('get_display_names', { _ids: opponentIds });
@@ -100,6 +125,22 @@ const Stats: React.FC = () => {
             map[p.id] = p.display_name;
           }
           setProfilesMap(map);
+        }
+      }
+
+      // Participant counts for Battle Royale rooms
+      const brIds = rs.filter((r) => r.mode === 'battle_royale').map((r) => r.id);
+      if (brIds.length) {
+        const { data: parts } = await supabase
+          .from('room_participants')
+          .select('room_id')
+          .in('room_id', brIds);
+        if (parts && !cancelled) {
+          const counts: Record<string, number> = {};
+          for (const p of parts as { room_id: string }[]) {
+            counts[p.room_id] = (counts[p.room_id] ?? 0) + 1;
+          }
+          setParticipantCounts(counts);
         }
       }
 
