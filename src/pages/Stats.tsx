@@ -268,6 +268,18 @@ const Stats: React.FC = () => {
             <StatCell label={t('wins')} value={dailyStats.wins} valueClass="text-primary text-glow-primary" />
             <StatCell label={t('winRate')} value={`${dailyStats.winRate}%`} valueClass="text-secondary text-glow-secondary" />
           </div>
+          <div className="grid grid-cols-2 gap-2 text-center mt-2">
+            <StatCell
+              label="Win Streak"
+              value={dailyStreak.current}
+              valueClass="text-primary text-glow-primary"
+            />
+            <StatCell
+              label="Play Streak"
+              value={playStreak}
+              valueClass="text-warning"
+            />
+          </div>
 
           {recentDaily.length > 0 && (
             <div className="mt-3">
