@@ -4,12 +4,14 @@ import { useLanguage } from '@/i18n/LanguageContext';
 
 interface LeaderboardRow {
   rank: number;
-  user_id: string;
   display_name: string;
   is_guest: boolean;
   attempts_used: number;
   finished_at: string;
+  is_me: boolean;
 }
+
+
 
 interface Props {
   date: string;            // YYYY-MM-DD UTC, used as a refresh key
@@ -17,7 +19,7 @@ interface Props {
   hasFinished: boolean;    // refetch when local user just finished
 }
 
-const DailyLeaderboard: React.FC<Props> = ({ date, currentUserId, hasFinished }) => {
+const DailyLeaderboard: React.FC<Props> = ({ date, hasFinished }) => {
   const { t, lang } = useLanguage();
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,7 @@ const DailyLeaderboard: React.FC<Props> = ({ date, currentUserId, hasFinished })
       if (error) {
         setRows([]);
       } else {
-        setRows((data ?? []) as LeaderboardRow[]);
+        setRows((data ?? []) as unknown as LeaderboardRow[]);
       }
       setLoading(false);
     })();
@@ -70,12 +72,12 @@ const DailyLeaderboard: React.FC<Props> = ({ date, currentUserId, hasFinished })
       ) : (
         <ol className="space-y-1.5">
           {rows.map((row) => {
-            const isMe = currentUserId && row.user_id === currentUserId;
+            const isMe = row.is_me;
             const medal =
               row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : null;
             return (
               <li
-                key={row.user_id}
+                key={`${row.rank}-${row.display_name}`}
                 className={`flex items-center gap-2 px-3 py-2 rounded font-mono text-xs ${
                   isMe
                     ? 'bg-primary/10 border border-primary/40 text-primary'

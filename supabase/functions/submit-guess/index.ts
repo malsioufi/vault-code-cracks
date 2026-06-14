@@ -58,7 +58,7 @@ serve(async (req) => {
       shifts: feedback.shifts,
       glitches: feedback.glitches,
     });
-    if (insErr) return json({ error: insErr.message }, 500);
+    if (insErr) console.error('db error in supabase/functions/submit-guess/index.ts:', insErr.message); return json({ error: 'Internal server error' }, 500);
 
     // Check win
     if (feedback.matches === room.code_length) {
@@ -106,8 +106,5 @@ serve(async (req) => {
     }
 
     return json({ feedback });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    return json({ error: msg }, 500);
-  }
+  } catch (e: unknown) { console.error('error in supabase/functions/submit-guess/index.ts:', e); return json({ error: 'Internal server error' }, 500); }
 });

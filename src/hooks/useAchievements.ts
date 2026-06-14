@@ -35,22 +35,26 @@ export function useAchievements({ userId, isGuest, context }: Args) {
     loadUnlocked();
   }, [loadUnlocked]);
 
-  // Evaluate + persist newly unlocked
+  // Trigger server-side evaluation (server re-checks user's real data before granting)
   useEffect(() => {
     if (!userId || isGuest || !context) return;
     let cancelled = false;
     (async () => {
       const current = await loadUnlocked();
+      // Optimistic client-side preview to know which IDs are *candidates* — server is the source of truth
       const eligible = evaluate(context);
       const fresh = eligible.filter((id) => !(id in current));
       if (fresh.length === 0 || cancelled) return;
-      const rows = fresh.map((achievement_id) => ({ user_id: userId, achievement_id }));
-      const { error } = await supabase.from('user_achievements').insert(rows);
-      if (error) return;
+      const { data, error } = await supabase.functions.invoke('sync-achievements', { body: {} });
+      if (error || cancelled) return;
+      const granted: string[] = Array.isArray((data as { unlocked?: string[] })?.unlocked)
+        ? (data as { unlocked: string[] }).unlocked
+        : [];
+      if (granted.length === 0) return;
       const reloaded = await loadUnlocked();
       if (cancelled) return;
       setUnlockedAt(reloaded);
-      fresh.forEach((id) => {
+      granted.forEach((id) => {
         const a = ACHIEVEMENTS.find((x) => x.id === id);
         if (!a) return;
         toast.success(`${a.icon} Achievement Unlocked — ${a.name}`, {

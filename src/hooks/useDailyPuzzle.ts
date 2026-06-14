@@ -121,17 +121,10 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
     };
     setTodayRecord(rec);
     if (userId) {
-      const { error } = await supabase.from('daily_results').insert({
-        user_id: userId,
-        puzzle_date: date,
-        won,
-        attempts_used: guesses.length,
-        code_length: config.codeLength,
-        max_tries: config.maxTries,
-        allow_duplicates: config.allowDuplicates,
-        guesses,
-        closeness,
-      } as never);
+      // Server re-validates guesses against the canonical secret and records the result.
+      const { error } = await supabase.functions.invoke('submit-daily-result', {
+        body: { guesses },
+      });
       if (!error) await loadServer(userId);
     } else {
       saveLocalDailyRecord({ date, won, attemptsUsed: guesses.length, guesses, closeness });
