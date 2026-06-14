@@ -185,9 +185,9 @@ const Stats: React.FC = () => {
     return Math.round(total / daily.length);
   }, [daily]);
 
-  // Last 10 daily results, oldest → newest, for the dot strip.
-  const last10Daily = useMemo(
-    () => daily.slice(0, 10).slice().reverse(),
+  // Recent daily results, oldest → newest, for the dot strip (fills row width).
+  const recentDaily = useMemo(
+    () => daily.slice().reverse(),
     [daily],
   );
 
