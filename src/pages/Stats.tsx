@@ -176,15 +176,6 @@ const Stats: React.FC = () => {
     return { played: daily.length, wins, losses, draws: 0, winRate };
   }, [daily]);
 
-  const avgCloseness = useMemo(() => {
-    if (daily.length === 0) return 0;
-    const total = daily.reduce(
-      (sum, d) => sum + (typeof d.closeness === 'number' ? d.closeness : (d.won ? 100 : 0)),
-      0,
-    );
-    return Math.round(total / daily.length);
-  }, [daily]);
-
   // Recent daily results, oldest → newest, for the dot strip (fills row width).
   const recentDaily = useMemo(
     () => daily.slice().reverse(),
