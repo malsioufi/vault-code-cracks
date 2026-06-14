@@ -7,6 +7,7 @@ import {
   getLocalDailyRecord,
   getLocalStreak,
   saveLocalDailyRecord,
+  saveLocalDailyProgress,
 } from '@/game/dailyPuzzle';
 
 export interface DailyResultRecord {
@@ -15,6 +16,7 @@ export interface DailyResultRecord {
   attemptsUsed: number;
   guesses: number[][];
   closeness: number;
+  finished: boolean;
 }
 
 export interface StreakStats {
@@ -31,6 +33,7 @@ interface UseDailyPuzzleResult {
   loading: boolean;
   isSignedIn: boolean;
   saveResult: (won: boolean, guesses: number[][], closeness: number) => Promise<void>;
+  saveProgress: (guesses: number[][]) => Promise<void>;
 }
 
 export function useDailyPuzzle(): UseDailyPuzzleResult {
@@ -45,19 +48,23 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
     const [{ data: row }, { data: streak }] = await Promise.all([
       supabase
         .from('daily_results')
-        .select('puzzle_date, won, attempts_used, guesses, closeness')
+        .select('puzzle_date, won, attempts_used, max_tries, guesses, closeness')
         .eq('user_id', uid)
         .eq('puzzle_date', today)
         .maybeSingle(),
       supabase.rpc('get_daily_streak', { _user_id: uid }),
     ]);
     if (row) {
+      const attempts = row.attempts_used as number;
+      const maxTries = (row as { max_tries?: number }).max_tries ?? config.maxTries;
+      const won = row.won as boolean;
       setTodayRecord({
         date: row.puzzle_date as string,
-        won: row.won as boolean,
-        attemptsUsed: row.attempts_used as number,
+        won,
+        attemptsUsed: attempts,
         guesses: row.guesses as number[][],
-        closeness: Number((row as { closeness?: number }).closeness ?? (row.won ? 100 : 0)),
+        closeness: Number((row as { closeness?: number }).closeness ?? (won ? 100 : 0)),
+        finished: won || attempts >= maxTries,
       });
     } else {
       setTodayRecord(null);
@@ -71,24 +78,26 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
         won: Number(s.total_won ?? 0),
       });
     }
-  }, []);
+  }, [config.maxTries]);
 
   const loadLocal = useCallback(() => {
     const today = dailyDateString();
     const rec = getLocalDailyRecord(today);
     if (rec) {
+      const finished = rec.won || rec.attemptsUsed >= config.maxTries;
       setTodayRecord({
         date: rec.date,
         won: rec.won,
         attemptsUsed: rec.attemptsUsed,
         guesses: rec.guesses,
         closeness: typeof rec.closeness === 'number' ? rec.closeness : (rec.won ? 100 : 0),
+        finished,
       });
     } else {
       setTodayRecord(null);
     }
     setStats(getLocalStreak());
-  }, []);
+  }, [config.maxTries]);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,6 +119,15 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
   }, [loadServer, loadLocal]);
 
+  const saveProgress = useCallback(async (guesses: number[][]) => {
+    const date = dailyDateString();
+    if (userId) {
+      await supabase.functions.invoke('submit-daily-result', { body: { guesses } });
+    } else {
+      saveLocalDailyProgress({ date, guesses });
+    }
+  }, [userId]);
+
   const saveResult = useCallback(async (won: boolean, guesses: number[][], closeness: number) => {
     const date = dailyDateString();
     const rec: DailyResultRecord = {
@@ -118,10 +136,10 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
       attemptsUsed: guesses.length,
       guesses,
       closeness,
+      finished: true,
     };
     setTodayRecord(rec);
     if (userId) {
-      // Server re-validates guesses against the canonical secret and records the result.
       const { error } = await supabase.functions.invoke('submit-daily-result', {
         body: { guesses },
       });
@@ -130,7 +148,7 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
       saveLocalDailyRecord({ date, won, attemptsUsed: guesses.length, guesses, closeness });
       setStats(getLocalStreak());
     }
-  }, [userId, config, loadServer]);
+  }, [userId, loadServer]);
 
   return {
     config,
@@ -139,5 +157,6 @@ export function useDailyPuzzle(): UseDailyPuzzleResult {
     loading,
     isSignedIn: !!userId,
     saveResult,
+    saveProgress,
   };
 }
