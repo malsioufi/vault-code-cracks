@@ -12,6 +12,8 @@ interface Props {
   profiles: Record<string, string>;
   codeLength: number;
   onBack: () => void;
+  onRematch?: () => void;
+  rematchPending?: boolean;
 }
 
 function computeCloseness(guesses: GuessEntry[], codeLength: number): number {
