@@ -217,7 +217,33 @@ const Room: React.FC = () => {
             profiles={profiles}
             codeLength={room.code_length}
             onBack={() => navigate('/online')}
+            onRematch={handleRematch}
+            rematchPending={rematchPending}
           />
+          {rematchInvite && rematchInvite.newRoomCode !== room.code && (
+            <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
+              <div className="w-full max-w-md p-4 rounded-lg bg-card cyber-border glow-secondary text-center space-y-3">
+                <p className="font-mono text-sm text-secondary text-glow-secondary">
+                  🔁 {t('rematchInviteTitle')}
+                </p>
+                <p className="font-mono text-xs text-muted-foreground">{t('rematchInviteBody')}</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={clearRematchInvite}
+                    className="flex-1 py-2 rounded bg-muted text-muted-foreground font-mono text-xs"
+                  >
+                    {t('decline')}
+                  </button>
+                  <button
+                    onClick={handleAcceptRematch}
+                    className="flex-1 py-2 rounded bg-primary text-primary-foreground font-mono text-xs font-bold glow-primary"
+                  >
+                    {t('accept')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
