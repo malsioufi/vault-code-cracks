@@ -27,7 +27,7 @@ function computeCloseness(guesses: GuessEntry[], codeLength: number): number {
 }
 
 const BattleRoyaleResults: React.FC<Props> = ({
-  winnerId, myId, secret, participants, guessesByPlayer, profiles, codeLength, onBack,
+  winnerId, myId, secret, participants, guessesByPlayer, profiles, codeLength, onBack, onRematch, rematchPending,
 }) => {
   const { t } = useLanguage();
   const iWon = winnerId === myId;
