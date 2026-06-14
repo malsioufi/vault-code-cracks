@@ -22,7 +22,7 @@ serve(async (req) => {
       .eq('code', code)
       .maybeSingle();
 
-    if (fetchErr) console.error('db error in supabase/functions/join-room/index.ts:', fetchErr.message); return json({ error: 'Internal server error' }, 500);
+    if (fetchErr) { console.error('db error in supabase/functions/join-room/index.ts:', fetchErr.message); return json({ error: 'Internal server error' }, 500); }
     if (!room) return json({ error: 'Room not found' }, 404);
 
     // Already a participant — just return

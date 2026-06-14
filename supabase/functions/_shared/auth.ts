@@ -8,7 +8,7 @@ export function serviceClient(): SupabaseClient {
   );
 }
 
-export async function getUserFromRequest(req: Request): Promise<{ id: string } | null> {
+export async function getUserFromRequest(req: Request): Promise<{ id: string; isAnonymous: boolean } | null> {
   const auth = req.headers.get('Authorization');
   if (!auth) return null;
   const token = auth.replace('Bearer ', '');
@@ -19,5 +19,7 @@ export async function getUserFromRequest(req: Request): Promise<{ id: string } |
   );
   const { data, error } = await client.auth.getUser();
   if (error || !data.user) return null;
-  return { id: data.user.id };
+  // Supabase sets is_anonymous on the user object and in the JWT claims
+  const u = data.user as { id: string; is_anonymous?: boolean };
+  return { id: u.id, isAnonymous: u.is_anonymous === true };
 }

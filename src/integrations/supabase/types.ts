@@ -306,6 +306,14 @@ export type Database = {
           total_won: number
         }[]
       }
+      get_display_names: {
+        Args: { _ids: string[] }
+        Returns: {
+          display_name: string
+          id: string
+          is_guest: boolean
+        }[]
+      }
       get_public_daily_recent: {
         Args: { _limit?: number; _user_id: string }
         Returns: {

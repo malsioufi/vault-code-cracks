@@ -92,13 +92,12 @@ const Stats: React.FC = () => {
         rs.map((r) => (r.host_id === user.id ? r.guest_id : r.host_id)).filter(Boolean) as string[],
       ));
       if (opponentIds.length) {
-        const { data: profs } = await supabase
-          .from('profiles')
-          .select('id, display_name')
-          .in('id', opponentIds);
+        const { data: profs } = await supabase.rpc('get_display_names', { _ids: opponentIds });
         if (profs && !cancelled) {
           const map: Record<string, string> = {};
-          for (const p of profs) map[p.id as string] = p.display_name as string;
+          for (const p of profs as { id: string; display_name: string }[]) {
+            map[p.id] = p.display_name;
+          }
           setProfilesMap(map);
         }
       }

@@ -13,13 +13,10 @@ serve(async (req) => {
 
     const sb = serviceClient();
 
-    // Reject guests from collecting achievements
-    const { data: profile } = await sb
-      .from('profiles')
-      .select('is_guest')
-      .eq('id', user.id)
-      .maybeSingle();
-    if (profile?.is_guest) {
+    // Reject anonymous (guest) users from collecting achievements.
+    // Uses the JWT-derived is_anonymous flag (set by Supabase Auth itself),
+    // NOT profiles.is_guest — which is user-writable via RLS.
+    if (user.isAnonymous) {
       return json({ ok: true, unlocked: [] });
     }
 
