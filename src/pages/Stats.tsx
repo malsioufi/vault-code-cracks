@@ -185,9 +185,9 @@ const Stats: React.FC = () => {
     return Math.round(total / daily.length);
   }, [daily]);
 
-  // Last 10 daily results, oldest → newest, for the dot strip.
-  const last10Daily = useMemo(
-    () => daily.slice(0, 10).slice().reverse(),
+  // Recent daily results, oldest → newest, for the dot strip (fills row width).
+  const recentDaily = useMemo(
+    () => daily.slice().reverse(),
     [daily],
   );
 
@@ -278,17 +278,17 @@ const Stats: React.FC = () => {
             <StatCell label={t('bestStreak')} value={dailyStreak.best} valueClass="text-secondary text-glow-secondary" />
           </div>
 
-          {last10Daily.length > 0 && (
+          {recentDaily.length > 0 && (
             <div className="mt-3">
               <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">
-                Last {last10Daily.length}
+                Recent
               </div>
-              <div className="flex items-center gap-1.5">
-                {last10Daily.map((d) => (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {recentDaily.map((d) => (
                   <div
                     key={d.puzzle_date}
                     title={`${d.puzzle_date} — ${d.won ? 'Win' : 'Loss'}`}
-                    className={`w-3.5 h-3.5 rounded-full border ${
+                    className={`w-3 h-3 rounded-full border ${
                       d.won
                         ? 'bg-primary border-primary [box-shadow:0_0_6px_hsl(var(--primary))]'
                         : 'bg-destructive border-destructive [box-shadow:0_0_6px_hsl(var(--destructive))]'
@@ -316,7 +316,7 @@ const Stats: React.FC = () => {
         </div>
 
         {/* Achievements — its own scroll container */}
-        <div className="w-full max-h-[40vh] overflow-y-auto rounded-lg">
+        <div className="w-full shrink-0 max-h-[30vh] overflow-y-auto rounded-lg">
           <AchievementsCard
             unlockedAt={unlockedAchievementsAt}
             context={achievementsContext}
@@ -325,7 +325,7 @@ const Stats: React.FC = () => {
         </div>
 
         {/* Recent matches — its own scroll container, takes remaining space */}
-        <div className="w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div className="w-full flex-1 min-h-[160px] flex flex-col overflow-hidden">
           <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-2 shrink-0">
             {t('recentMatches')}
           </h2>
