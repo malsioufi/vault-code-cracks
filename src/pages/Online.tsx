@@ -94,8 +94,15 @@ const Online: React.FC = () => {
     if (busy) return;
     setBusy(true);
     if (!(await ensureSession())) { setBusy(false); return; }
+    const isBR = tab === 'br';
     const { data, error } = await supabase.functions.invoke('create-room', {
-      body: { codeLength, allowDuplicates, maxTries, mode },
+      body: {
+        codeLength,
+        allowDuplicates,
+        maxTries: isBR ? (maxTries ?? 12) : maxTries,
+        mode: isBR ? 'battle_royale' : mode,
+        minPlayers: isBR ? minPlayers : undefined,
+      },
     });
     setBusy(false);
     if (error || data?.error) {
