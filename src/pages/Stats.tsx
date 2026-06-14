@@ -176,15 +176,6 @@ const Stats: React.FC = () => {
     return { played: daily.length, wins, losses, draws: 0, winRate };
   }, [daily]);
 
-  const avgCloseness = useMemo(() => {
-    if (daily.length === 0) return 0;
-    const total = daily.reduce(
-      (sum, d) => sum + (typeof d.closeness === 'number' ? d.closeness : (d.won ? 100 : 0)),
-      0,
-    );
-    return Math.round(total / daily.length);
-  }, [daily]);
-
   // Recent daily results, oldest → newest, for the dot strip (fills row width).
   const recentDaily = useMemo(
     () => daily.slice().reverse(),
@@ -247,34 +238,15 @@ const Stats: React.FC = () => {
 
       <div className="w-full max-w-md flex flex-col gap-3 pb-4">
 
-        {/* Online stats — fixed, no scroll */}
-        <div className="w-full p-4 rounded-lg bg-card cyber-border scanline shrink-0">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-secondary text-glow-secondary mb-3">
-            {t('onlineStats')}
-          </h2>
-          <div className="grid grid-cols-4 gap-2 text-center">
-            <StatCell label={t('played')} value={onlineStats.played} />
-            <StatCell label={t('wins')} value={onlineStats.wins} valueClass="text-primary text-glow-primary" />
-            <StatCell label={t('losses')} value={onlineStats.losses} valueClass="text-destructive" />
-            <StatCell label={t('winRate')} value={`${onlineStats.winRate}%`} valueClass="text-secondary text-glow-secondary" />
-          </div>
-          {onlineStats.draws > 0 && (
-            <p className="font-mono text-[10px] text-muted-foreground text-center mt-2">
-              {onlineStats.draws} {t('draws')}
-            </p>
-          )}
-        </div>
-
-        {/* Daily stats — fixed, no scroll, includes last-10 dot strip */}
+        {/* Daily stats */}
         <div className="w-full p-4 rounded-lg bg-card cyber-border scanline shrink-0">
           <h2 className="font-mono text-xs uppercase tracking-widest text-warning mb-3">
             {t('dailyStats')}
           </h2>
-          <div className="grid grid-cols-4 gap-2 text-center">
+          <div className="grid grid-cols-3 gap-2 text-center">
             <StatCell label={t('played')} value={dailyStats.played} />
             <StatCell label={t('wins')} value={dailyStats.wins} valueClass="text-primary text-glow-primary" />
-            <StatCell label={t('streak')} value={dailyStreak.current} valueClass="text-warning" />
-            <StatCell label={t('bestStreak')} value={dailyStreak.best} valueClass="text-secondary text-glow-secondary" />
+            <StatCell label={t('winRate')} value={`${dailyStats.winRate}%`} valueClass="text-secondary text-glow-secondary" />
           </div>
 
           {recentDaily.length > 0 && (
@@ -297,36 +269,36 @@ const Stats: React.FC = () => {
               </div>
             </div>
           )}
-
-          {dailyStats.played > 0 && (
-            <div className="mt-3">
-              <div className="flex items-center justify-between font-mono text-[11px] text-muted-foreground mb-1">
-                <span>{t('avgCloseness')}</span>
-                <span className="text-secondary text-glow-secondary font-bold">{avgCloseness}%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-muted overflow-hidden cyber-border">
-                <div
-                  className="h-full bg-secondary transition-all"
-                  style={{ width: `${avgCloseness}%` }}
-                />
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Recent matches */}
-        <div className="w-full flex flex-col">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-2 shrink-0">
-            {t('recentMatches')}
+        {/* Online matches */}
+        <div className="w-full p-4 rounded-lg bg-card cyber-border scanline shrink-0">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-secondary text-glow-secondary mb-3">
+            {t('onlineStats')}
           </h2>
-          <div className="pr-1">
+          <div className="grid grid-cols-4 gap-2 text-center">
+            <StatCell label={t('played')} value={onlineStats.played} />
+            <StatCell label={t('wins')} value={onlineStats.wins} valueClass="text-primary text-glow-primary" />
+            <StatCell label={t('losses')} value={onlineStats.losses} valueClass="text-destructive" />
+            <StatCell label={t('winRate')} value={`${onlineStats.winRate}%`} valueClass="text-secondary text-glow-secondary" />
+          </div>
+          {onlineStats.draws > 0 && (
+            <p className="font-mono text-[10px] text-muted-foreground text-center mt-2">
+              {onlineStats.draws} {t('draws')}
+            </p>
+          )}
+
+          <h3 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mt-4 mb-2">
+            {t('recentMatches')}
+          </h3>
+          <div className="max-h-[240px] overflow-y-auto pr-1">
             {rooms.length === 0 ? (
               <p className="font-mono text-xs text-muted-foreground text-center py-6">
                 {t('noMatchesYet')}
               </p>
             ) : (
               <div className="space-y-2">
-                {rooms.map((r) => {
+                {rooms.slice(0, 10).map((r) => {
                   const opponentId = r.host_id === user.id ? r.guest_id : r.host_id;
                   const opponentName = (opponentId && profilesMap[opponentId]) || t('opponentLabel');
                   const iWon = r.winner_id === user.id;
@@ -391,12 +363,17 @@ const Stats: React.FC = () => {
         </div>
 
         {/* Achievements */}
-        <div className="w-full rounded-lg">
-          <AchievementsCard
-            unlockedAt={unlockedAchievementsAt}
-            context={achievementsContext}
-            onClaim={claim}
-          />
+        <div className="w-full p-4 rounded-lg bg-card cyber-border scanline shrink-0">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">
+            🏆 Achievements
+          </h2>
+          <div className="max-h-[280px] overflow-y-auto pr-1">
+            <AchievementsCard
+              unlockedAt={unlockedAchievementsAt}
+              context={achievementsContext}
+              onClaim={claim}
+            />
+          </div>
         </div>
       </div>
     </div>
