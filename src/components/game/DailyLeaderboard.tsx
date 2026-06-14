@@ -79,7 +79,7 @@ const DailyLeaderboard: React.FC<Props> = ({ date, hasFinished }) => {
               row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : null;
             return (
               <li
-                key={`${row.rank}-${row.display_name}`}
+                key={`${row.rank}-${row.user_id}`}
                 className={`flex items-center gap-2 px-3 py-2 rounded font-mono text-xs ${
                   isMe
                     ? 'bg-primary/10 border border-primary/40 text-primary'
@@ -90,7 +90,16 @@ const DailyLeaderboard: React.FC<Props> = ({ date, hasFinished }) => {
                   {medal ?? `#${row.rank}`}
                 </span>
                 <span className="flex-1 truncate">
-                  {row.display_name}
+                  {row.is_guest ? (
+                    <span>{row.display_name}</span>
+                  ) : (
+                    <Link
+                      to={`/profile/${row.user_id}`}
+                      className="hover:underline hover:text-primary transition-colors"
+                    >
+                      {row.display_name}
+                    </Link>
+                  )}
                   {row.is_guest && (
                     <span className="ms-1 text-[9px] uppercase tracking-wider text-muted-foreground">
                       {t('guestTag')}
