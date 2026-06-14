@@ -130,12 +130,9 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
           setRoom(newRoom);
           // If guest just joined and we don't have their profile yet, fetch it.
           if (newRoom.guest_id && !profiles[newRoom.guest_id]) {
-            const { data: p } = await supabase
-              .from('profiles')
-              .select('id, display_name')
-              .eq('id', newRoom.guest_id)
-              .maybeSingle();
-            if (p) setProfiles((prev) => ({ ...prev, [p.id as string]: p.display_name as string }));
+            const { data: p } = await supabase.rpc('get_display_names', { _ids: [newRoom.guest_id] });
+            const row = Array.isArray(p) ? (p[0] as { id: string; display_name: string } | undefined) : undefined;
+            if (row) setProfiles((prev) => ({ ...prev, [row.id]: row.display_name }));
           }
         },
       )
