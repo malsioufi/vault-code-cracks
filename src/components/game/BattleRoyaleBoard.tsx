@@ -8,7 +8,7 @@ import { GuessEntry } from '@/game/engine';
 interface Props {
   codeLength: number;
   allowDuplicates: boolean;
-  maxTries: number;
+  maxTries: number | null;
   myId: string;
   myGuesses: GuessEntry[];
   participants: Participant[];
@@ -32,7 +32,7 @@ const BattleRoyaleBoard: React.FC<Props> = ({
   guessCounts, profiles, onGuess, onGiveUp, submitting, amIDone,
 }) => {
   const { t } = useLanguage();
-  const triesLeft = maxTries - myGuesses.length;
+  const triesLeft = maxTries !== null ? maxTries - myGuesses.length : null;
   const opponents = participants.filter((p) => p.user_id !== myId);
 
   return (
@@ -60,10 +60,10 @@ const BattleRoyaleBoard: React.FC<Props> = ({
                 st === 'out' ? t('outOfTriesShort') :
                 t('inGame');
               return (
-                <div key={p.user_id} className="flex items-center justify-between font-mono text-xs">
+              <div key={p.user_id} className="flex items-center justify-between font-mono text-xs">
                   <span className={`truncate ${color}`}>{profiles[p.user_id] ?? 'Breaker'}</span>
                   <span className="text-muted-foreground tabular-nums shrink-0 ml-2">
-                    {count}/{maxTries} · <span className={color}>{label}</span>
+                    {count}{maxTries !== null ? `/${maxTries}` : ''} · <span className={color}>{label}</span>
                   </span>
                 </div>
               );
@@ -82,8 +82,8 @@ const BattleRoyaleBoard: React.FC<Props> = ({
         <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
           <div className="w-full max-w-md mx-auto space-y-2">
             <div className="flex justify-between font-mono text-xs text-muted-foreground">
-              <span>{t('attempt')} {myGuesses.length + 1}/{maxTries}</span>
-              <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>
+              <span>{t('attempt')} {myGuesses.length + 1}{maxTries !== null ? `/${maxTries}` : ''}</span>
+              {triesLeft !== null && <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>}
             </div>
             <DigitInput
               codeLength={codeLength}
