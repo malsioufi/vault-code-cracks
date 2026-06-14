@@ -25,8 +25,8 @@ serve(async (req) => {
     if (fetchErr) { console.error('join-room db error:', fetchErr.message); return json({ error: 'Internal server error' }, 500); }
     if (!room) return json({ error: 'Room not found' }, 404);
 
-    // Battle Royale: insert into room_participants
-    if (room.mode === 'battle_royale') {
+    // Battle Royale or Relay Race: insert into room_participants
+    if (room.mode === 'battle_royale' || room.mode === 'relay_race') {
       const { data: existing } = await sb
         .from('room_participants')
         .select('user_id')
@@ -47,7 +47,7 @@ serve(async (req) => {
         .from('room_participants')
         .insert({ room_id: room.id, user_id: user.id });
       if (pErr) {
-        console.error('br join insert error:', pErr.message);
+        console.error('join insert error:', pErr.message);
         return json({ error: 'Failed to join' }, 500);
       }
       return json({ room });

@@ -64,6 +64,7 @@ export type Database = {
           room_id: string
           round_number: number
           shifts: number
+          team: string | null
         }
         Insert: {
           created_at?: string
@@ -75,6 +76,7 @@ export type Database = {
           room_id: string
           round_number?: number
           shifts: number
+          team?: string | null
         }
         Update: {
           created_at?: string
@@ -86,6 +88,7 @@ export type Database = {
           room_id?: string
           round_number?: number
           shifts?: number
+          team?: string | null
         }
         Relationships: [
           {
@@ -184,6 +187,7 @@ export type Database = {
           gave_up_at: string | null
           joined_at: string
           room_id: string
+          team: string | null
           user_id: string
         }
         Insert: {
@@ -192,6 +196,7 @@ export type Database = {
           gave_up_at?: string | null
           joined_at?: string
           room_id: string
+          team?: string | null
           user_id: string
         }
         Update: {
@@ -200,6 +205,7 @@ export type Database = {
           gave_up_at?: string | null
           joined_at?: string
           room_id?: string
+          team?: string | null
           user_id?: string
         }
         Relationships: [
@@ -244,6 +250,53 @@ export type Database = {
           },
         ]
       }
+      room_teams: {
+        Row: {
+          active_user_id: string | null
+          failed_setters: string[]
+          guesses_count: number
+          room_id: string
+          rotation: string[]
+          rotation_index: number
+          secret_set: boolean
+          setter_deadline: string | null
+          setter_id: string | null
+          team: string
+        }
+        Insert: {
+          active_user_id?: string | null
+          failed_setters?: string[]
+          guesses_count?: number
+          room_id: string
+          rotation?: string[]
+          rotation_index?: number
+          secret_set?: boolean
+          setter_deadline?: string | null
+          setter_id?: string | null
+          team: string
+        }
+        Update: {
+          active_user_id?: string | null
+          failed_setters?: string[]
+          guesses_count?: number
+          room_id?: string
+          rotation?: string[]
+          rotation_index?: number
+          secret_set?: boolean
+          setter_deadline?: string | null
+          setter_id?: string | null
+          team?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_teams_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rooms: {
         Row: {
           allow_duplicates: boolean
@@ -261,9 +314,12 @@ export type Database = {
           mode: Database["public"]["Enums"]["room_mode"]
           started_at: string | null
           status: Database["public"]["Enums"]["room_status"]
+          team_turn: string | null
+          turn_deadline: string | null
           turn_started_at: string | null
           updated_at: string
           winner_id: string | null
+          winner_team: string | null
         }
         Insert: {
           allow_duplicates?: boolean
@@ -281,9 +337,12 @@ export type Database = {
           mode?: Database["public"]["Enums"]["room_mode"]
           started_at?: string | null
           status?: Database["public"]["Enums"]["room_status"]
+          team_turn?: string | null
+          turn_deadline?: string | null
           turn_started_at?: string | null
           updated_at?: string
           winner_id?: string | null
+          winner_team?: string | null
         }
         Update: {
           allow_duplicates?: boolean
@@ -301,9 +360,12 @@ export type Database = {
           mode?: Database["public"]["Enums"]["room_mode"]
           started_at?: string | null
           status?: Database["public"]["Enums"]["room_status"]
+          team_turn?: string | null
+          turn_deadline?: string | null
           turn_started_at?: string | null
           updated_at?: string
           winner_id?: string | null
+          winner_team?: string | null
         }
         Relationships: []
       }
@@ -392,7 +454,7 @@ export type Database = {
       }
     }
     Enums: {
-      room_mode: "turn_based" | "simultaneous" | "battle_royale"
+      room_mode: "turn_based" | "simultaneous" | "battle_royale" | "relay_race"
       room_status:
         | "waiting"
         | "setting_secrets"
@@ -526,7 +588,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      room_mode: ["turn_based", "simultaneous", "battle_royale"],
+      room_mode: ["turn_based", "simultaneous", "battle_royale", "relay_race"],
       room_status: [
         "waiting",
         "setting_secrets",

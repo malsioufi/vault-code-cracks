@@ -1,54 +1,53 @@
-# Battle Royale Mode — Plan
+# Relay Race Mode — Plan
 
-A new multiplayer mode where 2+ players race to crack the same server-generated secret. Each player guesses independently; first to crack wins; others can keep going until they exhaust max tries or give up.
+Two teams (A & B) race to crack each other's secret. One randomly-picked teammate per team sets the team's code; teammates rotate as the active guesser each turn with a 30s timer.
 
 ## User flow
 
-1. **Online page**: New "Battle Royale" option alongside Quick Match / Create Room / Join.
-2. **Host setup**: Choose code length (3–6), allow duplicates, max tries (required, 6–20), min players to start (default 2, cap 8).
-3. **Lobby**: Share room code; participant list updates live; host sees "Start" button (enabled when ≥ min players).
-4. **Game start**: Server generates the single secret. Status flips to `playing`. No secret-setting step.
-5. **In-game**: Each player has their own guess pad + history. A sidebar shows every opponent with their guess count and status (still in / cracked / out / gave up) — never their guesses or feedback.
-6. **End**: First crack ends the round (winner announced); or all players out → no winner. Reveal panel shows the secret and a side-by-side column per player with their full guess history.
+1. **Online page**: New "Relay Race" card next to Battle Royale. Create dialog: code length, allow duplicates, max tries (or infinite), min players per team (default 2, cap 4 per team = 8 total).
+2. **Lobby**: Share room code. Each joiner picks Team A or Team B (switchable until start). Host sees Start button (enabled when each team has ≥ min players).
+3. **Setting phase**: Server randomly picks one player per team as "code setter". That player sees a secret-input pad with a 60s deadline. Their teammates see "Waiting for {name} to set Team X's code"; once submitted teammates can view the code. Opposing team sees only "Team X is setting their code". If the setter's deadline expires without submission, server re-picks another random teammate (excluding those who already failed); repeats until someone submits or no candidates left (then room abandoned). When both teams submitted → status flips to `playing`.
+4. **Playing phase**: Server rotates active guesser per team in a fixed order. Only the current active player on the team whose turn it is can submit. After a guess, that team's rotation index advances and `team_turn` flips. 30s timer per turn — on expiry, auto-pass (no guess recorded). Each team sees their own full feedback; opponent side shows only "Guesses: N".
+5. **End**: First team to score `matches === code_length` wins. Reveal panel shows both secrets + both teams' guess histories side by side.
 
-## Data model changes
+## Data model
 
-- `rooms.mode` enum: add `battle_royale`.
-- `rooms`: add `min_players int`, `started_at timestamptz`.
-- New table `room_participants`: `room_id`, `user_id`, `joined_at`, `gave_up_at` nullable, `finished_at` nullable, `cracked boolean default false`, PK (room_id, user_id).
-- `room_secrets`: add `is_shared boolean default false`. For BR, one shared row keyed by host_id + is_shared=true.
-- `guesses`: unchanged.
-- RLS: participants can read `room_participants` for rooms they're in; shared `room_secrets` row only readable after status IN ('finished','abandoned').
-- Realtime: add `room_participants` to `supabase_realtime` publication.
+- `room_mode` enum: add `relay_race`.
+- `rooms`: add `team_turn text` ('A'|'B'), `turn_deadline timestamptz`, `winner_team text`.
+- New `room_teams` table: `(room_id, team text, secret int[], setter_id uuid, setter_deadline timestamptz, failed_setters uuid[], active_user_id uuid, rotation uuid[], rotation_index int, guesses_count int default 0)`, PK (room_id, team).
+- `room_participants`: add nullable `team text` (only set for relay).
+- `guesses`: add nullable `team text` for relay grouping.
+- RLS: a team's `secret` only visible to that team's members after their setter submits (or game finished) — via security-definer RPC `get_relay_secret_for_me`; never SELECT-able by opposing team. `guesses` SELECT policy: own team or finished room.
+- Realtime: add `room_teams` to publication.
 
 ## Edge functions
 
-- `create-room`: accept `mode='battle_royale'` + `min_players`. Insert host into `room_participants`.
-- `join-room`: if BR and `status='waiting'`, insert into `room_participants` (no guest_id, no status change). Block once started or at cap.
-- New `start-battle-royale`: host-only; requires participant count ≥ min_players. Generates secret server-side, inserts shared `room_secrets` row, sets `status='playing'`, `started_at=now()`.
-- `submit-guess`: branch on `room.mode`. For BR: verify caller is active (not cracked/out/gave up); evaluate vs shared secret; insert guess; if win → mark cracked, set room winner + status='finished'; if hits max_tries → mark out. If all participants out → finish with winner_id=null.
-- New `give-up-battle-royale`: marks caller gave_up_at=now(); if all out → finish with no winner.
-- `reveal-secrets`: extend to return shared secret for BR rooms once finished.
+- `create-room`: accept `mode='relay_race'` + `minPlayersPerTeam`.
+- `join-room`: relay branch — insert participant if waiting & total <8.
+- New `pick-team`: caller sets their own `team` while `status='waiting'`. Cap 4 per team.
+- New `start-relay`: host only. Each team must have ≥ min. Randomly pick one setter per team. Build shuffled rotation. Insert `room_teams` rows with `setter_deadline=now()+60s`. Set `status='setting_secrets'`.
+- New `set-relay-secret`: caller must be `setter_id` for their team; validate; store secret. If both teams done → `status='playing'`, `team_turn='A'`, set `active_user_id` per team to rotation[0], `turn_deadline=now()+30s`.
+- New `relay-resetter`: any teammate may call when `now() > setter_deadline` and that team's secret still null. Server validates expiry, appends old setter to `failed_setters`, picks a new random setter from remaining teammates, resets `setter_deadline`. If no candidates left → room `abandoned`.
+- `submit-guess`: relay branch. Verify caller is `active_user_id` on the team whose `team_turn` it is. Evaluate vs opposing team's secret. Insert guess with `team`. Win → finish with `winner_team`, `winner_id=caller`. Else increment `guesses_count`, advance rotation_index, flip `team_turn`, reset `turn_deadline`. Max-tries hit → team eliminated; both eliminated → finish, no winner.
+- New `relay-pass-turn`: any participant can call when `now() > turn_deadline`; server validates expiry and advances/flips.
+- `reveal-secrets`: extend to return both team secrets once finished.
 
 ## Frontend
 
-- `src/pages/Online.tsx`: add Battle Royale entry + create dialog (length, duplicates, max_tries, min_players).
-- `src/pages/Room.tsx` + `useRoom`: detect BR mode; load + subscribe to `room_participants`. Compute per-player guess counts from `guesses`.
-- New `src/components/game/BattleRoyaleLobby.tsx`: participant list, share code, host Start button.
-- New `src/components/game/BattleRoyaleBoard.tsx`: own guess pad/history; opponents sidebar (name • guess count / max • status badge). "Give up" button.
-- New `src/components/game/BattleRoyaleResults.tsx`: winner banner, revealed secret, horizontal scroll of per-player guess columns.
-- i18n keys for all new strings (EN + AR).
+- `src/pages/Online.tsx`: add Relay Race entry + create dialog.
+- `src/pages/Room.tsx` + `useRoom`: detect relay; subscribe to `room_teams`; fetch own team secret via RPC.
+- New `RelayLobby.tsx`: two team columns with chips, "Join Team A/B" buttons, host Start.
+- New `RelaySetting.tsx`: setter view (input + countdown); teammate waiting view (reveals code once submitted, "Re-pick setter" button after expiry); opposing team sees "Team X choosing…".
+- New `RelayBoard.tsx`: own team panel (full history, active player highlight, guess pad if I'm active), opponent panel (guess count + turn indicator), 30s countdown.
+- New `RelayResults.tsx`: winning team banner, both secrets, side-by-side guess columns per team.
+- Client-side timers; any teammate triggers `relay-pass-turn` / `relay-resetter` once expired (server idempotent).
+- i18n keys EN + AR.
 
 ## Technical notes
 
-- Server-side game logic only — never expose secret until room finished.
-- Reuse `evaluateGuess` in `supabase/functions/_shared/game.ts`.
-- Migration order: enum value add → table/column changes → GRANTs → RLS policies → publication.
-- 1v1 turn_based/simultaneous flows untouched.
-
-## Open questions
-
-1. Per-player turn timer, or fully self-paced? (Plan: self-paced.)
-2. Opponent view shows only "guess N of M" + status — no matches/shifts/glitches leakage. OK?
+- Secrets server-only until reveal; teammate visibility through authenticated RPC.
+- Reuse `evaluateGuess`.
+- Migration order: enum value → columns/tables → GRANTs → RLS → publication.
+- Existing 1v1 / Battle Royale flows untouched.
 
 Confirm and I'll build it.

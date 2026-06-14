@@ -21,10 +21,14 @@ serve(async (req) => {
       ? 'simultaneous'
       : body.mode === 'battle_royale'
         ? 'battle_royale'
-        : 'turn_based';
+        : body.mode === 'relay_race'
+          ? 'relay_race'
+          : 'turn_based';
     const minPlayers = mode === 'battle_royale'
       ? Math.max(2, Math.min(8, Number(body.minPlayers) || 2))
-      : null;
+      : mode === 'relay_race'
+        ? Math.max(2, Math.min(4, Number(body.minPlayersPerTeam) || 2))
+        : null;
 
     if (!Number.isInteger(codeLength) || codeLength < 3 || codeLength > 6) {
       return json({ error: 'Invalid codeLength' }, 400);
@@ -62,7 +66,7 @@ serve(async (req) => {
       return json({ error: 'Internal server error' }, 500);
     }
 
-    if (mode === 'battle_royale') {
+    if (mode === 'battle_royale' || mode === 'relay_race') {
       await sb.from('room_participants').insert({ room_id: room.id, user_id: user.id });
     }
 

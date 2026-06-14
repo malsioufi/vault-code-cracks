@@ -11,7 +11,7 @@ interface RoomRow {
   winner_id: string | null;
   finished_at: string | null;
   created_at: string;
-  mode: 'turn_based' | 'simultaneous' | 'battle_royale';
+  mode: 'turn_based' | 'simultaneous' | 'battle_royale' | 'relay_race';
 }
 
 interface DailyRow {

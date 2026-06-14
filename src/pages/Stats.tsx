@@ -14,7 +14,7 @@ interface RoomRow {
   host_id: string;
   guest_id: string | null;
   status: 'waiting' | 'setting_secrets' | 'playing' | 'finished' | 'abandoned';
-  mode: 'turn_based' | 'simultaneous' | 'battle_royale';
+  mode: 'turn_based' | 'simultaneous' | 'battle_royale' | 'relay_race';
   code_length: number;
   allow_duplicates: boolean;
   winner_id: string | null;
