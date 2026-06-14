@@ -50,10 +50,13 @@ serve(async (req) => {
       .select()
       .single();
 
-    if (error) return json({ error: error.message }, 500);
+    if (error) {
+      console.error('create-room db error:', error.message);
+      return json({ error: 'Internal server error' }, 500);
+    }
     return json({ room });
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    return json({ error: msg }, 500);
+    console.error('create-room error:', e);
+    return json({ error: 'Internal server error' }, 500);
   }
 });
