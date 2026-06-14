@@ -60,22 +60,31 @@ serve(async (req) => {
         break;
       }
     }
+    const finished = won || attemptsUsed >= cfg.maxTries;
     const closeness = won ? 100 : closenessPercent(bestMatches, bestShifts, cfg.codeLength);
 
     const sb = serviceClient();
 
-    // Don't overwrite existing record for this puzzle
+    // If a finalized record already exists, never overwrite it (anti-cheat).
     const { data: existing } = await sb
       .from('daily_results')
-      .select('puzzle_date')
+      .select('won, attempts_used, max_tries')
       .eq('user_id', user.id)
       .eq('puzzle_date', cfg.date)
       .maybeSingle();
+
     if (existing) {
-      return json({ ok: true, alreadyRecorded: true });
+      const existingFinished = existing.won || (existing.attempts_used ?? 0) >= (existing.max_tries ?? cfg.maxTries);
+      if (existingFinished) {
+        return json({ ok: true, alreadyRecorded: true });
+      }
+      // In-progress: only allow extending with more guesses (prevent rewinding).
+      if (guesses.length < (existing.attempts_used ?? 0)) {
+        return json({ ok: true, ignored: true });
+      }
     }
 
-    const { error } = await sb.from('daily_results').insert({
+    const { error } = await sb.from('daily_results').upsert({
       user_id: user.id,
       puzzle_date: cfg.date,
       won,
@@ -85,12 +94,12 @@ serve(async (req) => {
       allow_duplicates: cfg.allowDuplicates,
       guesses: guesses.slice(0, attemptsUsed),
       closeness,
-    });
+    }, { onConflict: 'user_id,puzzle_date' });
     if (error) {
-      console.error('daily insert error', error.message);
+      console.error('daily upsert error', error.message);
       return json({ error: 'Internal server error' }, 500);
     }
-    return json({ ok: true, won, attemptsUsed, closeness });
+    return json({ ok: true, won, attemptsUsed, closeness, finished });
   } catch (e) {
     console.error('submit-daily-result error', e);
     return json({ error: 'Internal server error' }, 500);

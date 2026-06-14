@@ -198,6 +198,23 @@ export function getLocalDailyRecord(date: string): LocalRecord | null {
   return readLocal().records[date] ?? null;
 }
 
+// Save in-progress guesses locally so a refresh doesn't reset attempts.
+// Does NOT update streak/played counters — only finalized results do.
+export function saveLocalDailyProgress(rec: { date: string; guesses: number[][] }): void {
+  const s = readLocal();
+  const existing = s.records[rec.date];
+  // Never overwrite a finalized record, and never shrink attempts.
+  if (existing && (existing.won || (existing.guesses?.length ?? 0) >= rec.guesses.length)) return;
+  s.records[rec.date] = {
+    date: rec.date,
+    won: false,
+    attemptsUsed: rec.guesses.length,
+    guesses: rec.guesses,
+    closeness: existing?.closeness,
+  };
+  writeLocal(s);
+}
+
 export function saveLocalDailyRecord(rec: LocalRecord): LocalState {
   const s = readLocal();
   if (s.records[rec.date]) return s; // already saved

@@ -28,18 +28,13 @@ const Daily: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useAuth();
-  const { config, todayRecord, stats, loading, isSignedIn, saveResult } = useDailyPuzzle();
+  const { config, todayRecord, stats, loading, isSignedIn, saveResult, saveProgress } = useDailyPuzzle();
   const [history, setHistory] = useState<GuessEntry[]>([]);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   const [countdown, setCountdown] = useState(msUntilNextDailyMidnight());
 
-  // Hydrate from existing record (already played today).
-  // Only hydrate ONCE, after the data hook finishes loading and BEFORE the
-  // user has submitted any guess locally. After that, we never overwrite
-  // local history — otherwise an effect re-run could replace freshly-submitted
-  // feedback with a recomputed snapshot, which historically showed up as the
-  // result table looking "shifted by one row".
+  // Hydrate from existing record (already played today OR in progress).
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
     if (hydrated) return;
@@ -51,8 +46,10 @@ const Daily: React.FC = () => {
         feedback: evaluateGuess(g, config.secret),
       }));
       setHistory(rebuilt);
-      setGameOver(true);
-      setWon(todayRecord.won);
+      if (todayRecord.finished) {
+        setGameOver(true);
+        setWon(todayRecord.won);
+      }
     }
     setHydrated(true);
   }, [loading, todayRecord, config.secret, hydrated, history.length]);
@@ -66,9 +63,6 @@ const Daily: React.FC = () => {
   const triesLeft = config.maxTries - history.length;
 
   // Closeness across an arbitrary list of guesses, given a known win flag.
-  // Per-guess score = (matches + 0.5 * shifts) / codeLength.
-  // Final closeness = average of (best score, mean score across all guesses).
-  // 100% only on wins; otherwise capped at 99%.
   const computeCloseness = (
     entries: GuessEntry[],
     didWin: boolean,
@@ -93,17 +87,21 @@ const Daily: React.FC = () => {
     const feedback = evaluateGuess(digits, config.secret);
     const next = [...history, { guess: digits, feedback }];
     setHistory(next);
+    const guessesArr = next.map((e) => e.guess);
 
     if (feedback.matches === config.codeLength) {
       setGameOver(true);
       setWon(true);
       const c = computeCloseness(next, true, config.codeLength);
-      void saveResult(true, next.map((e) => e.guess), c);
+      void saveResult(true, guessesArr, c);
     } else if (next.length >= config.maxTries) {
       setGameOver(true);
       setWon(false);
       const c = computeCloseness(next, false, config.codeLength);
-      void saveResult(false, next.map((e) => e.guess), c);
+      void saveResult(false, guessesArr, c);
+    } else {
+      // Persist in-progress attempts so refreshing won't reset tries.
+      void saveProgress(guessesArr);
     }
   };
 
