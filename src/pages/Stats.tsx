@@ -14,7 +14,7 @@ interface RoomRow {
   host_id: string;
   guest_id: string | null;
   status: 'waiting' | 'setting_secrets' | 'playing' | 'finished' | 'abandoned';
-  mode: 'turn_based' | 'simultaneous';
+  mode: 'turn_based' | 'simultaneous' | 'battle_royale';
   code_length: number;
   allow_duplicates: boolean;
   winner_id: string | null;
@@ -49,6 +49,7 @@ const Stats: React.FC = () => {
   const [dailyStreak, setDailyStreak] = useState<{ current: number; best: number }>({ current: 0, best: 0 });
   const [loading, setLoading] = useState(true);
   const [guessCounts, setGuessCounts] = useState<Record<string, number>>({});
+  const [participantCounts, setParticipantCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (authLoading) return;
