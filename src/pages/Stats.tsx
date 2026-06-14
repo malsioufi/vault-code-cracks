@@ -176,6 +176,26 @@ const Stats: React.FC = () => {
     return { played: daily.length, wins, losses, draws: 0, winRate };
   }, [daily]);
 
+  // Current consecutive-days play streak (any result), based on puzzle_date.
+  const playStreak = useMemo(() => {
+    if (daily.length === 0) return 0;
+    const dates = new Set(daily.map((d) => d.puzzle_date));
+    let streak = 0;
+    const cursor = new Date();
+    // Allow streak to start either today or yesterday (timezone tolerance).
+    const todayStr = cursor.toISOString().slice(0, 10);
+    if (!dates.has(todayStr)) {
+      cursor.setUTCDate(cursor.getUTCDate() - 1);
+    }
+    for (;;) {
+      const key = cursor.toISOString().slice(0, 10);
+      if (!dates.has(key)) break;
+      streak += 1;
+      cursor.setUTCDate(cursor.getUTCDate() - 1);
+    }
+    return streak;
+  }, [daily]);
+
   // Recent daily results, oldest → newest, for the dot strip (fills row width).
   const recentDaily = useMemo(
     () => daily.slice().reverse(),
@@ -247,6 +267,18 @@ const Stats: React.FC = () => {
             <StatCell label={t('played')} value={dailyStats.played} />
             <StatCell label={t('wins')} value={dailyStats.wins} valueClass="text-primary text-glow-primary" />
             <StatCell label={t('winRate')} value={`${dailyStats.winRate}%`} valueClass="text-secondary text-glow-secondary" />
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-center mt-2">
+            <StatCell
+              label="Win Streak"
+              value={dailyStreak.current}
+              valueClass="text-primary text-glow-primary"
+            />
+            <StatCell
+              label="Play Streak"
+              value={playStreak}
+              valueClass="text-warning"
+            />
           </div>
 
           {recentDaily.length > 0 && (
