@@ -50,12 +50,27 @@ export interface RematchEvent {
   fromUserId: string;
 }
 
+export interface TeamState {
+  room_id: string;
+  team: 'A' | 'B';
+  setter_id: string | null;
+  setter_deadline: string | null;
+  failed_setters: string[];
+  active_user_id: string | null;
+  rotation: string[];
+  rotation_index: number;
+  guesses_count: number;
+  secret_set: boolean;
+}
+
 export function useRoom(code: string | undefined, userId: string | undefined) {
   const [room, setRoom] = useState<Room | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [mySecret, setMySecret] = useState<number[] | null>(null);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [teams, setTeams] = useState<TeamState[]>([]);
+  const [teamSecrets, setTeamSecrets] = useState<Record<string, number[]>>({});
   const [rematchInvite, setRematchInvite] = useState<RematchEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
