@@ -6,8 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import PageHeader from '@/components/PageHeader';
 
-type Mode = 'turn_based' | 'simultaneous' | 'battle_royale';
-type Tab = 'create' | 'join' | 'quick' | 'br';
+type Mode = 'turn_based' | 'simultaneous' | 'battle_royale' | 'relay_race';
+type Tab = 'create' | 'join' | 'quick' | 'br' | 'relay';
 
 const Online: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -95,13 +95,16 @@ const Online: React.FC = () => {
     setBusy(true);
     if (!(await ensureSession())) { setBusy(false); return; }
     const isBR = tab === 'br';
+    const isRelay = tab === 'relay';
+    const effMode = isBR ? 'battle_royale' : isRelay ? 'relay_race' : mode;
     const { data, error } = await supabase.functions.invoke('create-room', {
       body: {
         codeLength,
         allowDuplicates,
-        maxTries: isBR ? (maxTries ?? 12) : maxTries,
-        mode: isBR ? 'battle_royale' : mode,
+        maxTries: (isBR || isRelay) ? (maxTries ?? 12) : maxTries,
+        mode: effMode,
         minPlayers: isBR ? minPlayers : undefined,
+        minPlayersPerTeam: isRelay ? minPlayers : undefined,
       },
     });
     setBusy(false);
