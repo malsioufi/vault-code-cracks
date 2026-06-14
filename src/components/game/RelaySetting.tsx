@@ -65,7 +65,7 @@ const RelaySetting: React.FC<Props> = ({
 
   // If our team's setter timer expired and secret not set, try to re-pick
   useEffect(() => {
-    if (!myTeamRow || myTeamRow.secret_set) return;
+    if (!myTeam || !myTeamRow || myTeamRow.secret_set) return;
     if (!myTeamRow.setter_deadline) return;
     if (new Date(myTeamRow.setter_deadline).getTime() > Date.now()) return;
     supabase.functions.invoke('relay-resetter', { body: { roomId, team: myTeam } });
