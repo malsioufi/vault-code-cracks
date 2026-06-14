@@ -20,12 +20,17 @@ export interface UnlockContext {
     codeLength: number;
     allowDuplicates?: boolean;
     finishedAt: string | null;
+    mode?: 'turn_based' | 'simultaneous' | 'battle_royale';
+    playerCount?: number;
   }>;
   currentWinStreak: number;
   dailyWins: number;
   dailyBestGuessCount: number; // lowest attempts to win any daily
   dailyCurrentStreak: number;
   dailyBestStreak: number;
+  battleRoyalePlays: number;
+  battleRoyaleWins: number;
+  battleRoyaleBiggestWin: number; // max playerCount of any won BR
 }
 
 const clamp = (n: number, max: number) => Math.min(Math.max(n, 0), max);
