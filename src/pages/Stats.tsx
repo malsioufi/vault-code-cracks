@@ -326,7 +326,7 @@ const Stats: React.FC = () => {
         </div>
 
         {/* Recent matches — its own scroll container, takes remaining space */}
-        <div className="w-full flex-1 min-h-0 flex flex-col">
+        <div className="w-full flex-1 min-h-0 flex flex-col overflow-hidden">
           <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-2 shrink-0">
             {t('recentMatches')}
           </h2>
