@@ -278,17 +278,17 @@ const Stats: React.FC = () => {
             <StatCell label={t('bestStreak')} value={dailyStreak.best} valueClass="text-secondary text-glow-secondary" />
           </div>
 
-          {last10Daily.length > 0 && (
+          {recentDaily.length > 0 && (
             <div className="mt-3">
               <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">
-                Last {last10Daily.length}
+                Recent
               </div>
-              <div className="flex items-center gap-1.5">
-                {last10Daily.map((d) => (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {recentDaily.map((d) => (
                   <div
                     key={d.puzzle_date}
                     title={`${d.puzzle_date} — ${d.won ? 'Win' : 'Loss'}`}
-                    className={`w-3.5 h-3.5 rounded-full border ${
+                    className={`w-3 h-3 rounded-full border ${
                       d.won
                         ? 'bg-primary border-primary [box-shadow:0_0_6px_hsl(var(--primary))]'
                         : 'bg-destructive border-destructive [box-shadow:0_0_6px_hsl(var(--destructive))]'
