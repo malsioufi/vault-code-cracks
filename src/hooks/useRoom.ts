@@ -7,7 +7,7 @@ interface Room {
   host_id: string;
   guest_id: string | null;
   status: 'waiting' | 'setting_secrets' | 'playing' | 'finished' | 'abandoned';
-  mode: 'turn_based' | 'simultaneous' | 'battle_royale';
+  mode: 'turn_based' | 'simultaneous' | 'battle_royale' | 'relay_race';
   code_length: number;
   allow_duplicates: boolean;
   max_tries: number | null;
@@ -18,6 +18,9 @@ interface Room {
   finished_at: string | null;
   min_players: number | null;
   started_at: string | null;
+  team_turn: 'A' | 'B' | null;
+  turn_deadline: string | null;
+  winner_team: 'A' | 'B' | null;
 }
 
 interface Guess {
@@ -38,6 +41,7 @@ export interface Participant {
   cracked: boolean;
   finished_at: string | null;
   gave_up_at: string | null;
+  team: 'A' | 'B' | null;
 }
 
 export interface RematchEvent {
