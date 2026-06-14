@@ -20,7 +20,7 @@ export interface UnlockContext {
     codeLength: number;
     allowDuplicates?: boolean;
     finishedAt: string | null;
-    mode?: 'turn_based' | 'simultaneous' | 'battle_royale';
+    mode?: 'turn_based' | 'simultaneous' | 'battle_royale' | 'relay_race';
     playerCount?: number;
   }>;
   currentWinStreak: number;
