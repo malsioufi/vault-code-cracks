@@ -13,10 +13,9 @@ const Achievements: React.FC = () => {
   const { t } = useLanguage();
   const isGuest = !!profile?.is_guest;
   const { context, loading: ctxLoading } = useAchievementsContext(user?.id, isGuest);
-  const { unlockedAt } = useAchievements({
+  const { unlockedAt, claim } = useAchievements({
     userId: user?.id,
     isGuest,
-    context,
   });
 
   if (authLoading) {
