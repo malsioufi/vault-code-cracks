@@ -167,6 +167,92 @@ const Room: React.FC = () => {
     );
   }
 
+  // ===== BATTLE ROYALE =====
+  if (room.mode === 'battle_royale') {
+    const guessCounts: Record<string, number> = {};
+    const guessesByPlayer: Record<string, GuessEntry[]> = {};
+    for (const g of guesses) {
+      guessCounts[g.player_id] = (guessCounts[g.player_id] || 0) + 1;
+      if (!guessesByPlayer[g.player_id]) guessesByPlayer[g.player_id] = [];
+      guessesByPlayer[g.player_id].push({
+        guess: g.guess,
+        feedback: { matches: g.matches, shifts: g.shifts, glitches: g.glitches },
+      });
+    }
+    const me = participants.find((p) => p.user_id === user.id);
+    const amIDone = !!(me && (me.cracked || me.gave_up_at || me.finished_at)) || gameOver;
+    const myBrGuesses = guessesByPlayer[user.id] ?? [];
+    const sharedSecret = Object.values(revealedSecrets)[0];
+
+    if (room.status === 'waiting') {
+      return (
+        <BattleRoyaleLobby
+          roomCode={room.code}
+          roomId={room.id}
+          isHost={isHost}
+          participants={participants}
+          profiles={profiles}
+          minPlayers={room.min_players ?? 2}
+          codeLength={room.code_length}
+          allowDuplicates={room.allow_duplicates}
+          maxTries={room.max_tries}
+          onLeave={() => navigate('/online')}
+        />
+      );
+    }
+
+    if (gameOver) {
+      return (
+        <div className="min-h-screen overflow-y-auto py-4">
+          <BattleRoyaleResults
+            winnerId={room.winner_id}
+            myId={user.id}
+            secret={sharedSecret}
+            participants={participants}
+            guessesByPlayer={guessesByPlayer}
+            profiles={profiles}
+            codeLength={room.code_length}
+            onBack={() => navigate('/online')}
+          />
+        </div>
+      );
+    }
+
+    // playing
+    return (
+      <div className="h-screen flex flex-col items-center px-4 pt-3 pb-2 overflow-hidden">
+        <div className="w-full max-w-md flex items-center justify-between mb-2 shrink-0">
+          <button
+            onClick={() => navigate('/online')}
+            className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+          >
+            ←
+          </button>
+          <div dir="ltr" className="font-mono text-xs text-muted-foreground">
+            #{room.code} · {t('battleRoyale')}
+          </div>
+        </div>
+        <BattleRoyaleBoard
+          codeLength={room.code_length}
+          allowDuplicates={room.allow_duplicates}
+          maxTries={room.max_tries ?? 10}
+          myId={user.id}
+          myGuesses={myBrGuesses}
+          participants={participants}
+          guessCounts={guessCounts}
+          profiles={profiles}
+          onGuess={handleGuess}
+          onGiveUp={async () => {
+            if (!confirm(t('giveUpConfirm'))) return;
+            await supabase.functions.invoke('give-up-br', { body: { roomId: room.id } });
+          }}
+          submitting={submitting}
+          amIDone={amIDone}
+        />
+      </div>
+    );
+  }
+
   const myGuesses: GuessEntry[] = guesses
     .filter((g) => g.player_id === user.id)
     .map((g) => ({ guess: g.guess, feedback: { matches: g.matches, shifts: g.shifts, glitches: g.glitches } }));
