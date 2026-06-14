@@ -306,6 +306,29 @@ export type Database = {
           total_won: number
         }[]
       }
+      get_public_daily_recent: {
+        Args: { _limit?: number; _user_id: string }
+        Returns: {
+          puzzle_date: string
+          won: boolean
+        }[]
+      }
+      get_public_profile_stats: {
+        Args: { _user_id: string }
+        Returns: {
+          achievements_unlocked: number
+          daily_best_streak: number
+          daily_current_streak: number
+          daily_played: number
+          daily_wins: number
+          display_name: string
+          is_guest: boolean
+          online_losses: number
+          online_played: number
+          online_wins: number
+          user_id: string
+        }[]
+      }
       is_room_participant: {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean
