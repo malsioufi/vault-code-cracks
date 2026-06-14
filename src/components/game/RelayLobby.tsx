@@ -53,31 +53,38 @@ const RelayLobby: React.FC<Props> = ({
     toast.success(t('copied'));
   };
 
-  const TeamColumn = ({ team, members, color }: { team: 'A' | 'B'; members: Participant[]; color: string }) => (
-    <div className={`flex-1 p-3 rounded-lg bg-card cyber-border ${myPart?.team === team ? 'glow-' + color : ''}`}>
-      <div className="flex items-center justify-between mb-2">
-        <h3 className={`font-mono text-sm font-bold text-${color}`}>{t('team')} {team}</h3>
-        <span className="font-mono text-[10px] text-muted-foreground">{members.length}/4</span>
+  const TeamColumn = ({ team, members, color }: { team: 'A' | 'B'; members: Participant[]; color: 'primary' | 'secondary' }) => {
+    const isMyTeam = myPart?.team === team;
+    const colorText = color === 'primary' ? 'text-primary' : 'text-secondary';
+    const colorBtn = color === 'primary'
+      ? 'bg-primary/10 text-primary hover:bg-primary/20'
+      : 'bg-secondary/10 text-secondary hover:bg-secondary/20';
+    return (
+      <div className={`flex-1 p-3 rounded-lg bg-card cyber-border ${isMyTeam ? (color === 'primary' ? 'glow-primary' : 'glow-secondary') : ''}`}>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className={`font-mono text-sm font-bold ${colorText}`}>{t('team')} {team}</h3>
+          <span className="font-mono text-[10px] text-muted-foreground">{members.length}/4</span>
+        </div>
+        <div className="space-y-1 min-h-[80px]">
+          {members.map((p) => (
+            <div key={p.user_id} className="font-mono text-xs truncate px-2 py-1 rounded bg-muted/50">
+              {profiles[p.user_id] ?? 'Breaker'}{p.user_id === myId && ` (${t('you')})`}
+            </div>
+          ))}
+          {members.length === 0 && <p className="font-mono text-[10px] text-muted-foreground italic px-2">—</p>}
+        </div>
+        {!isMyTeam && (
+          <button
+            onClick={() => pickTeam(team)}
+            disabled={busy || members.length >= 4}
+            className={`w-full mt-2 py-1.5 rounded font-mono text-xs transition-colors cyber-border disabled:opacity-50 ${colorBtn}`}
+          >
+            {t('joinTeam')} {team}
+          </button>
+        )}
       </div>
-      <div className="space-y-1 min-h-[80px]">
-        {members.map((p) => (
-          <div key={p.user_id} className="font-mono text-xs truncate px-2 py-1 rounded bg-muted/50">
-            {profiles[p.user_id] ?? 'Breaker'}{p.user_id === myId && ` (${t('you')})`}
-          </div>
-        ))}
-        {members.length === 0 && <p className="font-mono text-[10px] text-muted-foreground italic px-2">—</p>}
-      </div>
-      {myPart?.team !== team && (
-        <button
-          onClick={() => pickTeam(team)}
-          disabled={busy || members.length >= 4}
-          className={`w-full mt-2 py-1.5 rounded font-mono text-xs bg-${color}/10 text-${color} hover:bg-${color}/20 transition-colors cyber-border disabled:opacity-50`}
-        >
-          {t('joinTeam')} {team}
-        </button>
-      )}
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-6">
