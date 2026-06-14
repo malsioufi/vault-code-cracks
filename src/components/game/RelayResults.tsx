@@ -14,10 +14,12 @@ interface Props {
   profiles: Record<string, string>;
   codeLength: number;
   onBack: () => void;
+  onRematch?: () => void;
+  rematchPending?: boolean;
 }
 
 const RelayResults: React.FC<Props> = ({
-  winnerTeam, myTeam, teams, teamSecrets, guessesByTeam, profiles, codeLength, onBack,
+  winnerTeam, myTeam, teams, teamSecrets, guessesByTeam, profiles, codeLength, onBack, onRematch, rematchPending,
 }) => {
   const { t } = useLanguage();
   const iWon = winnerTeam === myTeam;
