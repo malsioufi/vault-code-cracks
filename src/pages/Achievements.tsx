@@ -13,10 +13,9 @@ const Achievements: React.FC = () => {
   const { t } = useLanguage();
   const isGuest = !!profile?.is_guest;
   const { context, loading: ctxLoading } = useAchievementsContext(user?.id, isGuest);
-  const { unlockedAt } = useAchievements({
+  const { unlockedAt, claim } = useAchievements({
     userId: user?.id,
     isGuest,
-    context,
   });
 
   if (authLoading) {
@@ -61,7 +60,7 @@ const Achievements: React.FC = () => {
         {ctxLoading ? (
           <p className="font-mono text-xs text-muted-foreground text-center py-6">…</p>
         ) : (
-          <AchievementsCard unlockedAt={unlockedAt} context={context} />
+          <AchievementsCard unlockedAt={unlockedAt} context={context} onClaim={claim} />
         )}
       </div>
     </div>

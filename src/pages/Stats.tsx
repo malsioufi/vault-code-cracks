@@ -40,7 +40,7 @@ interface Stats {
 }
 
 const Stats: React.FC = () => {
-  const { t, lang, setLang } = useLanguage();
+  const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const [rooms, setRooms] = useState<RoomRow[]>([]);
@@ -88,7 +88,6 @@ const Stats: React.FC = () => {
         });
       }
 
-      // Fetch opponent display names
       const opponentIds = Array.from(new Set(
         rs.map((r) => (r.host_id === user.id ? r.guest_id : r.host_id)).filter(Boolean) as string[],
       ));
@@ -104,7 +103,6 @@ const Stats: React.FC = () => {
         }
       }
 
-      // Fetch this user's guess counts per won room (for achievements)
       const wonRoomIds = rs.filter((r) => r.winner_id === user.id).map((r) => r.id);
       if (wonRoomIds.length) {
         const { data: gs } = await supabase
@@ -127,10 +125,8 @@ const Stats: React.FC = () => {
     return () => { cancelled = true; };
   }, [user, profile, authLoading]);
 
-  // Achievements context
   const achievementsContext = useMemo<UnlockContext | null>(() => {
     if (!user || profile?.is_guest) return null;
-    // current online win streak (rooms sorted desc by finished_at)
     let streak = 0;
     for (const r of rooms) {
       if (r.winner_id === user.id) streak += 1;
@@ -157,22 +153,17 @@ const Stats: React.FC = () => {
     };
   }, [rooms, daily, dailyStreak, guessCounts, user, profile]);
 
-  const { unlockedAt: unlockedAchievementsAt } = useAchievements({
+  const { unlockedAt: unlockedAchievementsAt, claim } = useAchievements({
     userId: user?.id,
     isGuest: !!profile?.is_guest,
-    context: achievementsContext,
   });
 
   const onlineStats = useMemo<Stats>(() => {
     let wins = 0, losses = 0, draws = 0;
     for (const r of rooms) {
-      if (!r.winner_id) {
-        draws += 1;
-      } else if (r.winner_id === user?.id) {
-        wins += 1;
-      } else {
-        losses += 1;
-      }
+      if (!r.winner_id) draws += 1;
+      else if (r.winner_id === user?.id) wins += 1;
+      else losses += 1;
     }
     const played = rooms.length;
     const winRate = played > 0 ? Math.round((wins / played) * 100) : 0;
@@ -195,7 +186,12 @@ const Stats: React.FC = () => {
     return Math.round(total / daily.length);
   }, [daily]);
 
-  // ----- gated views -----
+  // Last 10 daily results, oldest → newest, for the dot strip.
+  const last10Daily = useMemo(
+    () => daily.slice(0, 10).slice().reverse(),
+    [daily],
+  );
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -250,121 +246,160 @@ const Stats: React.FC = () => {
         <p className="font-mono text-[11px] text-muted-foreground mt-1">{t('statsSubtitle')}</p>
       </div>
 
-      <div className="w-full max-w-md flex-1 min-h-0 overflow-y-auto">
+      {/* Each card is its own scroll container; the page itself doesn't scroll. */}
+      <div className="w-full max-w-md flex-1 min-h-0 flex flex-col gap-3 pb-2">
 
-
-      {/* Online stats card */}
-      <div className="w-full max-w-md mb-4 p-4 rounded-lg bg-card cyber-border scanline">
-        <h2 className="font-mono text-xs uppercase tracking-widest text-secondary text-glow-secondary mb-3">
-          {t('onlineStats')}
-        </h2>
-        <div className="grid grid-cols-4 gap-2 text-center">
-          <StatCell label={t('played')} value={onlineStats.played} />
-          <StatCell label={t('wins')} value={onlineStats.wins} valueClass="text-primary text-glow-primary" />
-          <StatCell label={t('losses')} value={onlineStats.losses} valueClass="text-destructive" />
-          <StatCell label={t('winRate')} value={`${onlineStats.winRate}%`} valueClass="text-secondary text-glow-secondary" />
-        </div>
-        {onlineStats.draws > 0 && (
-          <p className="font-mono text-[10px] text-muted-foreground text-center mt-2">
-            {onlineStats.draws} {t('draws')}
-          </p>
-        )}
-      </div>
-
-      {/* Daily stats card */}
-      <div className="w-full max-w-md mb-4 p-4 rounded-lg bg-card cyber-border scanline">
-        <h2 className="font-mono text-xs uppercase tracking-widest text-warning mb-3">
-          {t('dailyStats')}
-        </h2>
-        <div className="grid grid-cols-4 gap-2 text-center">
-          <StatCell label={t('played')} value={dailyStats.played} />
-          <StatCell label={t('wins')} value={dailyStats.wins} valueClass="text-primary text-glow-primary" />
-          <StatCell label={t('streak')} value={dailyStreak.current} valueClass="text-warning" />
-          <StatCell label={t('bestStreak')} value={dailyStreak.best} valueClass="text-secondary text-glow-secondary" />
-        </div>
-        {dailyStats.played > 0 && (
-          <div className="mt-3">
-            <div className="flex items-center justify-between font-mono text-[11px] text-muted-foreground mb-1">
-              <span>{t('avgCloseness')}</span>
-              <span className="text-secondary text-glow-secondary font-bold">{avgCloseness}%</span>
-            </div>
-            <div className="h-2 w-full rounded-full bg-muted overflow-hidden cyber-border">
-              <div
-                className="h-full bg-secondary transition-all"
-                style={{ width: `${avgCloseness}%` }}
-              />
-            </div>
+        {/* Online stats — fixed, no scroll */}
+        <div className="w-full p-4 rounded-lg bg-card cyber-border scanline shrink-0">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-secondary text-glow-secondary mb-3">
+            {t('onlineStats')}
+          </h2>
+          <div className="grid grid-cols-4 gap-2 text-center">
+            <StatCell label={t('played')} value={onlineStats.played} />
+            <StatCell label={t('wins')} value={onlineStats.wins} valueClass="text-primary text-glow-primary" />
+            <StatCell label={t('losses')} value={onlineStats.losses} valueClass="text-destructive" />
+            <StatCell label={t('winRate')} value={`${onlineStats.winRate}%`} valueClass="text-secondary text-glow-secondary" />
           </div>
-        )}
-      </div>
+          {onlineStats.draws > 0 && (
+            <p className="font-mono text-[10px] text-muted-foreground text-center mt-2">
+              {onlineStats.draws} {t('draws')}
+            </p>
+          )}
+        </div>
 
-      {/* Achievements */}
-      <div className="w-full max-w-md mb-4">
-        <AchievementsCard unlockedAt={unlockedAchievementsAt} context={achievementsContext} />
-      </div>
+        {/* Daily stats — fixed, no scroll, includes last-10 dot strip */}
+        <div className="w-full p-4 rounded-lg bg-card cyber-border scanline shrink-0">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-warning mb-3">
+            {t('dailyStats')}
+          </h2>
+          <div className="grid grid-cols-4 gap-2 text-center">
+            <StatCell label={t('played')} value={dailyStats.played} />
+            <StatCell label={t('wins')} value={dailyStats.wins} valueClass="text-primary text-glow-primary" />
+            <StatCell label={t('streak')} value={dailyStreak.current} valueClass="text-warning" />
+            <StatCell label={t('bestStreak')} value={dailyStreak.best} valueClass="text-secondary text-glow-secondary" />
+          </div>
 
-      {/* Recent matches */}
-      <div className="w-full max-w-md">
-        <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-2">
-          {t('recentMatches')}
-        </h2>
-        {rooms.length === 0 ? (
-          <p className="font-mono text-xs text-muted-foreground text-center py-6">
-            {t('noMatchesYet')}
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {rooms.slice(0, 15).map((r) => {
-              const opponentId = r.host_id === user.id ? r.guest_id : r.host_id;
-              const opponentName = (opponentId && profilesMap[opponentId]) || t('opponentLabel');
-              const iWon = r.winner_id === user.id;
-              const isDraw = !r.winner_id;
-              const isForfeit = r.status === 'abandoned';
-              const date = r.finished_at ?? r.created_at;
-              const dateLabel = new Date(date).toLocaleDateString(lang === 'ar' ? 'ar' : 'en', {
-                month: 'short',
-                day: 'numeric',
-              });
-
-              return (
-                <div
-                  key={r.id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/40 cyber-border"
-                >
+          {last10Daily.length > 0 && (
+            <div className="mt-3">
+              <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5">
+                Last {last10Daily.length}
+              </div>
+              <div className="flex items-center gap-1.5">
+                {last10Daily.map((d) => (
                   <div
-                    className={`w-2 h-10 rounded-full shrink-0 ${
-                      iWon ? 'bg-primary' : isDraw ? 'bg-warning' : 'bg-destructive'
+                    key={d.puzzle_date}
+                    title={`${d.puzzle_date} — ${d.won ? 'Win' : 'Loss'}`}
+                    className={`w-3.5 h-3.5 rounded-full border ${
+                      d.won
+                        ? 'bg-primary border-primary [box-shadow:0_0_6px_hsl(var(--primary))]'
+                        : 'bg-destructive border-destructive [box-shadow:0_0_6px_hsl(var(--destructive))]'
                     }`}
                   />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`font-mono text-sm font-bold ${
-                          iWon ? 'text-primary' : isDraw ? 'text-warning' : 'text-destructive'
+                ))}
+              </div>
+            </div>
+          )}
+
+          {dailyStats.played > 0 && (
+            <div className="mt-3">
+              <div className="flex items-center justify-between font-mono text-[11px] text-muted-foreground mb-1">
+                <span>{t('avgCloseness')}</span>
+                <span className="text-secondary text-glow-secondary font-bold">{avgCloseness}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-muted overflow-hidden cyber-border">
+                <div
+                  className="h-full bg-secondary transition-all"
+                  style={{ width: `${avgCloseness}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Achievements — its own scroll container */}
+        <div className="w-full max-h-[40vh] overflow-y-auto rounded-lg">
+          <AchievementsCard
+            unlockedAt={unlockedAchievementsAt}
+            context={achievementsContext}
+            onClaim={claim}
+          />
+        </div>
+
+        {/* Recent matches — its own scroll container, takes remaining space */}
+        <div className="w-full flex-1 min-h-0 flex flex-col">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-2 shrink-0">
+            {t('recentMatches')}
+          </h2>
+          <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+            {rooms.length === 0 ? (
+              <p className="font-mono text-xs text-muted-foreground text-center py-6">
+                {t('noMatchesYet')}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {rooms.map((r) => {
+                  const opponentId = r.host_id === user.id ? r.guest_id : r.host_id;
+                  const opponentName = (opponentId && profilesMap[opponentId]) || t('opponentLabel');
+                  const iWon = r.winner_id === user.id;
+                  const isDraw = !r.winner_id;
+                  const isForfeit = r.status === 'abandoned';
+                  const date = r.finished_at ?? r.created_at;
+                  const dateLabel = new Date(date).toLocaleDateString(lang === 'ar' ? 'ar' : 'en', {
+                    month: 'short',
+                    day: 'numeric',
+                  });
+
+                  return (
+                    <div
+                      key={r.id}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-muted/40 cyber-border"
+                    >
+                      <div
+                        className={`w-2 h-10 rounded-full shrink-0 ${
+                          iWon ? 'bg-primary' : isDraw ? 'bg-warning' : 'bg-destructive'
                         }`}
-                      >
-                        {iWon ? t('winShort') : isDraw ? t('drawShort') : t('lossShort')}
-                      </span>
-                      {isForfeit && (
-                        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                          {t('forfeitTag')}
-                        </span>
-                      )}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`font-mono text-sm font-bold ${
+                              iWon ? 'text-primary' : isDraw ? 'text-warning' : 'text-destructive'
+                            }`}
+                          >
+                            {iWon ? t('winShort') : isDraw ? t('drawShort') : t('lossShort')}
+                          </span>
+                          {isForfeit && (
+                            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                              {t('forfeitTag')}
+                            </span>
+                          )}
+                        </div>
+                        <p className="font-mono text-xs text-muted-foreground truncate">
+                          vs{' '}
+                          {opponentId ? (
+                            <button
+                              onClick={() => navigate(`/profile/${opponentId}`)}
+                              className="text-foreground hover:text-primary hover:underline transition-colors"
+                            >
+                              {opponentName}
+                            </button>
+                          ) : (
+                            <span className="text-foreground">{opponentName}</span>
+                          )}
+                          {' '}· {r.code_length}d ·{' '}
+                          {r.mode === 'turn_based' ? t('turnBased') : t('simultaneous')}
+                        </p>
+                      </div>
+                      <div className="font-mono text-[10px] text-muted-foreground shrink-0">
+                        {dateLabel}
+                      </div>
                     </div>
-                    <p className="font-mono text-xs text-muted-foreground truncate">
-                      vs <span className="text-foreground">{opponentName}</span> · {r.code_length}d ·{' '}
-                      {r.mode === 'turn_based' ? t('turnBased') : t('simultaneous')}
-                    </p>
-                  </div>
-                  <div className="font-mono text-[10px] text-muted-foreground shrink-0">
-                    {dateLabel}
-                  </div>
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
       </div>
     </div>
   );

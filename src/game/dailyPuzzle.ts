@@ -153,11 +153,14 @@ export function buildShareText(opts: {
   closeness: number;
   grid: string;
   url: string;
+  /** Optional difficulty score 1..10 to include in the header line. */
+  difficulty?: number;
 }): string {
   const score = opts.won ? `${opts.attemptsUsed}/${opts.maxTries}` : `X/${opts.maxTries}`;
   const dup = opts.allowDuplicates ? ' (dup)' : '';
   const close = `🎯 ${opts.closeness}%`;
-  return `Vault Breaker — ${opts.date}\n${opts.codeLength}-digit${dup} • ${score} • ${close}\n\n${opts.grid}\n\n${opts.url}`;
+  const diff = typeof opts.difficulty === 'number' ? ` • ⚡ Lvl ${opts.difficulty}/10` : '';
+  return `Vault Breaker — ${opts.date}\n${opts.codeLength}-digit${dup}${diff} • ${score} • ${close}\n\n${opts.grid}\n\n${opts.url}`;
 }
 
 // ---- Local-only streak storage (for guests / not signed in) ----

@@ -133,6 +133,7 @@ const Daily: React.FC = () => {
       closeness,
       grid,
       url: `${window.location.origin}/daily`,
+      difficulty: getDifficultyScore(config.codeLength, config.allowDuplicates, config.maxTries),
     });
   }, [gameOver, history, config, won, closeness]);
 
@@ -199,10 +200,6 @@ const Daily: React.FC = () => {
               </span>
             );
           })()}
-          <span className="text-muted-foreground">
-            🔥 <span className="text-primary font-bold">{stats.current}</span>
-            <span className="opacity-60"> / {stats.best}</span>
-          </span>
         </div>
         {!isSignedIn && (
           <p className="mt-1 font-mono text-[10px] text-muted-foreground text-center">

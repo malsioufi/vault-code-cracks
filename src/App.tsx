@@ -14,6 +14,7 @@ import Daily from "./pages/Daily.tsx";
 import Stats from "./pages/Stats.tsx";
 import Achievements from "./pages/Achievements.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
+import PublicProfile from "./pages/PublicProfile.tsx";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/stats" element={<Stats />} />
             <Route path="/achievements" element={<Achievements />} />
             <Route path="/room/:code" element={<Room />} />
+            <Route path="/profile/:userId" element={<PublicProfile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

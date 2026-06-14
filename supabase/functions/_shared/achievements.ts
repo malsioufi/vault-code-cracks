@@ -309,6 +309,69 @@ export const ACHIEVEMENTS: Achievement[] = [
     rarity: 'common',
     progress: (c) => ({ current: clamp(c.onlineMatches.length, 5), target: 5 }),
   },
+  {
+    id: 'pattern_seeker',
+    name: 'Pattern Seeker',
+    description: 'Persistence pays.',
+    criteria: 'Play 10 Daily Puzzles.',
+    icon: '🔍',
+    rarity: 'common',
+    progress: (c) => ({ current: clamp(c.dailyWins, 10), target: 10 }),
+  },
+  {
+    id: 'overclocked',
+    name: 'Overclocked',
+    description: 'Speed and accuracy.',
+    criteria: 'Win an online match in 4 guesses or fewer.',
+    icon: '⚙️',
+    rarity: 'rare',
+    progress: (c) => {
+      const m = minWinGuesses(c);
+      return { current: m <= 4 ? 1 : 0, target: 1 };
+    },
+  },
+  {
+    id: 'rootkit',
+    name: 'Rootkit',
+    description: 'Embed yourself in the system.',
+    criteria: 'Win 75 online matches.',
+    icon: '🪲',
+    rarity: 'legendary',
+    progress: (c) => ({ current: clamp(c.onlineWins, 75), target: 75 }),
+  },
+  {
+    id: 'daily_devotee',
+    name: 'Daily Devotee',
+    description: 'A true believer in the grind.',
+    criteria: 'Win 50 Daily Puzzles.',
+    icon: '🗓️',
+    rarity: 'legendary',
+    progress: (c) => ({ current: clamp(c.dailyWins, 50), target: 50 }),
+  },
+  {
+    id: 'crypto_savant',
+    name: 'Crypto Savant',
+    description: 'Mind like a cipher.',
+    criteria: 'Reach a 14-day Daily Puzzle streak.',
+    icon: '🧠',
+    rarity: 'epic',
+    progress: (c) => ({
+      current: clamp(Math.max(c.dailyBestStreak, c.dailyCurrentStreak), 14),
+      target: 14,
+    }),
+  },
+  {
+    id: 'phantom_breach',
+    name: 'Phantom Breach',
+    description: 'No trail, no warning.',
+    criteria: 'Win an online match in 2 guesses or fewer.',
+    icon: '🫥',
+    rarity: 'legendary',
+    progress: (c) => {
+      const m = minWinGuesses(c);
+      return { current: m <= 2 ? 1 : 0, target: 1 };
+    },
+  },
 ];
 
 /** Returns ids of achievements that should be unlocked based on ctx. */

@@ -7,18 +7,46 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Share2, Copy, Download } from 'lucide-react';
+import { Share2, Copy, Download, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateBadgeImage, shareBadgeText } from '@/lib/shareBadge';
 
 interface Props {
   unlockedAt: Record<string, string>;
   context: UnlockContext | null;
+  /** Called when the user taps an eligible-but-locked badge to claim it.
+   *  Returns the list of achievement ids newly granted by this call. */
+  onClaim?: () => Promise<string[]>;
+  /** When true, hides claim actions — used for viewing someone else's profile. */
+  readOnly?: boolean;
 }
 
-const AchievementsCard: React.FC<Props> = ({ unlockedAt, context }) => {
+const AchievementsCard: React.FC<Props> = ({ unlockedAt, context, onClaim, readOnly }) => {
   const [selected, setSelected] = useState<Achievement | null>(null);
+  const [claiming, setClaiming] = useState<string | null>(null);
+  const [celebrating, setCelebrating] = useState<Achievement | null>(null);
   const unlockedCount = ACHIEVEMENTS.filter((a) => a.id in unlockedAt).length;
+
+  const handleTileClick = async (a: Achievement) => {
+    const isUnlocked = a.id in unlockedAt;
+    const p = context ? a.progress(context) : { current: 0, target: 1 };
+    const eligible = !isUnlocked && p.target > 0 && p.current >= p.target;
+
+    if (eligible && !readOnly && onClaim) {
+      setClaiming(a.id);
+      const granted = await onClaim();
+      setClaiming(null);
+      if (granted.includes(a.id)) {
+        setCelebrating(a);
+        window.setTimeout(() => {
+          setCelebrating(null);
+          setSelected(a);
+        }, 1400);
+        return;
+      }
+    }
+    setSelected(a);
+  };
 
   return (
     <div className="w-full p-4 rounded-lg bg-card cyber-border scanline">
@@ -35,6 +63,7 @@ const AchievementsCard: React.FC<Props> = ({ unlockedAt, context }) => {
         {ACHIEVEMENTS.map((a) => {
           const ts = unlockedAt[a.id];
           const p = context ? a.progress(context) : { current: 0, target: 1 };
+          const eligible = !ts && p.target > 0 && p.current >= p.target;
           return (
             <BadgeTile
               key={a.id}
@@ -42,15 +71,34 @@ const AchievementsCard: React.FC<Props> = ({ unlockedAt, context }) => {
               unlockedAt={ts}
               current={p.current}
               target={p.target}
-              onClick={() => setSelected(a)}
+              eligible={eligible && !readOnly && !!onClaim}
+              loading={claiming === a.id}
+              onClick={() => handleTileClick(a)}
             />
           );
         })}
       </div>
 
-      <p className="font-mono text-[10px] text-center text-muted-foreground mt-3 uppercase tracking-widest">
-        … more to come
-      </p>
+      {/* Unlock celebration overlay */}
+      {celebrating && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in pointer-events-none">
+          <div className="relative animate-scale-in">
+            <div
+              className={`w-44 h-44 rounded-2xl border-4 bg-card flex flex-col items-center justify-center gap-2 ${rarityClass[celebrating.rarity]} [box-shadow:0_0_60px_currentColor]`}
+            >
+              <div className="text-6xl animate-[scale-in_0.4s_ease-out]">{celebrating.icon}</div>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Unlocked
+              </div>
+              <div className={`font-mono text-sm font-bold ${rarityClass[celebrating.rarity].split(' ')[1]}`}>
+                {celebrating.name}
+              </div>
+            </div>
+            <Sparkles className="absolute -top-3 -right-3 w-8 h-8 text-primary animate-[scale-in_0.3s_ease-out] text-glow-primary" />
+            <Sparkles className="absolute -bottom-3 -left-3 w-8 h-8 text-secondary animate-[scale-in_0.5s_ease-out] text-glow-secondary" />
+          </div>
+        </div>
+      )}
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent className="cyber-border bg-card">
@@ -59,6 +107,7 @@ const AchievementsCard: React.FC<Props> = ({ unlockedAt, context }) => {
               a={selected}
               unlockedAt={unlockedAt[selected.id]}
               progress={context ? selected.progress(context) : { current: 0, target: 1 }}
+              readOnly={readOnly}
             />
           )}
         </DialogContent>
@@ -72,29 +121,43 @@ const BadgeTile: React.FC<{
   unlockedAt?: string;
   current: number;
   target: number;
+  eligible: boolean;
+  loading: boolean;
   onClick: () => void;
-}> = ({ a, unlockedAt, current, target, onClick }) => {
+}> = ({ a, unlockedAt, current, target, eligible, loading, onClick }) => {
   const locked = !unlockedAt;
   const pct = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0;
   return (
     <button
       onClick={onClick}
+      disabled={loading}
       className={`relative aspect-square rounded-md border-2 bg-muted/30 flex flex-col items-center justify-center p-1 text-center transition-all hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-primary/40 ${
         locked
-          ? 'border-muted-foreground/15 text-muted-foreground/50'
+          ? eligible
+            ? `${rarityClass[a.rarity]} animate-pulse [box-shadow:0_0_18px_currentColor] cursor-pointer`
+            : 'border-muted-foreground/15 text-muted-foreground/50'
           : `${rarityClass[a.rarity]} [box-shadow:0_0_12px_currentColor]`
       }`}
-      title={`${a.name} — ${a.description}`}
+      title={
+        locked && eligible
+          ? `${a.name} — tap to unlock!`
+          : `${a.name} — ${a.description}`
+      }
     >
-      <div className={`text-2xl leading-none ${locked ? 'grayscale opacity-60' : ''}`}>
-        {locked ? '🔒' : a.icon}
+      <div className={`text-2xl leading-none ${locked && !eligible ? 'grayscale opacity-60' : ''}`}>
+        {locked ? (eligible ? '✨' : '🔒') : a.icon}
       </div>
       <div className="font-mono text-[8px] uppercase tracking-wider mt-1 leading-tight line-clamp-2">
         {a.name}
       </div>
+      {locked && eligible && (
+        <div className="absolute -top-1 -right-1 px-1 py-0.5 rounded bg-primary text-primary-foreground font-mono text-[7px] font-bold uppercase tracking-wider glow-primary">
+          Claim
+        </div>
+      )}
       <div className="absolute left-1 right-1 bottom-1 h-1 rounded-full bg-muted overflow-hidden">
         <div
-          className={`h-full transition-all ${locked ? 'bg-muted-foreground/50' : 'bg-current'}`}
+          className={`h-full transition-all ${locked ? (eligible ? 'bg-current' : 'bg-muted-foreground/50') : 'bg-current'}`}
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -106,7 +169,8 @@ const AchievementDetails: React.FC<{
   a: Achievement;
   unlockedAt?: string;
   progress: { current: number; target: number };
-}> = ({ a, unlockedAt, progress }) => {
+  readOnly?: boolean;
+}> = ({ a, unlockedAt, progress, readOnly }) => {
   const locked = !unlockedAt;
   const pct =
     progress.target > 0 ? Math.min(100, Math.round((progress.current / progress.target) * 100)) : 0;
@@ -173,7 +237,7 @@ const AchievementDetails: React.FC<{
           </div>
         </div>
 
-        {!locked && <ShareActions a={a} unlockedAt={unlockedAt!} />}
+        {!locked && !readOnly && <ShareActions a={a} unlockedAt={unlockedAt!} />}
       </div>
     </>
   );
@@ -198,7 +262,6 @@ const ShareActions: React.FC<{ a: Achievement; unlockedAt: string }> = ({ a, unl
       } else if (navigator.share) {
         await navigator.share({ title: `${a.name} — Vault Breaker`, text });
       } else {
-        // Fallback: download the image
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -208,7 +271,6 @@ const ShareActions: React.FC<{ a: Achievement; unlockedAt: string }> = ({ a, unl
         toast.success('Badge image downloaded');
       }
     } catch (err) {
-      // User cancelled or share failed — only show error if not abort
       const name = (err as Error)?.name;
       if (name !== 'AbortError') toast.error('Could not share badge');
     } finally {

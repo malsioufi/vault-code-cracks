@@ -1,15 +1,18 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ACHIEVEMENTS, evaluate, UnlockContext, Achievement } from '@/game/achievements';
-import { toast } from 'sonner';
+import { ACHIEVEMENTS, Achievement } from '@/game/achievements';
 
 interface Args {
   userId: string | null | undefined;
   isGuest: boolean;
-  context: UnlockContext | null;
 }
 
-export function useAchievements({ userId, isGuest, context }: Args) {
+/**
+ * Tracks which achievements the current user has unlocked.
+ * Unlocks are NOT granted automatically — the user clicks an eligible badge
+ * to claim it, which calls `claim()` and triggers server-side validation.
+ */
+export function useAchievements({ userId, isGuest }: Args) {
   const [unlockedAt, setUnlockedAt] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
@@ -35,39 +38,24 @@ export function useAchievements({ userId, isGuest, context }: Args) {
     loadUnlocked();
   }, [loadUnlocked]);
 
-  // Trigger server-side evaluation (server re-checks user's real data before granting)
-  useEffect(() => {
-    if (!userId || isGuest || !context) return;
-    let cancelled = false;
-    (async () => {
-      const current = await loadUnlocked();
-      // Optimistic client-side preview to know which IDs are *candidates* — server is the source of truth
-      const eligible = evaluate(context);
-      const fresh = eligible.filter((id) => !(id in current));
-      if (fresh.length === 0 || cancelled) return;
-      const { data, error } = await supabase.functions.invoke('sync-achievements', { body: {} });
-      if (error || cancelled) return;
-      const granted: string[] = Array.isArray((data as { unlocked?: string[] })?.unlocked)
-        ? (data as { unlocked: string[] }).unlocked
-        : [];
-      if (granted.length === 0) return;
+  /**
+   * Ask the server to grant any achievement the user currently qualifies for.
+   * Returns the list of achievement ids that were newly granted by this call.
+   * (Used when the user clicks an eligible-but-locked badge.)
+   */
+  const claim = useCallback(async (): Promise<string[]> => {
+    if (!userId || isGuest) return [];
+    const { data, error } = await supabase.functions.invoke('sync-achievements', { body: {} });
+    if (error) return [];
+    const granted: string[] = Array.isArray((data as { unlocked?: string[] })?.unlocked)
+      ? (data as { unlocked: string[] }).unlocked
+      : [];
+    if (granted.length > 0) {
       const reloaded = await loadUnlocked();
-      if (cancelled) return;
       setUnlockedAt(reloaded);
-      granted.forEach((id) => {
-        const a = ACHIEVEMENTS.find((x) => x.id === id);
-        if (!a) return;
-        toast.success(`${a.icon} Achievement Unlocked — ${a.name}`, {
-          description: a.description,
-          duration: 5000,
-        });
-      });
-    })();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, isGuest, JSON.stringify(context)]);
+    }
+    return granted;
+  }, [userId, isGuest, loadUnlocked]);
 
-  return { unlockedAt, loading, all: ACHIEVEMENTS as Achievement[] };
+  return { unlockedAt, loading, all: ACHIEVEMENTS as Achievement[], claim };
 }
