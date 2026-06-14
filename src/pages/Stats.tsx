@@ -373,7 +373,8 @@ const Stats: React.FC = () => {
             ) : (
               <div className="space-y-2">
                 {rooms.slice(0, 10).map((r) => {
-                  const opponentId = r.host_id === user.id ? r.guest_id : r.host_id;
+                  const isBR = r.mode === 'battle_royale';
+                  const opponentId = isBR ? null : (r.host_id === user.id ? r.guest_id : r.host_id);
                   const opponentName = (opponentId && profilesMap[opponentId]) || t('opponentLabel');
                   const iWon = r.winner_id === user.id;
                   const isDraw = !r.winner_id;
@@ -410,19 +411,32 @@ const Stats: React.FC = () => {
                           )}
                         </div>
                         <p className="font-mono text-xs text-muted-foreground truncate">
-                          vs{' '}
-                          {opponentId ? (
-                            <button
-                              onClick={() => navigate(`/profile/${opponentId}`)}
-                              className="text-foreground hover:text-primary hover:underline transition-colors"
-                            >
-                              {opponentName}
-                            </button>
+                          {isBR ? (
+                            <>
+                              {t('battleRoyale')}
+                              {' '}
+                              <span className="text-foreground">
+                                ({participantCounts[r.id] ?? '?'} {t('players')})
+                              </span>
+                              {' '}· {r.code_length}d
+                            </>
                           ) : (
-                            <span className="text-foreground">{opponentName}</span>
+                            <>
+                              vs{' '}
+                              {opponentId ? (
+                                <button
+                                  onClick={() => navigate(`/profile/${opponentId}`)}
+                                  className="text-foreground hover:text-primary hover:underline transition-colors"
+                                >
+                                  {opponentName}
+                                </button>
+                              ) : (
+                                <span className="text-foreground">{opponentName}</span>
+                              )}
+                              {' '}· {r.code_length}d ·{' '}
+                              {r.mode === 'turn_based' ? t('turnBased') : t('simultaneous')}
+                            </>
                           )}
-                          {' '}· {r.code_length}d ·{' '}
-                          {r.mode === 'turn_based' ? t('turnBased') : t('simultaneous')}
                         </p>
                       </div>
                       <div className="font-mono text-[10px] text-muted-foreground shrink-0">
