@@ -24,15 +24,30 @@ serve(async (req) => {
       .eq('id', previousRoomId)
       .maybeSingle();
     if (prevErr || !prev) return json({ error: 'Previous room not found' }, 404);
-    if (prev.host_id !== user.id && prev.guest_id !== user.id) {
-      return json({ error: 'Not a participant' }, 403);
+
+    const isMulti = prev.mode === 'battle_royale' || prev.mode === 'relay_race';
+
+    if (isMulti) {
+      const { data: part } = await sb
+        .from('room_participants')
+        .select('user_id')
+        .eq('room_id', previousRoomId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!part) return json({ error: 'Not a participant' }, 403);
+    } else {
+      if (prev.host_id !== user.id && prev.guest_id !== user.id) {
+        return json({ error: 'Not a participant' }, 403);
+      }
     }
+
     if (prev.status !== 'finished' && prev.status !== 'abandoned') {
       return json({ error: 'Previous game not finished' }, 400);
     }
-    if (!prev.guest_id) return json({ error: 'No opponent to rematch' }, 400);
 
-    const opponentId = prev.host_id === user.id ? prev.guest_id : prev.host_id;
+    if (!isMulti && !prev.guest_id) return json({ error: 'No opponent to rematch' }, 400);
+
+    const opponentId = !isMulti ? (prev.host_id === user.id ? prev.guest_id : prev.host_id) : null;
 
     // If a rematch already exists for this previous room (created by either side), reuse it.
     // We encode the link via code prefix is overkill; instead look for a recently created room
