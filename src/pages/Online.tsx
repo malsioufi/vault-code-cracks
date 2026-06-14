@@ -6,8 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import PageHeader from '@/components/PageHeader';
 
-type Mode = 'turn_based' | 'simultaneous';
-type Tab = 'create' | 'join' | 'quick';
+type Mode = 'turn_based' | 'simultaneous' | 'battle_royale';
+type Tab = 'create' | 'join' | 'quick' | 'br';
 
 const Online: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -23,6 +23,7 @@ const Online: React.FC = () => {
   const [allowDuplicates, setAllowDuplicates] = useState(false);
   const [mode, setMode] = useState<Mode>('turn_based');
   const [maxTries, setMaxTries] = useState<number | null>(10);
+  const [minPlayers, setMinPlayers] = useState(2);
   const [busy, setBusy] = useState(false);
   const [queued, setQueued] = useState(false);
 
