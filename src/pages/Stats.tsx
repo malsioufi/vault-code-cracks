@@ -350,17 +350,15 @@ const Stats: React.FC = () => {
           <h2 className="font-mono text-xs uppercase tracking-widest text-secondary text-glow-secondary mb-3">
             {t('onlineStats')}
           </h2>
-          <div className="grid grid-cols-4 gap-2 text-center">
+          <div className="grid grid-cols-3 gap-2 text-center">
             <StatCell label={t('played')} value={onlineStats.played} />
             <StatCell label={t('wins')} value={onlineStats.wins} valueClass="text-primary text-glow-primary" />
-            <StatCell label={t('losses')} value={onlineStats.losses} valueClass="text-destructive" />
             <StatCell label={t('winRate')} value={`${onlineStats.winRate}%`} valueClass="text-secondary text-glow-secondary" />
           </div>
-          {onlineStats.draws > 0 && (
-            <p className="font-mono text-[10px] text-muted-foreground text-center mt-2">
-              {onlineStats.draws} {t('draws')}
-            </p>
-          )}
+          <div className="grid grid-cols-2 gap-2 text-center mt-2">
+            <StatCell label={t('losses')} value={onlineStats.losses} valueClass="text-destructive" />
+            <StatCell label={t('draws')} value={onlineStats.draws} valueClass="text-warning" />
+          </div>
 
           <h3 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mt-4 mb-2">
             {t('recentMatches')}
