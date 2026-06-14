@@ -72,11 +72,31 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
     roomIdRef.current = null;
 
     const fetchRoom = async () => {
-      const { data, error: e } = await supabase
+      let { data, error: e } = await supabase
         .from('rooms')
         .select('*')
         .eq('code', code.toUpperCase())
         .maybeSingle();
+
+      // RLS blocks non-participants from SELECT — try to auto-join via edge function
+      if (!cancelled && (e || !data)) {
+        const { data: joinData } = await supabase.functions.invoke('join-room', {
+          body: { code: code.toUpperCase() },
+        });
+        if (joinData?.room) {
+          data = joinData.room;
+          e = null;
+        } else {
+          const refetch = await supabase
+            .from('rooms')
+            .select('*')
+            .eq('code', code.toUpperCase())
+            .maybeSingle();
+          data = refetch.data;
+          e = refetch.error;
+        }
+      }
+
       if (cancelled) return;
       if (e || !data) {
         setError('Room not found');
