@@ -11,6 +11,10 @@ import GuessHistory from '@/components/game/GuessHistory';
 import BattleRoyaleLobby from '@/components/game/BattleRoyaleLobby';
 import BattleRoyaleBoard from '@/components/game/BattleRoyaleBoard';
 import BattleRoyaleResults from '@/components/game/BattleRoyaleResults';
+import RelayLobby from '@/components/game/RelayLobby';
+import RelaySetting from '@/components/game/RelaySetting';
+import RelayBoard from '@/components/game/RelayBoard';
+import RelayResults from '@/components/game/RelayResults';
 import { GuessEntry } from '@/game/engine';
 
 const TURN_TIME = 30;
@@ -21,7 +25,7 @@ const Room: React.FC = () => {
   const { t } = useLanguage();
   const { user, profile, loading: authLoading } = useAuth();
 
-  const { room, guesses, mySecret, setMySecret, profiles, participants, rematchInvite, clearRematchInvite, loading, error } = useRoom(code, user?.id);
+  const { room, guesses, mySecret, setMySecret, profiles, participants, teams, teamSecrets, rematchInvite, clearRematchInvite, loading, error } = useRoom(code, user?.id);
   const isPlaying = room?.status === 'playing';
   // Opponent presence is tracked server-side but no longer surfaced in the UI.
 
