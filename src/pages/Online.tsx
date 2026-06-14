@@ -229,18 +229,22 @@ const Online: React.FC = () => {
       ) : (
         <>
           {/* Tabs */}
-          <div className="w-full max-w-md grid grid-cols-4 gap-2 mb-4">
-            {(['create', 'join', 'quick', 'br'] as Tab[]).map((tk) => (
+          <div className="w-full max-w-md grid grid-cols-5 gap-1.5 mb-4">
+            {(['create', 'join', 'quick', 'br', 'relay'] as Tab[]).map((tk) => (
               <button
                 key={tk}
                 onClick={() => setTab(tk)}
-                className={`py-2 rounded font-mono text-[10px] uppercase tracking-wider transition-all ${
+                className={`py-2 rounded font-mono text-[9px] uppercase tracking-wider transition-all ${
                   tab === tk
                     ? 'bg-primary text-primary-foreground glow-primary'
                     : 'bg-card text-muted-foreground cyber-border hover:text-foreground'
                 }`}
               >
-                {tk === 'create' ? t('createRoom') : tk === 'join' ? t('joinRoom') : tk === 'quick' ? t('quickMatch') : t('battleRoyale')}
+                {tk === 'create' ? t('createRoom')
+                  : tk === 'join' ? t('joinRoom')
+                  : tk === 'quick' ? t('quickMatch')
+                  : tk === 'br' ? t('battleRoyale')
+                  : t('relayRace')}
               </button>
             ))}
           </div>
@@ -307,8 +311,8 @@ const Online: React.FC = () => {
                 </button>
               </div>
 
-              {/* Mode (hidden in BR) */}
-              {tab !== 'br' && (
+              {/* Mode (hidden in BR/Relay) */}
+              {tab !== 'br' && tab !== 'relay' && (
                 <div>
                   <label className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
                     {t('matchMode')}
@@ -331,7 +335,7 @@ const Online: React.FC = () => {
                 </div>
               )}
 
-              {/* Min players (BR only) */}
+              {/* Min players (BR) */}
               {tab === 'br' && (
                 <div>
                   <label className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
@@ -339,6 +343,30 @@ const Online: React.FC = () => {
                   </label>
                   <div className="flex gap-2 mt-2">
                     {[2, 3, 4, 5, 6].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setMinPlayers(n)}
+                        className={`flex-1 py-2 rounded font-mono text-xs transition-all ${
+                          minPlayers === n
+                            ? 'bg-secondary text-secondary-foreground glow-secondary'
+                            : 'bg-muted text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Min players per team (Relay) */}
+              {tab === 'relay' && (
+                <div>
+                  <label className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
+                    {t('minPerTeam')}
+                  </label>
+                  <div className="flex gap-2 mt-2">
+                    {[2, 3, 4].map((n) => (
                       <button
                         key={n}
                         onClick={() => setMinPlayers(n)}
@@ -392,7 +420,7 @@ const Online: React.FC = () => {
                 disabled={busy}
                 className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-mono font-bold glow-primary hover:opacity-90 transition-all disabled:opacity-50"
               >
-                {busy ? '...' : tab === 'quick' ? t('findMatch') : tab === 'br' ? t('battleRoyale') : t('createRoom')}
+                {busy ? '...' : tab === 'quick' ? t('findMatch') : tab === 'br' ? t('battleRoyale') : tab === 'relay' ? t('relayRace') : t('createRoom')}
               </button>
             </div>
           )}
