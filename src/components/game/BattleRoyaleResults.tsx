@@ -92,7 +92,7 @@ const BattleRoyaleResults: React.FC<Props> = ({
                     {isWinner && '🏆 '}{name}{p.user_id === myId && ` (${t('you')})`}
                   </span>
                   <div className="flex items-center gap-3 font-mono text-[11px] text-muted-foreground shrink-0">
-                    <span>{guesses.length} {t('guesses') ?? 'guesses'}</span>
+                    <span>{guesses.length}</span>
                     <span className={isWinner ? 'text-primary' : closeness >= 75 ? 'text-warning' : 'text-muted-foreground'}>
                       {closeness}%
                     </span>
