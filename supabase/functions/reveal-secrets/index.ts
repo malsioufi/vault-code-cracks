@@ -23,16 +23,26 @@ serve(async (req) => {
       .eq('id', roomId)
       .maybeSingle();
     if (!room) return json({ error: 'Room not found' }, 404);
-    if (room.host_id !== user.id && room.guest_id !== user.id) {
-      return json({ error: 'Not a participant' }, 403);
+
+    let isParticipant = room.host_id === user.id || room.guest_id === user.id;
+    if (!isParticipant && room.mode === 'battle_royale') {
+      const { data: p } = await sb
+        .from('room_participants')
+        .select('user_id')
+        .eq('room_id', roomId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      isParticipant = !!p;
     }
+    if (!isParticipant) return json({ error: 'Not a participant' }, 403);
+
     if (room.status !== 'finished' && room.status !== 'abandoned') {
       return json({ error: 'Game not over' }, 409);
     }
 
     const { data: secrets } = await sb
       .from('room_secrets')
-      .select('player_id, secret')
+      .select('player_id, secret, is_shared')
       .eq('room_id', roomId);
 
     return json({ secrets: secrets || [] });

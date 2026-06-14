@@ -177,21 +177,59 @@ export type Database = {
         }
         Relationships: []
       }
+      room_participants: {
+        Row: {
+          cracked: boolean
+          finished_at: string | null
+          gave_up_at: string | null
+          joined_at: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          cracked?: boolean
+          finished_at?: string | null
+          gave_up_at?: string | null
+          joined_at?: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          cracked?: boolean
+          finished_at?: string | null
+          gave_up_at?: string | null
+          joined_at?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_participants_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       room_secrets: {
         Row: {
           created_at: string
+          is_shared: boolean
           player_id: string
           room_id: string
           secret: number[]
         }
         Insert: {
           created_at?: string
+          is_shared?: boolean
           player_id: string
           room_id: string
           secret: number[]
         }
         Update: {
           created_at?: string
+          is_shared?: boolean
           player_id?: string
           room_id?: string
           secret?: number[]
@@ -219,7 +257,9 @@ export type Database = {
           id: string
           is_quick_match: boolean
           max_tries: number | null
+          min_players: number | null
           mode: Database["public"]["Enums"]["room_mode"]
+          started_at: string | null
           status: Database["public"]["Enums"]["room_status"]
           turn_started_at: string | null
           updated_at: string
@@ -237,7 +277,9 @@ export type Database = {
           id?: string
           is_quick_match?: boolean
           max_tries?: number | null
+          min_players?: number | null
           mode?: Database["public"]["Enums"]["room_mode"]
+          started_at?: string | null
           status?: Database["public"]["Enums"]["room_status"]
           turn_started_at?: string | null
           updated_at?: string
@@ -255,7 +297,9 @@ export type Database = {
           id?: string
           is_quick_match?: boolean
           max_tries?: number | null
+          min_players?: number | null
           mode?: Database["public"]["Enums"]["room_mode"]
+          started_at?: string | null
           status?: Database["public"]["Enums"]["room_status"]
           turn_started_at?: string | null
           updated_at?: string
@@ -342,9 +386,13 @@ export type Database = {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean
       }
+      is_room_participant_br: {
+        Args: { _room_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      room_mode: "turn_based" | "simultaneous"
+      room_mode: "turn_based" | "simultaneous" | "battle_royale"
       room_status:
         | "waiting"
         | "setting_secrets"
@@ -478,7 +526,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      room_mode: ["turn_based", "simultaneous"],
+      room_mode: ["turn_based", "simultaneous", "battle_royale"],
       room_status: [
         "waiting",
         "setting_secrets",
