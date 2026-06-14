@@ -87,6 +87,8 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
     setMySecret(null);
     setProfiles({});
     setParticipants([]);
+    setTeams([]);
+    setTeamSecrets({});
     setRematchInvite(null);
     roomIdRef.current = null;
 
@@ -143,7 +145,7 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
       if (!cancelled && sec) setMySecret(sec.secret as number[]);
 
       let participantIds: string[] = [];
-      if (data.mode === 'battle_royale') {
+      if (data.mode === 'battle_royale' || data.mode === 'relay_race') {
         const { data: ps } = await supabase
           .from('room_participants')
           .select('*')
@@ -151,6 +153,27 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
         if (!cancelled && ps) {
           setParticipants(ps as Participant[]);
           participantIds = (ps as Participant[]).map((p) => p.user_id);
+        }
+      }
+
+      if (data.mode === 'relay_race') {
+        const { data: ts } = await supabase
+          .from('room_teams')
+          .select('*')
+          .eq('room_id', data.id);
+        if (!cancelled && ts) setTeams(ts as TeamState[]);
+
+        // Fetch any secrets visible to us (own team during setting, both after finish)
+        const { data: secs } = await supabase
+          .from('room_secrets')
+          .select('player_id, secret')
+          .eq('room_id', data.id);
+        if (!cancelled && secs) {
+          const map: Record<string, number[]> = {};
+          for (const s of secs as { player_id: string; secret: number[] }[]) {
+            map[s.player_id] = s.secret;
+          }
+          setTeamSecrets(map);
         }
       }
 
@@ -179,6 +202,7 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
     if (!room || !userId) return;
     const roomId = room.id;
     const isBR = room.mode === 'battle_royale';
+    const isRelay = room.mode === 'relay_race';
 
     const channel = supabase
       .channel(`room:${roomId}`)
@@ -193,6 +217,20 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
             const row = Array.isArray(p) ? (p[0] as { id: string; display_name: string } | undefined) : undefined;
             if (row) setProfiles((prev) => ({ ...prev, [row.id]: row.display_name }));
           }
+          // After relay finishes, re-fetch secrets (now visible to both teams)
+          if (isRelay && (newRoom.status === 'finished' || newRoom.status === 'abandoned')) {
+            const { data: secs } = await supabase
+              .from('room_secrets')
+              .select('player_id, secret')
+              .eq('room_id', roomId);
+            if (secs) {
+              const map: Record<string, number[]> = {};
+              for (const s of secs as { player_id: string; secret: number[] }[]) {
+                map[s.player_id] = s.secret;
+              }
+              setTeamSecrets(map);
+            }
+          }
         },
       )
       .on(
@@ -206,7 +244,7 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
         setRematchInvite(evt);
       });
 
-    if (isBR) {
+    if (isBR || isRelay) {
       channel.on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'room_participants', filter: `room_id=eq.${roomId}` },
@@ -230,6 +268,30 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
       );
     }
 
+    if (isRelay) {
+      channel.on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'room_teams', filter: `room_id=eq.${roomId}` },
+        (payload) => {
+          if (payload.eventType === 'DELETE') return;
+          const row = payload.new as TeamState;
+          setTeams((prev) => {
+            const others = prev.filter((t) => t.team !== row.team);
+            return [...others, row];
+          });
+        },
+      );
+      channel.on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'room_secrets', filter: `room_id=eq.${roomId}` },
+        (payload) => {
+          if (payload.eventType === 'DELETE') return;
+          const row = payload.new as { player_id: string; secret: number[] };
+          setTeamSecrets((prev) => ({ ...prev, [row.player_id]: row.secret }));
+        },
+      );
+    }
+
     channel.subscribe();
 
     return () => {
@@ -244,6 +306,8 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
     setMySecret,
     profiles,
     participants,
+    teams,
+    teamSecrets,
     rematchInvite,
     clearRematchInvite: () => setRematchInvite(null),
     loading,
