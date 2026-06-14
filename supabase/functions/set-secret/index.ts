@@ -37,7 +37,7 @@ serve(async (req) => {
     const { error: insErr } = await sb
       .from('room_secrets')
       .upsert({ room_id: roomId, player_id: user.id, secret });
-    if (insErr) console.error('db error in supabase/functions/set-secret/index.ts:', insErr.message); return json({ error: 'Internal server error' }, 500);
+    if (insErr) { console.error('db error in supabase/functions/set-secret/index.ts:', insErr.message); return json({ error: 'Internal server error' }, 500); }
 
     // Check if both secrets set
     const { data: secrets, error: countErr } = await sb
