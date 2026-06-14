@@ -226,18 +226,18 @@ const Online: React.FC = () => {
       ) : (
         <>
           {/* Tabs */}
-          <div className="w-full max-w-md flex gap-2 mb-4">
-            {(['create', 'join', 'quick'] as Tab[]).map((tk) => (
+          <div className="w-full max-w-md grid grid-cols-4 gap-2 mb-4">
+            {(['create', 'join', 'quick', 'br'] as Tab[]).map((tk) => (
               <button
                 key={tk}
                 onClick={() => setTab(tk)}
-                className={`flex-1 py-2 rounded font-mono text-xs uppercase tracking-wider transition-all ${
+                className={`py-2 rounded font-mono text-[10px] uppercase tracking-wider transition-all ${
                   tab === tk
                     ? 'bg-primary text-primary-foreground glow-primary'
                     : 'bg-card text-muted-foreground cyber-border hover:text-foreground'
                 }`}
               >
-                {tk === 'create' ? t('createRoom') : tk === 'join' ? t('joinRoom') : t('quickMatch')}
+                {tk === 'create' ? t('createRoom') : tk === 'join' ? t('joinRoom') : tk === 'quick' ? t('quickMatch') : t('battleRoyale')}
               </button>
             ))}
           </div>
@@ -304,27 +304,53 @@ const Online: React.FC = () => {
                 </button>
               </div>
 
-              {/* Mode */}
-              <div>
-                <label className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
-                  {t('matchMode')}
-                </label>
-                <div className="flex gap-2 mt-2">
-                  {(['turn_based', 'simultaneous'] as Mode[]).map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setMode(m)}
-                      className={`flex-1 py-2 rounded font-mono text-xs transition-all ${
-                        mode === m
-                          ? 'bg-secondary text-secondary-foreground glow-secondary'
-                          : 'bg-muted text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      {m === 'turn_based' ? t('turnBased') : t('simultaneous')}
-                    </button>
-                  ))}
+              {/* Mode (hidden in BR) */}
+              {tab !== 'br' && (
+                <div>
+                  <label className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
+                    {t('matchMode')}
+                  </label>
+                  <div className="flex gap-2 mt-2">
+                    {(['turn_based', 'simultaneous'] as Mode[]).map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => setMode(m)}
+                        className={`flex-1 py-2 rounded font-mono text-xs transition-all ${
+                          mode === m
+                            ? 'bg-secondary text-secondary-foreground glow-secondary'
+                            : 'bg-muted text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        {m === 'turn_based' ? t('turnBased') : t('simultaneous')}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Min players (BR only) */}
+              {tab === 'br' && (
+                <div>
+                  <label className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
+                    {t('minPlayers')}
+                  </label>
+                  <div className="flex gap-2 mt-2">
+                    {[2, 3, 4, 5, 6].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setMinPlayers(n)}
+                        className={`flex-1 py-2 rounded font-mono text-xs transition-all ${
+                          minPlayers === n
+                            ? 'bg-secondary text-secondary-foreground glow-secondary'
+                            : 'bg-muted text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Max tries */}
               <div>
@@ -345,25 +371,27 @@ const Online: React.FC = () => {
                       {n}
                     </button>
                   ))}
-                  <button
-                    onClick={() => setMaxTries(null)}
-                    className={`flex-1 py-2 rounded font-mono text-xs ${
-                      maxTries === null
-                        ? 'bg-secondary text-secondary-foreground glow-secondary'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    ∞
-                  </button>
+                  {tab !== 'br' && (
+                    <button
+                      onClick={() => setMaxTries(null)}
+                      className={`flex-1 py-2 rounded font-mono text-xs ${
+                        maxTries === null
+                          ? 'bg-secondary text-secondary-foreground glow-secondary'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      ∞
+                    </button>
+                  )}
                 </div>
               </div>
 
               <button
-                onClick={tab === 'create' ? handleCreate : handleQuickMatch}
+                onClick={tab === 'quick' ? handleQuickMatch : handleCreate}
                 disabled={busy}
                 className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-mono font-bold glow-primary hover:opacity-90 transition-all disabled:opacity-50"
               >
-                {busy ? '...' : tab === 'create' ? t('createRoom') : t('findMatch')}
+                {busy ? '...' : tab === 'quick' ? t('findMatch') : tab === 'br' ? t('battleRoyale') : t('createRoom')}
               </button>
             </div>
           )}
