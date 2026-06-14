@@ -73,7 +73,7 @@ serve(async (req) => {
         .select()
         .single();
 
-      if (error) console.error('db error in supabase/functions/quick-match/index.ts:', error.message); return json({ error: 'Internal server error' }, 500);
+      if (error) { console.error('quick-match db error:', error.message); return json({ error: 'Internal server error' }, 500); }
       return json({ matched: true, room });
     }
 

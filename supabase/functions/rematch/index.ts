@@ -76,7 +76,7 @@ serve(async (req) => {
       .select()
       .single();
 
-    if (error) console.error('db error in supabase/functions/rematch/index.ts:', error.message); return json({ error: 'Internal server error' }, 500);
+    if (error) { console.error('rematch db error:', error.message); return json({ error: 'Internal server error' }, 500); }
 
     // Broadcast invite on the previous room's channel so the opponent's open client navigates over
     try {
