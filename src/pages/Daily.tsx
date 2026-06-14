@@ -133,6 +133,7 @@ const Daily: React.FC = () => {
       closeness,
       grid,
       url: `${window.location.origin}/daily`,
+      difficulty: getDifficultyScore(config.codeLength, config.allowDuplicates, config.maxTries),
     });
   }, [gameOver, history, config, won, closeness]);
 
