@@ -1,0 +1,1 @@
+ALTER TYPE public.room_mode ADD VALUE IF NOT EXISTS 'battle_royale';
