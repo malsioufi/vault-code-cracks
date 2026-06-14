@@ -58,7 +58,7 @@ serve(async (req) => {
       shifts: feedback.shifts,
       glitches: feedback.glitches,
     });
-    if (insErr) console.error('db error in supabase/functions/submit-guess/index.ts:', insErr.message); return json({ error: 'Internal server error' }, 500);
+    if (insErr) { console.error('db error in supabase/functions/submit-guess/index.ts:', insErr.message); return json({ error: 'Internal server error' }, 500); }
 
     // Check win
     if (feedback.matches === room.code_length) {
