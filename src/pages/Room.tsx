@@ -257,6 +257,121 @@ const Room: React.FC = () => {
     );
   }
 
+  // ===== RELAY RACE =====
+  if (room.mode === 'relay_race') {
+    const me = participants.find((p) => p.user_id === user.id);
+    const myTeam = (me?.team as 'A' | 'B' | null) ?? null;
+    const minPerTeam = room.min_players ?? 2;
+
+    if (room.status === 'waiting') {
+      return (
+        <RelayLobby
+          roomCode={room.code}
+          roomId={room.id}
+          isHost={isHost}
+          myId={user.id}
+          participants={participants}
+          profiles={profiles}
+          minPlayersPerTeam={minPerTeam}
+          codeLength={room.code_length}
+          allowDuplicates={room.allow_duplicates}
+          maxTries={room.max_tries}
+          onLeave={() => navigate('/online')}
+        />
+      );
+    }
+
+    const typedTeams = teams as unknown as import('@/components/game/RelaySetting').TeamRow[];
+
+    if (room.status === 'setting_secrets') {
+      const myTeamRow = typedTeams.find((t) => t.team === myTeam);
+      const mySetterSecret = myTeamRow?.setter_id ? teamSecrets[myTeamRow.setter_id] ?? null : null;
+      return (
+        <RelaySetting
+          roomId={room.id}
+          myId={user.id}
+          myTeam={myTeam}
+          teams={typedTeams}
+          participants={participants}
+          profiles={profiles}
+          codeLength={room.code_length}
+          allowDuplicates={room.allow_duplicates}
+          mySecret={mySetterSecret}
+        />
+      );
+    }
+
+    // Build per-team guesses
+    const guessesByTeam: Record<'A' | 'B', { guess: number[]; feedback: GuessEntry['feedback']; player_id: string }[]> = { A: [], B: [] };
+    for (const g of guesses) {
+      const tag = (g as unknown as { team?: 'A' | 'B' }).team;
+      if (tag === 'A' || tag === 'B') {
+        guessesByTeam[tag].push({
+          guess: g.guess,
+          feedback: { matches: g.matches, shifts: g.shifts, glitches: g.glitches },
+          player_id: g.player_id,
+        });
+      }
+    }
+
+    const teamSecretsByLetter: Record<'A' | 'B', number[] | undefined> = {
+      A: typedTeams.find((t) => t.team === 'A')?.setter_id ? teamSecrets[typedTeams.find((t) => t.team === 'A')!.setter_id!] : undefined,
+      B: typedTeams.find((t) => t.team === 'B')?.setter_id ? teamSecrets[typedTeams.find((t) => t.team === 'B')!.setter_id!] : undefined,
+    };
+
+    if (gameOver) {
+      return (
+        <div className="min-h-screen overflow-y-auto py-4">
+          <RelayResults
+            winnerTeam={room.winner_team}
+            myTeam={myTeam}
+            teams={typedTeams}
+            teamSecrets={teamSecretsByLetter}
+            guessesByTeam={guessesByTeam}
+            participants={participants}
+            profiles={profiles}
+            codeLength={room.code_length}
+            onBack={() => navigate('/online')}
+          />
+        </div>
+      );
+    }
+
+    const myTeamGuesses = myTeam ? guessesByTeam[myTeam] : [];
+
+    return (
+      <div className="h-screen flex flex-col items-center px-4 pt-3 pb-2 overflow-hidden">
+        <div className="w-full max-w-md flex items-center justify-between mb-2 shrink-0">
+          <button
+            onClick={() => navigate('/online')}
+            className="text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+          >
+            ←
+          </button>
+          <div dir="ltr" className="font-mono text-xs text-muted-foreground">
+            #{room.code} · {t('relayRace')}
+          </div>
+        </div>
+        <RelayBoard
+          roomId={room.id}
+          codeLength={room.code_length}
+          allowDuplicates={room.allow_duplicates}
+          maxTries={room.max_tries}
+          myId={user.id}
+          myTeam={myTeam}
+          teams={typedTeams}
+          teamTurn={room.team_turn}
+          turnDeadline={room.turn_deadline}
+          myTeamGuesses={myTeamGuesses}
+          participants={participants}
+          profiles={profiles}
+          onGuess={handleGuess}
+          submitting={submitting}
+        />
+      </div>
+    );
+  }
+
   const myGuesses: GuessEntry[] = guesses
     .filter((g) => g.player_id === user.id)
     .map((g) => ({ guess: g.guess, feedback: { matches: g.matches, shifts: g.shifts, glitches: g.glitches } }));
