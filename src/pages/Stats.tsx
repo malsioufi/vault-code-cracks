@@ -316,7 +316,7 @@ const Stats: React.FC = () => {
         </div>
 
         {/* Achievements — its own scroll container */}
-        <div className="w-full max-h-[40vh] overflow-y-auto rounded-lg">
+        <div className="w-full shrink-0 max-h-[30vh] overflow-y-auto rounded-lg">
           <AchievementsCard
             unlockedAt={unlockedAchievementsAt}
             context={achievementsContext}
@@ -325,7 +325,7 @@ const Stats: React.FC = () => {
         </div>
 
         {/* Recent matches — its own scroll container, takes remaining space */}
-        <div className="w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div className="w-full flex-1 min-h-[160px] flex flex-col overflow-hidden">
           <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-2 shrink-0">
             {t('recentMatches')}
           </h2>
