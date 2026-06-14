@@ -60,7 +60,7 @@ const Achievements: React.FC = () => {
         {ctxLoading ? (
           <p className="font-mono text-xs text-muted-foreground text-center py-6">…</p>
         ) : (
-          <AchievementsCard unlockedAt={unlockedAt} context={context} />
+          <AchievementsCard unlockedAt={unlockedAt} context={context} onClaim={claim} />
         )}
       </div>
     </div>
