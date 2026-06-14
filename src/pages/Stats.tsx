@@ -177,6 +177,12 @@ const Stats: React.FC = () => {
     const dailyBestGuessCount = wonDaily.length
       ? Math.min(...wonDaily.map((d) => d.attempts_used))
       : 0;
+    const brMatches = rooms.filter((r) => r.mode === 'battle_royale');
+    const brWonMatches = brMatches.filter((r) => r.winner_id === user.id);
+    const brBiggestWin = brWonMatches.reduce(
+      (acc, r) => Math.max(acc, participantCounts[r.id] ?? 0),
+      0,
+    );
     return {
       onlineWins: rooms.filter((r) => r.winner_id === user.id).length,
       onlineMatches: rooms.map((r) => ({
@@ -185,14 +191,19 @@ const Stats: React.FC = () => {
         codeLength: r.code_length,
         allowDuplicates: r.allow_duplicates,
         finishedAt: r.finished_at,
+        mode: r.mode,
+        playerCount: participantCounts[r.id],
       })),
       currentWinStreak: streak,
       dailyWins: wonDaily.length,
       dailyBestGuessCount,
       dailyCurrentStreak: dailyStreak.current,
       dailyBestStreak: dailyStreak.best,
+      battleRoyalePlays: brMatches.length,
+      battleRoyaleWins: brWonMatches.length,
+      battleRoyaleBiggestWin: brBiggestWin,
     };
-  }, [rooms, daily, dailyStreak, guessCounts, user, profile]);
+  }, [rooms, daily, dailyStreak, guessCounts, participantCounts, user, profile]);
 
   const { unlockedAt: unlockedAchievementsAt, claim } = useAchievements({
     userId: user?.id,
