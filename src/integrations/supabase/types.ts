@@ -293,8 +293,8 @@ export type Database = {
           display_name: string
           finished_at: string
           is_guest: boolean
+          is_me: boolean
           rank: number
-          user_id: string
         }[]
       }
       get_daily_streak: {
