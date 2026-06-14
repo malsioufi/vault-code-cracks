@@ -295,6 +295,7 @@ export type Database = {
           is_guest: boolean
           is_me: boolean
           rank: number
+          user_id: string
         }[]
       }
       get_daily_streak: {
