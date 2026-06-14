@@ -392,7 +392,7 @@ export type Database = {
       }
     }
     Enums: {
-      room_mode: "turn_based" | "simultaneous" | "battle_royale"
+      room_mode: "turn_based" | "simultaneous" | "battle_royale" | "relay_race"
       room_status:
         | "waiting"
         | "setting_secrets"
@@ -526,7 +526,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      room_mode: ["turn_based", "simultaneous", "battle_royale"],
+      room_mode: ["turn_based", "simultaneous", "battle_royale", "relay_race"],
       room_status: [
         "waiting",
         "setting_secrets",
