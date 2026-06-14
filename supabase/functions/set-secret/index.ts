@@ -37,14 +37,14 @@ serve(async (req) => {
     const { error: insErr } = await sb
       .from('room_secrets')
       .upsert({ room_id: roomId, player_id: user.id, secret });
-    if (insErr) return json({ error: insErr.message }, 500);
+    if (insErr) console.error('db error in supabase/functions/set-secret/index.ts:', insErr.message); return json({ error: 'Internal server error' }, 500);
 
     // Check if both secrets set
     const { data: secrets, error: countErr } = await sb
       .from('room_secrets')
       .select('player_id')
       .eq('room_id', roomId);
-    if (countErr) return json({ error: countErr.message }, 500);
+    if (countErr) console.error('db error in supabase/functions/set-secret/index.ts:', countErr.message); return json({ error: 'Internal server error' }, 500);
 
     if (secrets && secrets.length === 2) {
       // Start playing — host goes first in turn-based
@@ -59,8 +59,5 @@ serve(async (req) => {
     }
 
     return json({ ok: true });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    return json({ error: msg }, 500);
-  }
+  } catch (e: unknown) { console.error('error in supabase/functions/set-secret/index.ts:', e); return json({ error: 'Internal server error' }, 500); }
 });

@@ -73,7 +73,7 @@ serve(async (req) => {
         .select()
         .single();
 
-      if (error) return json({ error: error.message }, 500);
+      if (error) console.error('db error in supabase/functions/quick-match/index.ts:', error.message); return json({ error: 'Internal server error' }, 500);
       return json({ matched: true, room });
     }
 
@@ -88,8 +88,5 @@ serve(async (req) => {
     });
 
     return json({ matched: false, queued: true });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    return json({ error: msg }, 500);
-  }
+  } catch (e: unknown) { console.error('error in supabase/functions/quick-match/index.ts:', e); return json({ error: 'Internal server error' }, 500); }
 });

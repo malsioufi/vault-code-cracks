@@ -22,7 +22,7 @@ serve(async (req) => {
       .eq('code', code)
       .maybeSingle();
 
-    if (fetchErr) return json({ error: fetchErr.message }, 500);
+    if (fetchErr) console.error('db error in supabase/functions/join-room/index.ts:', fetchErr.message); return json({ error: 'Internal server error' }, 500);
     if (!room) return json({ error: 'Room not found' }, 404);
 
     // Already a participant — just return
@@ -46,8 +46,5 @@ serve(async (req) => {
 
     if (updErr || !updated) return json({ error: 'Failed to join' }, 409);
     return json({ room: updated });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    return json({ error: msg }, 500);
-  }
+  } catch (e: unknown) { console.error('error in supabase/functions/join-room/index.ts:', e); return json({ error: 'Internal server error' }, 500); }
 });

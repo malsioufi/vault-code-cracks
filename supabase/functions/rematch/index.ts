@@ -76,7 +76,7 @@ serve(async (req) => {
       .select()
       .single();
 
-    if (error) return json({ error: error.message }, 500);
+    if (error) console.error('db error in supabase/functions/rematch/index.ts:', error.message); return json({ error: 'Internal server error' }, 500);
 
     // Broadcast invite on the previous room's channel so the opponent's open client navigates over
     try {
@@ -91,8 +91,5 @@ serve(async (req) => {
     }
 
     return json({ room });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    return json({ error: msg }, 500);
-  }
+  } catch (e: unknown) { console.error('error in supabase/functions/rematch/index.ts:', e); return json({ error: 'Internal server error' }, 500); }
 });

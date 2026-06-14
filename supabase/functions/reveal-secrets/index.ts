@@ -36,8 +36,5 @@ serve(async (req) => {
       .eq('room_id', roomId);
 
     return json({ secrets: secrets || [] });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    return json({ error: msg }, 500);
-  }
+  } catch (e: unknown) { console.error('error in supabase/functions/reveal-secrets/index.ts:', e); return json({ error: 'Internal server error' }, 500); }
 });

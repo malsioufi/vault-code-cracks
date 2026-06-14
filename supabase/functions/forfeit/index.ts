@@ -41,8 +41,5 @@ serve(async (req) => {
       .eq('id', roomId);
 
     return json({ ok: true });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    return json({ error: msg }, 500);
-  }
+  } catch (e: unknown) { console.error('error in supabase/functions/forfeit/index.ts:', e); return json({ error: 'Internal server error' }, 500); }
 });
