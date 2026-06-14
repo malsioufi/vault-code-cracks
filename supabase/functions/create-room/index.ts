@@ -17,7 +17,14 @@ serve(async (req) => {
     const maxTries = body.maxTries === null || body.maxTries === undefined
       ? null
       : Number(body.maxTries);
-    const mode = body.mode === 'simultaneous' ? 'simultaneous' : 'turn_based';
+    const mode = body.mode === 'simultaneous'
+      ? 'simultaneous'
+      : body.mode === 'battle_royale'
+        ? 'battle_royale'
+        : 'turn_based';
+    const minPlayers = mode === 'battle_royale'
+      ? Math.max(2, Math.min(8, Number(body.minPlayers) || 2))
+      : null;
 
     if (!Number.isInteger(codeLength) || codeLength < 3 || codeLength > 6) {
       return json({ error: 'Invalid codeLength' }, 400);
@@ -25,10 +32,12 @@ serve(async (req) => {
     if (maxTries !== null && (!Number.isInteger(maxTries) || maxTries < 1 || maxTries > 50)) {
       return json({ error: 'Invalid maxTries' }, 400);
     }
+    if (mode === 'battle_royale' && maxTries === null) {
+      return json({ error: 'Battle Royale requires maxTries' }, 400);
+    }
 
     const sb = serviceClient();
 
-    // Generate unique code (try up to 5 times)
     let code = '';
     for (let i = 0; i < 5; i++) {
       code = generateRoomCode();
@@ -46,6 +55,7 @@ serve(async (req) => {
         code_length: codeLength,
         allow_duplicates: allowDuplicates,
         max_tries: maxTries,
+        min_players: minPlayers,
       })
       .select()
       .single();
@@ -54,6 +64,11 @@ serve(async (req) => {
       console.error('create-room db error:', error.message);
       return json({ error: 'Internal server error' }, 500);
     }
+
+    if (mode === 'battle_royale') {
+      await sb.from('room_participants').insert({ room_id: room.id, user_id: user.id });
+    }
+
     return json({ room });
   } catch (e: unknown) {
     console.error('create-room error:', e);
