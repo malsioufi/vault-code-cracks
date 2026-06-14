@@ -44,7 +44,7 @@ serve(async (req) => {
       .from('room_secrets')
       .select('player_id')
       .eq('room_id', roomId);
-    if (countErr) console.error('db error in supabase/functions/set-secret/index.ts:', countErr.message); return json({ error: 'Internal server error' }, 500);
+    if (countErr) { console.error('db error in supabase/functions/set-secret/index.ts:', countErr.message); return json({ error: 'Internal server error' }, 500); }
 
     if (secrets && secrets.length === 2) {
       // Start playing — host goes first in turn-based
