@@ -5,6 +5,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 
 interface LeaderboardRow {
   rank: number;
+  user_id: string;
   display_name: string;
   is_guest: boolean;
   attempts_used: number;
