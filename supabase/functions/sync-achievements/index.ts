@@ -21,10 +21,10 @@ serve(async (req) => {
     }
 
     // Build UnlockContext entirely from server-trusted data
-    const [{ data: rooms }, { data: daily }, { data: streak }] = await Promise.all([
+    const [{ data: rooms }, { data: daily }, { data: streak }, { data: brParts }] = await Promise.all([
       sb
         .from('rooms')
-        .select('id, host_id, guest_id, code_length, allow_duplicates, winner_id, finished_at')
+        .select('id, host_id, guest_id, code_length, allow_duplicates, winner_id, finished_at, mode')
         .or(`host_id.eq.${user.id},guest_id.eq.${user.id}`)
         .in('status', ['finished', 'abandoned'])
         .order('finished_at', { ascending: false, nullsFirst: false })
@@ -34,9 +34,28 @@ serve(async (req) => {
         .select('won, attempts_used')
         .eq('user_id', user.id),
       sb.rpc('get_daily_streak', { _user_id: user.id }),
+      sb
+        .from('room_participants')
+        .select('room_id')
+        .eq('user_id', user.id),
     ]);
 
-    const rs = rooms ?? [];
+    let rs = rooms ?? [];
+
+    // Include BR rooms where user is a participant but not host/guest
+    const extraIds = Array.from(new Set(
+      (brParts ?? []).map((p: { room_id: string }) => p.room_id).filter((id: string) => !rs.some((r) => r.id === id)),
+    ));
+    if (extraIds.length) {
+      const { data: brRooms } = await sb
+        .from('rooms')
+        .select('id, host_id, guest_id, code_length, allow_duplicates, winner_id, finished_at, mode')
+        .in('id', extraIds)
+        .in('status', ['finished', 'abandoned']);
+      if (brRooms) rs = [...rs, ...brRooms];
+      rs.sort((a, b) => new Date(b.finished_at ?? 0).getTime() - new Date(a.finished_at ?? 0).getTime());
+    }
+
     const wonIds = rs.filter((r) => r.winner_id === user.id).map((r) => r.id);
 
     const counts: Record<string, number> = {};
@@ -52,6 +71,18 @@ serve(async (req) => {
       }
     }
 
+    const brIds = rs.filter((r) => r.mode === 'battle_royale').map((r) => r.id);
+    const playerCounts: Record<string, number> = {};
+    if (brIds.length) {
+      const { data: parts } = await sb
+        .from('room_participants')
+        .select('room_id')
+        .in('room_id', brIds);
+      for (const p of (parts ?? []) as { room_id: string }[]) {
+        playerCounts[p.room_id] = (playerCounts[p.room_id] ?? 0) + 1;
+      }
+    }
+
     let currentStreak = 0;
     for (const r of rs) {
       if (r.winner_id === user.id) currentStreak++;
@@ -61,6 +92,13 @@ serve(async (req) => {
     const wonDaily = (daily ?? []).filter((d) => d.won);
     const s = Array.isArray(streak) && streak[0] ? streak[0] : null;
 
+    const brMatches = rs.filter((r) => r.mode === 'battle_royale');
+    const brWonMatches = brMatches.filter((r) => r.winner_id === user.id);
+    const brBiggestWin = brWonMatches.reduce(
+      (acc, r) => Math.max(acc, playerCounts[r.id] ?? 0),
+      0,
+    );
+
     const context: UnlockContext = {
       onlineWins: rs.filter((r) => r.winner_id === user.id).length,
       onlineMatches: rs.map((r) => ({
@@ -69,12 +107,17 @@ serve(async (req) => {
         codeLength: r.code_length,
         allowDuplicates: r.allow_duplicates,
         finishedAt: r.finished_at,
+        mode: r.mode,
+        playerCount: playerCounts[r.id],
       })),
       currentWinStreak: currentStreak,
       dailyWins: wonDaily.length,
       dailyBestGuessCount: wonDaily.length ? Math.min(...wonDaily.map((d) => d.attempts_used)) : 0,
       dailyCurrentStreak: Number(s?.current_streak ?? 0),
       dailyBestStreak: Number(s?.best_streak ?? 0),
+      battleRoyalePlays: brMatches.length,
+      battleRoyaleWins: brWonMatches.length,
+      battleRoyaleBiggestWin: brBiggestWin,
     };
 
     const eligible = evaluate(context);

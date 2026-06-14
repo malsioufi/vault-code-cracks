@@ -20,12 +20,17 @@ export interface UnlockContext {
     codeLength: number;
     allowDuplicates?: boolean;
     finishedAt: string | null;
+    mode?: 'turn_based' | 'simultaneous' | 'battle_royale';
+    playerCount?: number;
   }>;
   currentWinStreak: number;
   dailyWins: number;
   dailyBestGuessCount: number; // lowest attempts to win any daily
   dailyCurrentStreak: number;
   dailyBestStreak: number;
+  battleRoyalePlays: number;
+  battleRoyaleWins: number;
+  battleRoyaleBiggestWin: number; // max playerCount of any won BR
 }
 
 const clamp = (n: number, max: number) => Math.min(Math.max(n, 0), max);
@@ -374,6 +379,42 @@ export const ACHIEVEMENTS: Achievement[] = [
       const m = minWinGuesses(c);
       return { current: m <= 2 ? 1 : 0, target: 1 };
     },
+  },
+  {
+    id: 'royale_initiate',
+    name: 'Royale Initiate',
+    description: 'Step into the arena.',
+    criteria: 'Play 1 Battle Royale match.',
+    icon: '👑',
+    rarity: 'common',
+    progress: (c) => ({ current: clamp(c.battleRoyalePlays, 1), target: 1 }),
+  },
+  {
+    id: 'last_hacker_standing',
+    name: 'Last Hacker Standing',
+    description: 'Outlast every rival in the arena.',
+    criteria: 'Win 1 Battle Royale match.',
+    icon: '🏟️',
+    rarity: 'rare',
+    progress: (c) => ({ current: clamp(c.battleRoyaleWins, 1), target: 1 }),
+  },
+  {
+    id: 'royale_champion',
+    name: 'Royale Champion',
+    description: 'A repeat threat in the arena.',
+    criteria: 'Win 5 Battle Royale matches.',
+    icon: '🥇',
+    rarity: 'epic',
+    progress: (c) => ({ current: clamp(c.battleRoyaleWins, 5), target: 5 }),
+  },
+  {
+    id: 'crowd_crusher',
+    name: 'Crowd Crusher',
+    description: 'Win a packed arena.',
+    criteria: 'Win a Battle Royale with 4+ players.',
+    icon: '🎆',
+    rarity: 'legendary',
+    progress: (c) => ({ current: c.battleRoyaleBiggestWin >= 4 ? 1 : 0, target: 1 }),
   },
 ];
 

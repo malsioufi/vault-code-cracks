@@ -177,6 +177,12 @@ const Stats: React.FC = () => {
     const dailyBestGuessCount = wonDaily.length
       ? Math.min(...wonDaily.map((d) => d.attempts_used))
       : 0;
+    const brMatches = rooms.filter((r) => r.mode === 'battle_royale');
+    const brWonMatches = brMatches.filter((r) => r.winner_id === user.id);
+    const brBiggestWin = brWonMatches.reduce(
+      (acc, r) => Math.max(acc, participantCounts[r.id] ?? 0),
+      0,
+    );
     return {
       onlineWins: rooms.filter((r) => r.winner_id === user.id).length,
       onlineMatches: rooms.map((r) => ({
@@ -185,14 +191,19 @@ const Stats: React.FC = () => {
         codeLength: r.code_length,
         allowDuplicates: r.allow_duplicates,
         finishedAt: r.finished_at,
+        mode: r.mode,
+        playerCount: participantCounts[r.id],
       })),
       currentWinStreak: streak,
       dailyWins: wonDaily.length,
       dailyBestGuessCount,
       dailyCurrentStreak: dailyStreak.current,
       dailyBestStreak: dailyStreak.best,
+      battleRoyalePlays: brMatches.length,
+      battleRoyaleWins: brWonMatches.length,
+      battleRoyaleBiggestWin: brBiggestWin,
     };
-  }, [rooms, daily, dailyStreak, guessCounts, user, profile]);
+  }, [rooms, daily, dailyStreak, guessCounts, participantCounts, user, profile]);
 
   const { unlockedAt: unlockedAchievementsAt, claim } = useAchievements({
     userId: user?.id,
@@ -350,17 +361,15 @@ const Stats: React.FC = () => {
           <h2 className="font-mono text-xs uppercase tracking-widest text-secondary text-glow-secondary mb-3">
             {t('onlineStats')}
           </h2>
-          <div className="grid grid-cols-4 gap-2 text-center">
+          <div className="grid grid-cols-3 gap-2 text-center">
             <StatCell label={t('played')} value={onlineStats.played} />
             <StatCell label={t('wins')} value={onlineStats.wins} valueClass="text-primary text-glow-primary" />
-            <StatCell label={t('losses')} value={onlineStats.losses} valueClass="text-destructive" />
             <StatCell label={t('winRate')} value={`${onlineStats.winRate}%`} valueClass="text-secondary text-glow-secondary" />
           </div>
-          {onlineStats.draws > 0 && (
-            <p className="font-mono text-[10px] text-muted-foreground text-center mt-2">
-              {onlineStats.draws} {t('draws')}
-            </p>
-          )}
+          <div className="grid grid-cols-2 gap-2 text-center mt-2">
+            <StatCell label={t('losses')} value={onlineStats.losses} valueClass="text-destructive" />
+            <StatCell label={t('draws')} value={onlineStats.draws} valueClass="text-warning" />
+          </div>
 
           <h3 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mt-4 mb-2">
             {t('recentMatches')}
