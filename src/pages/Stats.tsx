@@ -237,7 +237,7 @@ const Stats: React.FC = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col items-center px-4 py-2 overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center px-4 py-2 overflow-y-auto">
       <PageHeader center={profile?.display_name ?? undefined} />
 
       <div className="w-full max-w-md text-center mb-3 shrink-0">
@@ -245,8 +245,7 @@ const Stats: React.FC = () => {
         <p className="font-mono text-[11px] text-muted-foreground mt-1">{t('statsSubtitle')}</p>
       </div>
 
-      {/* Each card is its own scroll container; the page itself doesn't scroll. */}
-      <div className="w-full max-w-md flex-1 min-h-0 flex flex-col gap-3 pb-2">
+      <div className="w-full max-w-md flex flex-col gap-3 pb-4">
 
         {/* Online stats — fixed, no scroll */}
         <div className="w-full p-4 rounded-lg bg-card cyber-border scanline shrink-0">
@@ -315,21 +314,12 @@ const Stats: React.FC = () => {
           )}
         </div>
 
-        {/* Achievements — its own scroll container */}
-        <div className="w-full shrink-0 max-h-[30vh] overflow-y-auto rounded-lg">
-          <AchievementsCard
-            unlockedAt={unlockedAchievementsAt}
-            context={achievementsContext}
-            onClaim={claim}
-          />
-        </div>
-
-        {/* Recent matches — its own scroll container, takes remaining space */}
-        <div className="w-full flex-1 min-h-[160px] flex flex-col overflow-hidden">
+        {/* Recent matches */}
+        <div className="w-full flex flex-col">
           <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-2 shrink-0">
             {t('recentMatches')}
           </h2>
-          <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+          <div className="pr-1">
             {rooms.length === 0 ? (
               <p className="font-mono text-xs text-muted-foreground text-center py-6">
                 {t('noMatchesYet')}
@@ -398,6 +388,15 @@ const Stats: React.FC = () => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Achievements */}
+        <div className="w-full rounded-lg">
+          <AchievementsCard
+            unlockedAt={unlockedAchievementsAt}
+            context={achievementsContext}
+            onClaim={claim}
+          />
         </div>
       </div>
     </div>
