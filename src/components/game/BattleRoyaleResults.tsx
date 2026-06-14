@@ -12,6 +12,8 @@ interface Props {
   profiles: Record<string, string>;
   codeLength: number;
   onBack: () => void;
+  onRematch?: () => void;
+  rematchPending?: boolean;
 }
 
 function computeCloseness(guesses: GuessEntry[], codeLength: number): number {
@@ -25,7 +27,7 @@ function computeCloseness(guesses: GuessEntry[], codeLength: number): number {
 }
 
 const BattleRoyaleResults: React.FC<Props> = ({
-  winnerId, myId, secret, participants, guessesByPlayer, profiles, codeLength, onBack,
+  winnerId, myId, secret, participants, guessesByPlayer, profiles, codeLength, onBack, onRematch, rematchPending,
 }) => {
   const { t } = useLanguage();
   const iWon = winnerId === myId;
@@ -64,12 +66,23 @@ const BattleRoyaleResults: React.FC<Props> = ({
             </div>
           </>
         )}
-        <button
-          onClick={onBack}
-          className="mt-3 px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
-        >
-          {t('backToMenu')}
-        </button>
+        <div className="flex flex-col gap-2 items-stretch">
+          <button
+            onClick={onBack}
+            className="px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+          >
+            {t('backToMenu')}
+          </button>
+          {onRematch && (
+            <button
+              onClick={onRematch}
+              disabled={rematchPending}
+              className="px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-mono text-sm font-bold glow-secondary hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {rematchPending ? t('rematchSent') : `🔁 ${t('rematch')}`}
+            </button>
+          )}
+        </div>
       </div>
 
       <div>

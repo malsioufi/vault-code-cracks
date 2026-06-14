@@ -24,31 +24,47 @@ serve(async (req) => {
       .eq('id', previousRoomId)
       .maybeSingle();
     if (prevErr || !prev) return json({ error: 'Previous room not found' }, 404);
-    if (prev.host_id !== user.id && prev.guest_id !== user.id) {
-      return json({ error: 'Not a participant' }, 403);
+
+    const isMulti = prev.mode === 'battle_royale' || prev.mode === 'relay_race';
+
+    if (isMulti) {
+      const { data: part } = await sb
+        .from('room_participants')
+        .select('user_id')
+        .eq('room_id', previousRoomId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!part) return json({ error: 'Not a participant' }, 403);
+    } else {
+      if (prev.host_id !== user.id && prev.guest_id !== user.id) {
+        return json({ error: 'Not a participant' }, 403);
+      }
     }
+
     if (prev.status !== 'finished' && prev.status !== 'abandoned') {
       return json({ error: 'Previous game not finished' }, 400);
     }
-    if (!prev.guest_id) return json({ error: 'No opponent to rematch' }, 400);
 
-    const opponentId = prev.host_id === user.id ? prev.guest_id : prev.host_id;
+    if (!isMulti && !prev.guest_id) return json({ error: 'No opponent to rematch' }, 400);
+
+    const opponentId = !isMulti ? (prev.host_id === user.id ? prev.guest_id : prev.host_id) : null;
 
     // If a rematch already exists for this previous room (created by either side), reuse it.
-    // We encode the link via code prefix is overkill; instead look for a recently created room
-    // with the same two participants AND status waiting/setting_secrets that is newer than prev.
-    const { data: existing } = await sb
-      .from('rooms')
-      .select('*')
-      .or(`and(host_id.eq.${user.id},guest_id.eq.${opponentId}),and(host_id.eq.${opponentId},guest_id.eq.${user.id})`)
-      .gt('created_at', prev.finished_at ?? prev.updated_at ?? prev.created_at)
-      .in('status', ['waiting', 'setting_secrets', 'playing'])
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    // For 1v1 modes only: look for a recently created room with the same two participants.
+    if (!isMulti && opponentId) {
+      const { data: existing } = await sb
+        .from('rooms')
+        .select('*')
+        .or(`and(host_id.eq.${user.id},guest_id.eq.${opponentId}),and(host_id.eq.${opponentId},guest_id.eq.${user.id})`)
+        .gt('created_at', prev.finished_at ?? prev.updated_at ?? prev.created_at)
+        .in('status', ['waiting', 'setting_secrets', 'playing'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    if (existing) {
-      return json({ room: existing, reused: true });
+      if (existing) {
+        return json({ room: existing, reused: true });
+      }
     }
 
     // Generate unique code
@@ -59,26 +75,39 @@ serve(async (req) => {
       if (!data) break;
     }
 
-    // Create new room: requester becomes host, opponent pre-assigned as guest, jump straight to setting_secrets
+    // Create new room
+    const insertData: Record<string, unknown> = {
+      code,
+      host_id: user.id,
+      status: isMulti ? 'waiting' : 'setting_secrets',
+      mode: prev.mode,
+      code_length: prev.code_length,
+      allow_duplicates: prev.allow_duplicates,
+      max_tries: prev.max_tries,
+      is_quick_match: prev.is_quick_match,
+    };
+
+    if (!isMulti && opponentId) {
+      insertData.guest_id = opponentId;
+    }
+
+    if (isMulti) {
+      insertData.min_players = prev.min_players ?? (prev.mode === 'relay_race' ? 2 : 2);
+    }
+
     const { data: room, error } = await sb
       .from('rooms')
-      .insert({
-        code,
-        host_id: user.id,
-        guest_id: opponentId,
-        status: 'setting_secrets',
-        mode: prev.mode,
-        code_length: prev.code_length,
-        allow_duplicates: prev.allow_duplicates,
-        max_tries: prev.max_tries,
-        is_quick_match: prev.is_quick_match,
-      })
+      .insert(insertData)
       .select()
       .single();
 
     if (error) { console.error('rematch db error:', error.message); return json({ error: 'Internal server error' }, 500); }
 
-    // Broadcast invite on the previous room's channel so the opponent's open client navigates over
+    if (isMulti) {
+      await sb.from('room_participants').insert({ room_id: room.id, user_id: user.id });
+    }
+
+    // Broadcast invite on the previous room's channel so other players can join
     try {
       const channel = sb.channel(`room:${prev.id}`);
       await channel.send({
@@ -87,7 +116,7 @@ serve(async (req) => {
         payload: { newRoomCode: room.code, newRoomId: room.id, fromUserId: user.id },
       });
     } catch (_e) {
-      // best-effort; opponent can also poll/find via their own subscription
+      // best-effort; others can also poll/find via their own subscription
     }
 
     return json({ room });
