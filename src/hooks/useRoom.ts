@@ -93,16 +93,15 @@ export function useRoom(code: string | undefined, userId: string | undefined) {
         .maybeSingle();
       if (!cancelled && sec) setMySecret(sec.secret as number[]);
 
-      // Fetch participant display names
+      // Fetch participant display names via safe RPC
       const ids = [data.host_id, data.guest_id].filter(Boolean) as string[];
       if (ids.length) {
-        const { data: profs } = await supabase
-          .from('profiles')
-          .select('id, display_name')
-          .in('id', ids);
+        const { data: profs } = await supabase.rpc('get_display_names', { _ids: ids });
         if (!cancelled && profs) {
           const map: Record<string, string> = {};
-          for (const p of profs) map[p.id as string] = p.display_name as string;
+          for (const p of profs as { id: string; display_name: string }[]) {
+            map[p.id] = p.display_name;
+          }
           setProfiles(map);
         }
       }
