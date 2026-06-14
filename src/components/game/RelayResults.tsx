@@ -102,12 +102,23 @@ const RelayResults: React.FC<Props> = ({
             🏆 {t('winningTeam')}: <span className="text-primary text-glow-primary">{t('team')} {winnerTeam}</span>
           </p>
         )}
-        <button
-          onClick={onBack}
-          className="mt-3 px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
-        >
-          {t('backToMenu')}
-        </button>
+        <div className="flex flex-col gap-2 items-stretch mt-3">
+          <button
+            onClick={onBack}
+            className="px-4 py-2 rounded-lg bg-muted text-muted-foreground font-mono text-sm hover:text-foreground transition-colors"
+          >
+            {t('backToMenu')}
+          </button>
+          {onRematch && (
+            <button
+              onClick={onRematch}
+              disabled={rematchPending}
+              className="px-4 py-2.5 rounded-lg bg-secondary text-secondary-foreground font-mono text-sm font-bold glow-secondary hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {rematchPending ? t('rematchSent') : `🔁 ${t('rematch')}`}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
