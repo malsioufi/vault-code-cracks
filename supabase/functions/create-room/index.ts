@@ -32,9 +32,6 @@ serve(async (req) => {
     if (maxTries !== null && (!Number.isInteger(maxTries) || maxTries < 1 || maxTries > 50)) {
       return json({ error: 'Invalid maxTries' }, 400);
     }
-    if (mode === 'battle_royale' && maxTries === null) {
-      return json({ error: 'Battle Royale requires maxTries' }, 400);
-    }
 
     const sb = serviceClient();
 

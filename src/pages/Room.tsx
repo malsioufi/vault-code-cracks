@@ -235,7 +235,7 @@ const Room: React.FC = () => {
         <BattleRoyaleBoard
           codeLength={room.code_length}
           allowDuplicates={room.allow_duplicates}
-          maxTries={room.max_tries ?? 10}
+          maxTries={room.max_tries}
           myId={user.id}
           myGuesses={myBrGuesses}
           participants={participants}

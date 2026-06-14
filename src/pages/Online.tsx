@@ -371,18 +371,16 @@ const Online: React.FC = () => {
                       {n}
                     </button>
                   ))}
-                  {tab !== 'br' && (
-                    <button
-                      onClick={() => setMaxTries(null)}
-                      className={`flex-1 py-2 rounded font-mono text-xs ${
-                        maxTries === null
-                          ? 'bg-secondary text-secondary-foreground glow-secondary'
-                          : 'bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      ∞
-                    </button>
-                  )}
+                  <button
+                    onClick={() => setMaxTries(null)}
+                    className={`flex-1 py-2 rounded font-mono text-xs ${
+                      maxTries === null
+                        ? 'bg-secondary text-secondary-foreground glow-secondary'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    ∞
+                  </button>
                 </div>
               </div>
 
