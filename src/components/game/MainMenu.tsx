@@ -15,7 +15,7 @@ interface MainMenuProps {
 const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
   const navigate = useNavigate();
   const { t, lang, setLang } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   const [showLeaderboard, setShowLeaderboard] = React.useState(false);
 
