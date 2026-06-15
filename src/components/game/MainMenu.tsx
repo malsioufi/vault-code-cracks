@@ -6,7 +6,7 @@ import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import MatrixRain from '@/components/MatrixRain';
 import { useAuth } from '@/hooks/useAuth';
 import { dailyDateString } from '@/game/dailyPuzzle';
-import { ChevronDown, Trophy, BarChart3, LogIn, Globe, Dumbbell, Award } from 'lucide-react';
+import { ChevronDown, Trophy, BarChart3, LogIn, LogOut, Globe, Dumbbell, Award, User as UserIcon } from 'lucide-react';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
@@ -15,7 +15,7 @@ interface MainMenuProps {
 const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
   const navigate = useNavigate();
   const { t, lang, setLang } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   const [showLeaderboard, setShowLeaderboard] = React.useState(false);
 
@@ -74,9 +74,24 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
               {t('signIn')}
             </button>
           ) : (
-            <span className="font-mono text-[10px] text-muted-foreground truncate max-w-[140px]">
-              {user.email}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/account')}
+                className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md text-primary hover:text-primary/80 font-mono text-xs transition-colors max-w-[140px] truncate"
+                aria-label="Account"
+              >
+                <UserIcon className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">{profile?.display_name || 'Account'}</span>
+              </button>
+              <button
+                onClick={async () => { await signOut(); }}
+                className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md text-muted-foreground hover:text-destructive font-mono text-xs transition-colors"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                Logout
+              </button>
+            </div>
           )}
         </header>
 

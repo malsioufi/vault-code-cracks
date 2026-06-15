@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_display_name_unique_ci ON public.profiles (lower(display_name)) WHERE is_guest = false;
