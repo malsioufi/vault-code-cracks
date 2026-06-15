@@ -89,7 +89,7 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
                 aria-label="Sign out"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                {t('logout') || 'Logout'}
+                Logout
               </button>
             </div>
           )}
