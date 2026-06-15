@@ -15,6 +15,7 @@ import Stats from "./pages/Stats.tsx";
 import Achievements from "./pages/Achievements.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import PublicProfile from "./pages/PublicProfile.tsx";
+import Account from "./pages/Account.tsx";
 
 const queryClient = new QueryClient();
 
