@@ -37,6 +37,7 @@ const App = () => (
             <Route path="/achievements" element={<Achievements />} />
             <Route path="/room/:code" element={<Room />} />
             <Route path="/profile/:userId" element={<PublicProfile />} />
+            <Route path="/account" element={<Account />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
