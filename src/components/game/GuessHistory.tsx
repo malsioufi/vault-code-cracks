@@ -76,9 +76,9 @@ const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret
                     <button
                       key={i}
                       type="button"
-                      onClick={() => toggleHighlight(d)}
-                      onMouseEnter={() => setHighlightedDigit(d)}
-                      onMouseLeave={() => setHighlightedDigit((prev) => (prev === d ? null : prev))}
+                      onClick={() => togglePin(d)}
+                      onMouseEnter={() => setHoveredDigit(d)}
+                      onMouseLeave={() => setHoveredDigit(null)}
                       className={`w-7 h-7 flex items-center justify-center rounded font-mono text-sm cyber-border transition-all ${colorClass} ${ring} ${dim}`}
                     >
                       {d}
