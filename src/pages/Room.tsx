@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import DigitInput from '@/components/game/DigitInput';
 import GuessHistory from '@/components/game/GuessHistory';
+import DigitTracker from '@/components/game/DigitTracker';
 import BattleRoyaleLobby from '@/components/game/BattleRoyaleLobby';
 import BattleRoyaleBoard from '@/components/game/BattleRoyaleBoard';
 import BattleRoyaleResults from '@/components/game/BattleRoyaleResults';
@@ -689,6 +690,7 @@ const Room: React.FC = () => {
       {isPlaying && !gameOver && (
         <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
           <div className="w-full max-w-md mx-auto space-y-2">
+            <DigitTracker history={myGuesses} resetKey={room.code} />
             <DigitInput
               codeLength={room.code_length}
               allowDuplicates={room.allow_duplicates}
