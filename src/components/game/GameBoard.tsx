@@ -11,6 +11,7 @@ import {
 } from '@/game/engine';
 import DigitInput from './DigitInput';
 import GuessHistory from './GuessHistory';
+import DigitTracker from './DigitTracker';
 import { getDifficultyScore, getDifficultyScoreColor } from '@/game/difficulty';
 
 interface GameBoardProps {
@@ -320,6 +321,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
       {!gameOver && (
         <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
           <div className="w-full max-w-md mx-auto space-y-2">
+            <DigitTracker history={playerHistory} resetKey={gameId} />
             {triesLeft !== null && (
               <div className="flex justify-between font-mono text-xs text-muted-foreground">
                 <span>{t('attempt')} {playerHistory.length + 1}{config.maxTries ? `/${config.maxTries}` : ''}</span>
