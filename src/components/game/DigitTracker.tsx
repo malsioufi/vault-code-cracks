@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { GuessEntry } from '@/game/engine';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 type Mark = 'neutral' | 'present' | 'confirmed' | 'ruled-out';
 
