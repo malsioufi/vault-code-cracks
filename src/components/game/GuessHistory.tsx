@@ -19,6 +19,7 @@ const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret
 
   const togglePin = (d: number) => {
     setPinnedDigit((prev) => (prev === d ? null : d));
+    setHoveredDigit(null);
   };
 
   return (
