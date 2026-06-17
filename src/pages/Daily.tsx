@@ -10,6 +10,7 @@ import {
 import { evaluateGuess, getDigitStatuses, type GuessEntry } from '@/game/engine';
 import DigitInput from '@/components/game/DigitInput';
 import GuessHistory from '@/components/game/GuessHistory';
+import DigitTracker from '@/components/game/DigitTracker';
 import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import PageHeader from '@/components/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
@@ -276,8 +277,9 @@ const Daily: React.FC = () => {
           and doesn't push the history out of view when focused. */}
       {!gameOver && triesLeft > 0 && (
         <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
-          <div className="w-full max-w-md mx-auto">
-            <div className="flex justify-between font-mono text-xs text-muted-foreground mb-2">
+          <div className="w-full max-w-md mx-auto space-y-2">
+            <DigitTracker history={history} resetKey={config.secret.join('')} />
+            <div className="flex justify-between font-mono text-xs text-muted-foreground">
               <span>{t('attempt')} {history.length + 1}/{config.maxTries}</span>
               <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>
             </div>
