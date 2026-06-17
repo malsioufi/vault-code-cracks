@@ -11,12 +11,14 @@ interface GuessHistoryProps {
 
 const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret, gameOver }) => {
   const { t } = useLanguage();
-  const [highlightedDigit, setHighlightedDigit] = useState<number | null>(null);
+  const [pinnedDigit, setPinnedDigit] = useState<number | null>(null);
+  const [hoveredDigit, setHoveredDigit] = useState<number | null>(null);
+  const highlightedDigit = hoveredDigit ?? pinnedDigit;
 
   if (history.length === 0) return null;
 
-  const toggleHighlight = (d: number) => {
-    setHighlightedDigit((prev) => (prev === d ? null : d));
+  const togglePin = (d: number) => {
+    setPinnedDigit((prev) => (prev === d ? null : d));
   };
 
   return (
