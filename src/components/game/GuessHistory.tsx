@@ -27,12 +27,12 @@ const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret
         <h3 className="font-mono text-xs text-secondary text-glow-secondary uppercase tracking-widest">
           {t('history')}
         </h3>
-        {highlightedDigit !== null && (
+        {pinnedDigit !== null && (
           <button
-            onClick={() => setHighlightedDigit(null)}
+            onClick={() => setPinnedDigit(null)}
             className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
           >
-            clear ({highlightedDigit})
+            clear ({pinnedDigit})
           </button>
         )}
       </div>
