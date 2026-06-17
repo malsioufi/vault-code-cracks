@@ -26,19 +26,11 @@ const symbol: Record<Mark, string> = {
 };
 
 /**
- * Auto-derives "ruled-out" digits from history: any guess containing digit d
- * with matches + shifts === 0 proves every digit in that guess is absent.
- * Everything else is left for the player to mark manually.
+ * Digit tracker is purely manual — players cycle through marks themselves.
+ * No auto-derivation from feedback to keep the deduction challenge intact.
  */
-function deriveAuto(history: GuessEntry[]): Record<number, Mark> {
-  const auto: Record<number, Mark> = {};
-  for (const entry of history) {
-    const { matches, shifts } = entry.feedback;
-    if (matches + shifts === 0) {
-      for (const d of entry.guess) auto[d] = 'ruled-out';
-    }
-  }
-  return auto;
+function deriveAuto(_history: GuessEntry[]): Record<number, Mark> {
+  return {};
 }
 
 const DigitTracker: React.FC<DigitTrackerProps> = ({ history, resetKey }) => {
