@@ -1,7 +1,7 @@
 // Server-side daily puzzle secret generation (mirror of src/game/dailyPuzzle.ts).
 // Keep in sync with the client copy.
 
-const DAILY_TZ = 'Europe/Berlin';
+const DAILY_TZ = 'Asia/Damascus';
 
 function getZonedParts(d: Date, timeZone: string) {
   const fmt = new Intl.DateTimeFormat('en-US', {
