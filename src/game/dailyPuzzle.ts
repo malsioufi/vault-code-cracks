@@ -1,8 +1,8 @@
 // Deterministic daily puzzle generator. Same settings + same secret for all users
-// worldwide on the same Europe/Berlin date. Reset at midnight Berlin time
+// worldwide on the same Asia/Damascus date. Reset at midnight Damascus time
 // (handles DST automatically via Intl).
 
-const DAILY_TZ = 'Europe/Berlin';
+const DAILY_TZ = 'Asia/Damascus';
 
 function getZonedParts(d: Date, timeZone: string): { y: number; m: number; day: number; h: number; min: number; s: number } {
   const fmt = new Intl.DateTimeFormat('en-US', {
@@ -66,7 +66,7 @@ export function utcDateString(d: Date = new Date()): string {
   return `${y}-${m}-${day}`;
 }
 
-// Daily puzzle date = current calendar date in Europe/Berlin.
+// Daily puzzle date = current calendar date in Asia/Damascus.
 export function dailyDateString(d: Date = new Date()): string {
   const { y, m, day } = getZonedParts(d, DAILY_TZ);
   return `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -82,7 +82,7 @@ export function msUntilNextUtcMidnight(now: Date = new Date()): number {
   return next.getTime() - now.getTime();
 }
 
-// Milliseconds until the next midnight in Europe/Berlin (DST-aware).
+// Milliseconds until the next midnight in Asia/Damascus (DST-aware).
 export function msUntilNextDailyMidnight(now: Date = new Date()): number {
   const { h, min, s } = getZonedParts(now, DAILY_TZ);
   const elapsedMs = ((h * 3600) + (min * 60) + s) * 1000 + (now.getTime() % 1000);
