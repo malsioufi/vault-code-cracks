@@ -262,6 +262,7 @@ const Daily: React.FC = () => {
           <div className="font-mono text-[11px] text-muted-foreground mb-2">
             {t('nextPuzzleIn')}:{' '}
             <span className="text-secondary text-glow-secondary">{formatCountdown(countdown)}</span>
+            <span className="ml-1 opacity-70">(Damascus midnight)</span>
           </div>
           <button
             onClick={handleShare}
