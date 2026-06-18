@@ -167,7 +167,7 @@ const Daily: React.FC = () => {
   return (
     <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
 
-      <PageHeader center={`${config.date} • Berlin`} />
+      <PageHeader center={`${config.date} • Damascus`} />
 
       {/* Title */}
       <div className="w-full max-w-md text-center mb-2 shrink-0">
