@@ -123,13 +123,38 @@ serve(async (req) => {
       insertData.min_players = prev.min_players ?? (prev.mode === 'relay_race' ? 2 : 2);
     }
 
-    const { data: room, error } = await sb
+    let { data: room, error } = await sb
       .from('rooms')
       .insert(insertData)
       .select()
       .single();
 
-    if (error) { console.error('rematch db error:', error.message); return json({ error: 'Internal server error' }, 500); }
+    if (error) {
+      // Unique violation on parent_room_id (race) — fetch the existing rematch room.
+      if ((error as { code?: string }).code === '23505') {
+        const { data: existing } = await sb
+          .from('rooms')
+          .select('*')
+          .eq('parent_room_id', previousRoomId)
+          .maybeSingle();
+        if (existing) {
+          if (isMulti) {
+            const { data: alreadyIn } = await sb
+              .from('room_participants')
+              .select('user_id')
+              .eq('room_id', existing.id)
+              .eq('user_id', user.id)
+              .maybeSingle();
+            if (!alreadyIn) {
+              await sb.from('room_participants').insert({ room_id: existing.id, user_id: user.id });
+            }
+          }
+          return json({ room: existing, reused: true });
+        }
+      }
+      console.error('rematch db error:', error.message);
+      return json({ error: 'Internal server error' }, 500);
+    }
 
     if (isMulti) {
       await sb.from('room_participants').insert({ room_id: room.id, user_id: user.id });
