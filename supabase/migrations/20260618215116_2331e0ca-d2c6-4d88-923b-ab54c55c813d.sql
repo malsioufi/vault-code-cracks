@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS idx_rooms_parent_room_id_unique ON public.rooms(parent_room_id) WHERE parent_room_id IS NOT NULL;

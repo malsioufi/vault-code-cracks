@@ -312,6 +312,7 @@ export type Database = {
           max_tries: number | null
           min_players: number | null
           mode: Database["public"]["Enums"]["room_mode"]
+          parent_room_id: string | null
           started_at: string | null
           status: Database["public"]["Enums"]["room_status"]
           team_turn: string | null
@@ -335,6 +336,7 @@ export type Database = {
           max_tries?: number | null
           min_players?: number | null
           mode?: Database["public"]["Enums"]["room_mode"]
+          parent_room_id?: string | null
           started_at?: string | null
           status?: Database["public"]["Enums"]["room_status"]
           team_turn?: string | null
@@ -358,6 +360,7 @@ export type Database = {
           max_tries?: number | null
           min_players?: number | null
           mode?: Database["public"]["Enums"]["room_mode"]
+          parent_room_id?: string | null
           started_at?: string | null
           status?: Database["public"]["Enums"]["room_status"]
           team_turn?: string | null
@@ -367,7 +370,15 @@ export type Database = {
           winner_id?: string | null
           winner_team?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rooms_parent_room_id_fkey"
+            columns: ["parent_room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_achievements: {
         Row: {
