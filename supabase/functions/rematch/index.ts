@@ -112,6 +112,7 @@ serve(async (req) => {
       allow_duplicates: prev.allow_duplicates,
       max_tries: prev.max_tries,
       is_quick_match: prev.is_quick_match,
+      parent_room_id: previousRoomId,
     };
 
     if (!isMulti && opponentId) {
