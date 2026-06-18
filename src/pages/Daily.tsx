@@ -167,7 +167,7 @@ const Daily: React.FC = () => {
   return (
     <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
 
-      <PageHeader center={`${config.date} • Berlin`} />
+      <PageHeader center={`${config.date} • Damascus`} />
 
       {/* Title */}
       <div className="w-full max-w-md text-center mb-2 shrink-0">
@@ -262,6 +262,7 @@ const Daily: React.FC = () => {
           <div className="font-mono text-[11px] text-muted-foreground mb-2">
             {t('nextPuzzleIn')}:{' '}
             <span className="text-secondary text-glow-secondary">{formatCountdown(countdown)}</span>
+            <span className="ml-1 opacity-70">(Damascus midnight)</span>
           </div>
           <button
             onClick={handleShare}

@@ -40,26 +40,29 @@ describe('msUntilNextUtcMidnight', () => {
   });
 });
 
-// ─── dailyDateString (Europe/Berlin) ─────────────────────────────
+// ─── dailyDateString (Asia/Damascus, UTC+3 year-round) ───────────
 
-describe('dailyDateString (Europe/Berlin)', () => {
-  it('returns Berlin calendar date in winter (UTC+1)', () => {
-    expect(dailyDateString(new Date('2025-01-15T23:30:00Z'))).toBe('2025-01-16');
+describe('dailyDateString (Asia/Damascus)', () => {
+  it('returns Damascus calendar date when UTC is the previous day', () => {
+    // 22:00 UTC = 01:00 Damascus next day
+    expect(dailyDateString(new Date('2025-01-15T22:00:00Z'))).toBe('2025-01-16');
   });
-  it('returns Berlin calendar date in summer DST (UTC+2)', () => {
-    expect(dailyDateString(new Date('2025-07-15T21:30:00Z'))).toBe('2025-07-15');
-    expect(dailyDateString(new Date('2025-07-15T22:30:00Z'))).toBe('2025-07-16');
+  it('returns Damascus calendar date in summer (still UTC+3)', () => {
+    // 20:30 UTC = 23:30 Damascus same day
+    expect(dailyDateString(new Date('2025-07-15T20:30:00Z'))).toBe('2025-07-15');
+    // 21:30 UTC = 00:30 Damascus next day
+    expect(dailyDateString(new Date('2025-07-15T21:30:00Z'))).toBe('2025-07-16');
   });
 });
 
 describe('msUntilNextDailyMidnight', () => {
-  it('counts down to next Berlin midnight (winter)', () => {
-    // 22:00 UTC = 23:00 Berlin → 1h
-    expect(msUntilNextDailyMidnight(new Date('2025-01-15T22:00:00Z'))).toBe(60 * 60 * 1000);
+  it('counts down to next Damascus midnight (winter)', () => {
+    // 20:00 UTC = 23:00 Damascus → 1h to midnight
+    expect(msUntilNextDailyMidnight(new Date('2025-01-15T20:00:00Z'))).toBe(60 * 60 * 1000);
   });
-  it('counts down to next Berlin midnight (summer DST)', () => {
-    // 21:00 UTC = 23:00 Berlin → 1h
-    expect(msUntilNextDailyMidnight(new Date('2025-07-15T21:00:00Z'))).toBe(60 * 60 * 1000);
+  it('counts down to next Damascus midnight (summer)', () => {
+    // 20:00 UTC = 23:00 Damascus → 1h
+    expect(msUntilNextDailyMidnight(new Date('2025-07-15T20:00:00Z'))).toBe(60 * 60 * 1000);
   });
 });
 
