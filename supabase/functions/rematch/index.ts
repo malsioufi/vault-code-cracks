@@ -50,7 +50,34 @@ serve(async (req) => {
     const opponentId = !isMulti ? (prev.host_id === user.id ? prev.guest_id : prev.host_id) : null;
 
     // If a rematch already exists for this previous room (created by either side), reuse it.
-    // For 1v1 modes only: look for a recently created room with the same two participants.
+    {
+      const { data: existingByParent } = await sb
+        .from('rooms')
+        .select('*')
+        .eq('parent_room_id', previousRoomId)
+        .in('status', ['waiting', 'setting_secrets', 'playing'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingByParent) {
+        // Ensure caller is a participant for multi modes
+        if (isMulti) {
+          const { data: alreadyIn } = await sb
+            .from('room_participants')
+            .select('user_id')
+            .eq('room_id', existingByParent.id)
+            .eq('user_id', user.id)
+            .maybeSingle();
+          if (!alreadyIn) {
+            await sb.from('room_participants').insert({ room_id: existingByParent.id, user_id: user.id });
+          }
+        }
+        return json({ room: existingByParent, reused: true });
+      }
+    }
+
+    // Legacy fallback for 1v1: find a recent room with the same two participants.
     if (!isMulti && opponentId) {
       const { data: existing } = await sb
         .from('rooms')
