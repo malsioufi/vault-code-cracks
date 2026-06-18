@@ -1,0 +1,2 @@
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS parent_room_id uuid REFERENCES public.rooms(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_rooms_parent_room_id ON public.rooms(parent_room_id);
