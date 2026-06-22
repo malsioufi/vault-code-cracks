@@ -570,6 +570,7 @@ const Room: React.FC = () => {
 
       {/* Scrollable history area */}
       <div
+        ref={bottomPanel.scrollAreaRef}
         className="w-full max-w-md flex-1 min-h-0 overflow-y-auto"
         style={{ paddingBottom: inputActive ? `${bottomPanel.paddingBottom}px` : undefined }}
       >

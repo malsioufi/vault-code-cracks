@@ -247,6 +247,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
 
       {/* Scrollable history area */}
       <div
+        ref={bottomPanel.scrollAreaRef}
         className="w-full max-w-md flex-1 min-h-0 overflow-y-auto"
         style={{ paddingBottom: !gameOver ? `${bottomPanel.paddingBottom}px` : undefined }}
       >

@@ -40,6 +40,7 @@ const BattleRoyaleBoard: React.FC<Props> = ({
   return (
     <>
       <div
+        ref={bottomPanel.scrollAreaRef}
         className="w-full max-w-md flex-1 min-h-0 overflow-y-auto"
         style={{ paddingBottom: !amIDone ? `${bottomPanel.paddingBottom}px` : '20px' }}
       >

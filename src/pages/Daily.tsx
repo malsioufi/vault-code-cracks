@@ -215,6 +215,7 @@ const Daily: React.FC = () => {
       {/* History — scrollable, takes remaining space, always visible above input.
           Reserves bottom space (~190px) so the fixed input never covers the latest row. */}
       <div
+        ref={bottomPanel.scrollAreaRef}
         className="w-full max-w-md flex-1 min-h-0 overflow-y-auto mb-2"
         style={{ paddingBottom: inputActive ? `${bottomPanel.paddingBottom}px` : undefined }}
       >
