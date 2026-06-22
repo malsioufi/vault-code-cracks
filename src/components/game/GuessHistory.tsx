@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { GuessEntry, getDigitStatuses } from '@/game/engine';
 import { useLanguage } from '@/i18n/LanguageContext';
 
@@ -14,6 +14,12 @@ const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret
   const [pinnedDigit, setPinnedDigit] = useState<number | null>(null);
   const [hoveredDigit, setHoveredDigit] = useState<number | null>(null);
   const highlightedDigit = hoveredDigit ?? pinnedDigit;
+  const lastEntryRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (history.length === 0) return;
+    lastEntryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [history.length]);
 
   if (history.length === 0) return null;
 
@@ -46,6 +52,7 @@ const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret
           return (
             <div
               key={idx}
+              ref={idx === history.length - 1 ? lastEntryRef : undefined}
               className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/50 cyber-border"
             >
               <span className="font-mono text-xs text-muted-foreground w-7 shrink-0">
