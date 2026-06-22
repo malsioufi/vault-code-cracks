@@ -52,6 +52,7 @@ const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret
           return (
             <div
               key={idx}
+              ref={idx === history.length - 1 ? lastEntryRef : undefined}
               className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/50 cyber-border"
             >
               <span className="font-mono text-xs text-muted-foreground w-7 shrink-0">
