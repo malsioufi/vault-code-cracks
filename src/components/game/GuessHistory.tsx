@@ -18,7 +18,21 @@ const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret
 
   useEffect(() => {
     if (history.length === 0) return;
-    lastEntryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    const el = lastEntryRef.current;
+    if (!el) return;
+    // Find the nearest scrollable ancestor and scroll it to the bottom
+    // so the latest guess stays visible above the fixed keypad.
+    let parent: HTMLElement | null = el.parentElement;
+    while (parent) {
+      const style = getComputedStyle(parent);
+      if (/(auto|scroll)/.test(style.overflowY)) break;
+      parent = parent.parentElement;
+    }
+    if (parent) {
+      parent.scrollTop = parent.scrollHeight;
+    } else {
+      el.scrollIntoView({ block: 'end' });
+    }
   }, [history.length]);
 
   if (history.length === 0) return null;
