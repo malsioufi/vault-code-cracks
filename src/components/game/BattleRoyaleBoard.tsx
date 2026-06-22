@@ -4,6 +4,7 @@ import { Participant } from '@/hooks/useRoom';
 import DigitInput from './DigitInput';
 import GuessHistory from './GuessHistory';
 import { GuessEntry } from '@/game/engine';
+import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
 
 interface Props {
   codeLength: number;
@@ -34,12 +35,13 @@ const BattleRoyaleBoard: React.FC<Props> = ({
   const { t } = useLanguage();
   const triesLeft = maxTries !== null ? maxTries - myGuesses.length : null;
   const opponents = participants.filter((p) => p.user_id !== myId);
+  const bottomPanel = useBottomPanelSpacing({ active: !amIDone });
 
   return (
     <>
       <div
         className="w-full max-w-md flex-1 min-h-0 overflow-y-auto"
-        style={{ paddingBottom: !amIDone ? '210px' : '20px' }}
+        style={{ paddingBottom: !amIDone ? `${bottomPanel.paddingBottom}px` : '20px' }}
       >
         {/* Opponents strip */}
         <div className="mb-3 p-2 rounded bg-card cyber-border">
@@ -79,7 +81,11 @@ const BattleRoyaleBoard: React.FC<Props> = ({
       </div>
 
       {!amIDone && (
-        <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
+        <div
+          ref={bottomPanel.panelRef}
+          className="fixed inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3"
+          style={{ bottom: `${bottomPanel.bottomOffset}px` }}
+        >
           <div className="w-full max-w-md mx-auto space-y-2">
             <div className="flex justify-between font-mono text-xs text-muted-foreground">
               <span>{t('attempt')} {myGuesses.length + 1}{maxTries !== null ? `/${maxTries}` : ''}</span>
