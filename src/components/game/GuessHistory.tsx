@@ -29,7 +29,12 @@ const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret
       parent = parent.parentElement;
     }
     if (parent) {
-      parent.scrollTop = parent.scrollHeight;
+      const scrollToBottom = () => {
+        parent.scrollTop = parent.scrollHeight;
+      };
+      scrollToBottom();
+      requestAnimationFrame(scrollToBottom);
+      window.setTimeout(scrollToBottom, 120);
     } else {
       el.scrollIntoView({ block: 'end' });
     }

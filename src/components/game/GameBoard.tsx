@@ -13,6 +13,7 @@ import DigitInput from './DigitInput';
 import GuessHistory from './GuessHistory';
 import DigitTracker from './DigitTracker';
 import { getDifficultyScore, getDifficultyScoreColor } from '@/game/difficulty';
+import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
 
 interface GameBoardProps {
   config: GameConfig;
@@ -38,6 +39,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isPassive = config.botMode === 'passive';
+  const bottomPanel = useBottomPanelSpacing({ active: !gameOver });
 
   const handlePlayAgain = useCallback(() => {
     setSecret(generateSecret(config.codeLength, config.allowDuplicates));
@@ -245,8 +247,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
 
       {/* Scrollable history area */}
       <div
+        ref={bottomPanel.scrollAreaRef}
         className="w-full max-w-md flex-1 min-h-0 overflow-y-auto"
-        style={{ paddingBottom: !gameOver ? '190px' : undefined }}
+        style={{ paddingBottom: !gameOver ? `${bottomPanel.paddingBottom}px` : undefined }}
       >
         {gameOver && (
           <div className="w-full mb-4 p-6 rounded-lg bg-card cyber-border text-center scanline">
@@ -319,7 +322,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
 
       {/* Fixed bottom input */}
       {!gameOver && (
-        <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
+        <div
+          ref={bottomPanel.panelRef}
+          className="fixed inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3"
+          style={{ bottom: `${bottomPanel.bottomOffset}px` }}
+        >
           <div className="w-full max-w-md mx-auto space-y-2">
             <DigitTracker history={playerHistory} resetKey={gameId} />
             {triesLeft !== null && (
