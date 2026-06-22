@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { GuessEntry, getDigitStatuses } from '@/game/engine';
 import { useLanguage } from '@/i18n/LanguageContext';
 
