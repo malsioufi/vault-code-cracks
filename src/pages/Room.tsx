@@ -17,6 +17,7 @@ import RelaySetting from '@/components/game/RelaySetting';
 import RelayBoard from '@/components/game/RelayBoard';
 import RelayResults from '@/components/game/RelayResults';
 import { GuessEntry } from '@/game/engine';
+import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
 
 const TURN_TIME = 30;
 
@@ -39,6 +40,8 @@ const Room: React.FC = () => {
   const opponentId = room ? (isHost ? room.guest_id : room.host_id) : null;
   const isMyTurn = room?.mode === 'simultaneous' || room?.current_turn === user?.id;
   const gameOver = room?.status === 'finished' || room?.status === 'abandoned';
+  const inputActive = Boolean(isPlaying && !gameOver);
+  const bottomPanel = useBottomPanelSpacing({ active: inputActive });
 
   // Server-anchored timer
   useEffect(() => {
@@ -568,7 +571,7 @@ const Room: React.FC = () => {
       {/* Scrollable history area */}
       <div
         className="w-full max-w-md flex-1 min-h-0 overflow-y-auto"
-        style={{ paddingBottom: isPlaying && !gameOver ? '210px' : undefined }}
+        style={{ paddingBottom: inputActive ? `${bottomPanel.paddingBottom}px` : undefined }}
       >
         {gameOver && (
           <div className="w-full mb-4 p-6 rounded-lg bg-card cyber-border text-center scanline">
@@ -688,7 +691,11 @@ const Room: React.FC = () => {
 
       {/* Fixed bottom input */}
       {isPlaying && !gameOver && (
-        <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
+        <div
+          ref={bottomPanel.panelRef}
+          className="fixed inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3"
+          style={{ bottom: `${bottomPanel.bottomOffset}px` }}
+        >
           <div className="w-full max-w-md mx-auto space-y-2">
             <DigitTracker history={myGuesses} resetKey={room.code} />
             <DigitInput
