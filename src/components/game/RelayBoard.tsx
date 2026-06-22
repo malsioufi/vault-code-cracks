@@ -6,6 +6,7 @@ import GuessHistory from './GuessHistory';
 import { GuessEntry } from '@/game/engine';
 import { Participant } from '@/hooks/useRoom';
 import { TeamRow } from './RelaySetting';
+import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
 
 interface Props {
   roomId: string;
@@ -39,6 +40,7 @@ const RelayBoard: React.FC<Props> = ({
   const oppTeamRow = teams.find((t) => t.team !== myTeam);
   const isMyTeamTurn = teamTurn === myTeam;
   const amIActive = isMyTeamTurn && myTeamRow?.active_user_id === myId;
+  const bottomPanel = useBottomPanelSpacing({ active: amIActive });
 
   const secsLeft = turnDeadline ? Math.max(0, Math.ceil((new Date(turnDeadline).getTime() - now) / 1000)) : 0;
 
@@ -55,7 +57,7 @@ const RelayBoard: React.FC<Props> = ({
 
   return (
     <>
-      <div className="w-full max-w-md flex-1 min-h-0 overflow-y-auto" style={{ paddingBottom: amIActive ? '180px' : '20px' }}>
+      <div className="w-full max-w-md flex-1 min-h-0 overflow-y-auto" style={{ paddingBottom: amIActive ? `${bottomPanel.paddingBottom}px` : '20px' }}>
         {/* Status strip */}
         <div className="mb-3 p-3 rounded bg-card cyber-border space-y-2">
           <div className="flex items-center justify-between font-mono text-xs">
@@ -113,7 +115,11 @@ const RelayBoard: React.FC<Props> = ({
       </div>
 
       {amIActive && (
-        <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
+        <div
+          ref={bottomPanel.panelRef}
+          className="fixed inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3"
+          style={{ bottom: `${bottomPanel.bottomOffset}px` }}
+        >
           <div className="w-full max-w-md mx-auto space-y-2">
             <div className="flex justify-between font-mono text-xs text-muted-foreground">
               <span>{t('yourTurn')} · {t('attempt')} {(myTeamRow?.guesses_count ?? 0) + 1}{maxTries ? `/${maxTries}` : ''}</span>
