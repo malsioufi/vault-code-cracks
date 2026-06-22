@@ -13,8 +13,10 @@ export function useBottomPanelSpacing<T extends HTMLElement = HTMLDivElement>({
 }: BottomPanelSpacingOptions) {
   const panelRef = useRef<T | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+  const shouldLiftPanelRef = useRef(false);
   const [panelHeight, setPanelHeight] = useState(defaultPanelHeight);
   const [keyboardInset, setKeyboardInset] = useState(0);
+  const [bottomOffset, setBottomOffset] = useState(0);
 
   const scrollToBottom = useCallback(() => {
     const scrollArea = scrollAreaRef.current;
@@ -36,6 +38,18 @@ export function useBottomPanelSpacing<T extends HTMLElement = HTMLDivElement>({
     const nextKeyboardInset = viewport
       ? Math.max(0, Math.ceil(window.innerHeight - viewport.height - viewport.offsetTop))
       : 0;
+
+    if (nextKeyboardInset === 0) {
+      shouldLiftPanelRef.current = false;
+      setBottomOffset(0);
+    } else if (viewport && panelRef.current) {
+      const visualBottom = viewport.height + viewport.offsetTop;
+      const panelBottom = panelRef.current.getBoundingClientRect().bottom;
+      if (!shouldLiftPanelRef.current) {
+        shouldLiftPanelRef.current = panelBottom > visualBottom + 4;
+      }
+      setBottomOffset(shouldLiftPanelRef.current ? nextKeyboardInset : 0);
+    }
 
     setPanelHeight(nextPanelHeight);
     setKeyboardInset(nextKeyboardInset);
@@ -75,7 +89,7 @@ export function useBottomPanelSpacing<T extends HTMLElement = HTMLDivElement>({
   return {
     panelRef,
     scrollAreaRef,
-    bottomOffset: active ? keyboardInset : 0,
+    bottomOffset: active ? bottomOffset : 0,
     paddingBottom: active ? panelHeight + keyboardInset + gap : gap,
   };
 }
