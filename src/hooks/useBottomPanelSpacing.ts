@@ -12,8 +12,15 @@ export function useBottomPanelSpacing<T extends HTMLElement = HTMLDivElement>({
   gap = 16,
 }: BottomPanelSpacingOptions) {
   const panelRef = useRef<T | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const [panelHeight, setPanelHeight] = useState(defaultPanelHeight);
   const [keyboardInset, setKeyboardInset] = useState(0);
+
+  const scrollToBottom = useCallback(() => {
+    const scrollArea = scrollAreaRef.current;
+    if (!scrollArea) return;
+    scrollArea.scrollTop = scrollArea.scrollHeight;
+  }, []);
 
   const measure = useCallback(() => {
     if (!active) {
@@ -59,8 +66,15 @@ export function useBottomPanelSpacing<T extends HTMLElement = HTMLDivElement>({
     };
   }, [active, measure]);
 
+  useEffect(() => {
+    if (!active) return;
+    scrollToBottom();
+    requestAnimationFrame(scrollToBottom);
+  }, [active, panelHeight, keyboardInset, scrollToBottom]);
+
   return {
     panelRef,
+    scrollAreaRef,
     bottomOffset: active ? keyboardInset : 0,
     paddingBottom: active ? panelHeight + keyboardInset + gap : gap,
   };
