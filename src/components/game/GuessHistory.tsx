@@ -14,6 +14,12 @@ const GuessHistory: React.FC<GuessHistoryProps> = ({ history, codeLength, secret
   const [pinnedDigit, setPinnedDigit] = useState<number | null>(null);
   const [hoveredDigit, setHoveredDigit] = useState<number | null>(null);
   const highlightedDigit = hoveredDigit ?? pinnedDigit;
+  const lastEntryRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (history.length === 0) return;
+    lastEntryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [history.length]);
 
   if (history.length === 0) return null;
 
