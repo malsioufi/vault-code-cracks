@@ -57,7 +57,11 @@ const RelayBoard: React.FC<Props> = ({
 
   return (
     <>
-      <div className="w-full max-w-md flex-1 min-h-0 overflow-y-auto" style={{ paddingBottom: amIActive ? `${bottomPanel.paddingBottom}px` : '20px' }}>
+      <div
+        ref={bottomPanel.scrollAreaRef}
+        className="w-full max-w-md flex-1 min-h-0 overflow-y-auto"
+        style={{ paddingBottom: amIActive ? `${bottomPanel.paddingBottom}px` : '20px' }}
+      >
         {/* Status strip */}
         <div className="mb-3 p-3 rounded bg-card cyber-border space-y-2">
           <div className="flex items-center justify-between font-mono text-xs">
