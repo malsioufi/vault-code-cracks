@@ -16,6 +16,7 @@ import PageHeader from '@/components/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { getDifficultyScore, getDifficultyScoreColor } from '@/game/difficulty';
+import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
 
 function formatCountdown(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -34,6 +35,9 @@ const Daily: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   const [countdown, setCountdown] = useState(msUntilNextDailyMidnight());
+  const triesLeft = config.maxTries - history.length;
+  const inputActive = !gameOver && triesLeft > 0;
+  const bottomPanel = useBottomPanelSpacing({ active: inputActive });
 
   // Hydrate from existing record (already played today OR in progress).
   const [hydrated, setHydrated] = useState(false);
@@ -60,8 +64,6 @@ const Daily: React.FC = () => {
     const id = setInterval(() => setCountdown(msUntilNextDailyMidnight()), 1000);
     return () => clearInterval(id);
   }, []);
-
-  const triesLeft = config.maxTries - history.length;
 
   // Closeness across an arbitrary list of guesses, given a known win flag.
   const computeCloseness = (
@@ -214,7 +216,7 @@ const Daily: React.FC = () => {
           Reserves bottom space (~190px) so the fixed input never covers the latest row. */}
       <div
         className="w-full max-w-md flex-1 min-h-0 overflow-y-auto mb-2"
-        style={{ paddingBottom: !gameOver && triesLeft > 0 ? '190px' : undefined }}
+        style={{ paddingBottom: inputActive ? `${bottomPanel.paddingBottom}px` : undefined }}
       >
         {history.length === 0 ? (
           <p className="font-mono text-xs text-muted-foreground text-center py-6">
@@ -276,8 +278,12 @@ const Daily: React.FC = () => {
       {/* Input pinned to bottom so history above always stays visible */}
       {/* Input fixed to viewport bottom so it stays above the OS keyboard
           and doesn't push the history out of view when focused. */}
-      {!gameOver && triesLeft > 0 && (
-        <div className="fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3">
+      {inputActive && (
+        <div
+          ref={bottomPanel.panelRef}
+          className="fixed inset-x-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border px-4 pt-2 pb-3"
+          style={{ bottom: `${bottomPanel.bottomOffset}px` }}
+        >
           <div className="w-full max-w-md mx-auto space-y-2">
             <DigitTracker history={history} resetKey={config.secret.join('')} />
             <div className="flex justify-between font-mono text-xs text-muted-foreground">
