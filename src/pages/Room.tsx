@@ -71,6 +71,19 @@ const Room: React.FC = () => {
     });
   }, [gameOver, room?.id]);
 
+  // Win / lose / draw sounds when the room finishes
+  const [endSoundPlayed, setEndSoundPlayed] = useState(false);
+  useEffect(() => {
+    if (!gameOver || !room || endSoundPlayed) return;
+    if (room.status === 'abandoned') { sfx.lose(); }
+    else if (room.winner_id && user?.id) {
+      if (room.winner_id === user.id) sfx.win(); else sfx.lose();
+    } else {
+      sfx.tick();
+    }
+    setEndSoundPlayed(true);
+  }, [gameOver, room, user?.id, endSoundPlayed]);
+
   const handleSetSecret = useCallback(
     async (digits: number[]) => {
       if (!room || submitting) return;
