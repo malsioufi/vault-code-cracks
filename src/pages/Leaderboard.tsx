@@ -58,7 +58,7 @@ const Leaderboard: React.FC = () => {
           <p className="font-mono text-xs text-muted-foreground text-center py-8">…</p>
         ) : rows.length === 0 ? (
           <p className="font-mono text-xs text-muted-foreground text-center py-8">
-            {t('noSolversYet') ?? 'No data yet'}
+            {t('noSolversYet')}
           </p>
         ) : (
           <ol className="space-y-1.5">
