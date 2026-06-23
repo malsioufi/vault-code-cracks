@@ -403,6 +403,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_all_time_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          best_daily_streak: number
+          daily_wins: number
+          display_name: string
+          is_guest: boolean
+          is_me: boolean
+          online_wins: number
+          rank: number
+          score: number
+          user_id: string
+        }[]
+      }
       get_daily_leaderboard: {
         Args: { _date?: string }
         Returns: {
