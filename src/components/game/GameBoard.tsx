@@ -14,6 +14,8 @@ import GuessHistory from './GuessHistory';
 import DigitTracker from './DigitTracker';
 import { getDifficultyScore, getDifficultyScoreColor } from '@/game/difficulty';
 import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
+import { DigitMarksProvider } from '@/contexts/DigitMarksContext';
+import { sfx } from '@/lib/sfx';
 
 interface GameBoardProps {
   config: GameConfig;
