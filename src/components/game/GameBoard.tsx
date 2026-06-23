@@ -43,6 +43,19 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const isPassive = config.botMode === 'passive';
   const bottomPanel = useBottomPanelSpacing({ active: !gameOver });
 
+  // Win / lose sounds
+  useEffect(() => {
+    if (!result) return;
+    if (result === 'win') sfx.win();
+    else sfx.lose();
+  }, [result]);
+
+  // Timer-warning ticks in active mode (countdown <= 5s on the player's turn)
+  useEffect(() => {
+    if (isPassive || gameOver || settingSecret || !isPlayerTurn) return;
+    if (timer > 0 && timer <= 5) sfx.tick();
+  }, [timer, isPassive, gameOver, settingSecret, isPlayerTurn]);
+
   const handlePlayAgain = useCallback(() => {
     setSecret(generateSecret(config.codeLength, config.allowDuplicates));
     setPlayerSecret([]);
