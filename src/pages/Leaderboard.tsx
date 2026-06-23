@@ -39,18 +39,18 @@ const Leaderboard: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <PageHeader center={<span className="uppercase tracking-widest">{t('allTimeLeaderboard') ?? 'All-Time Leaderboard'}</span>} />
+      <PageHeader center={<span className="uppercase tracking-widest">All-Time Leaderboard</span>} />
 
       <main className="flex-1 w-full max-w-md mx-auto px-4 pb-8">
         <div className="p-3 mb-3 rounded-lg bg-card cyber-border">
           <div className="flex items-center gap-2 mb-2">
             <Trophy className="w-4 h-4 text-secondary" />
             <h1 className="font-mono text-xs uppercase tracking-widest text-secondary text-glow-secondary">
-              {t('topBreakers') ?? 'Top Breakers'}
+              Top Breakers
             </h1>
           </div>
           <p className="font-mono text-[10px] text-muted-foreground leading-relaxed">
-            {t('leaderboardScoreFormula') ?? 'Score = Daily wins × 10 + Online wins × 15 + Best daily streak × 2'}
+            Score = Daily wins × 10 + Online wins × 15 + Best daily streak × 2
           </p>
         </div>
 
