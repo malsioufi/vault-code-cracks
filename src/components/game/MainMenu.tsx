@@ -19,6 +19,21 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
   const { user, profile, signOut } = useAuth();
 
   const [showLeaderboard, setShowLeaderboard] = React.useState(false);
+  const [soundOn, setSoundOn] = React.useState<boolean>(() => isSoundEnabled());
+  const [hapticsOn, setHapticsOn] = React.useState<boolean>(() => isHapticsEnabled());
+
+  const toggleSound = () => {
+    const next = !soundOn;
+    setSoundEnabled(next);
+    setSoundOn(next);
+    if (next) sfx.tap();
+  };
+  const toggleHaptics = () => {
+    const next = !hapticsOn;
+    setHapticsEnabled(next);
+    setHapticsOn(next);
+    if (next) sfx.tap();
+  };
 
   // Typewriter slogan
   const fullSlogan = 'Crack the Code. Break the Vault.';
