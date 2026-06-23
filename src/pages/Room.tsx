@@ -18,6 +18,8 @@ import RelayBoard from '@/components/game/RelayBoard';
 import RelayResults from '@/components/game/RelayResults';
 import { GuessEntry } from '@/game/engine';
 import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
+import { DigitMarksProvider } from '@/contexts/DigitMarksContext';
+import { sfx } from '@/lib/sfx';
 
 const TURN_TIME = 30;
 
@@ -68,6 +70,19 @@ const Room: React.FC = () => {
       }
     });
   }, [gameOver, room?.id]);
+
+  // Win / lose / draw sounds when the room finishes
+  const [endSoundPlayed, setEndSoundPlayed] = useState(false);
+  useEffect(() => {
+    if (!gameOver || !room || endSoundPlayed) return;
+    if (room.status === 'abandoned') { sfx.lose(); }
+    else if (room.winner_id && user?.id) {
+      if (room.winner_id === user.id) sfx.win(); else sfx.lose();
+    } else {
+      sfx.tick();
+    }
+    setEndSoundPlayed(true);
+  }, [gameOver, room, user?.id, endSoundPlayed]);
 
   const handleSetSecret = useCallback(
     async (digits: number[]) => {
@@ -518,6 +533,7 @@ const Room: React.FC = () => {
   const opponentName = opponentId ? (profiles[opponentId] ?? t('opponentLabel')) : t('opponentLabel');
 
   return (
+    <DigitMarksProvider resetKey={room.code}>
     <div className="h-screen flex flex-col items-center px-4 pt-3 pb-2 overflow-hidden">
       {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-2 shrink-0">
@@ -715,6 +731,7 @@ const Room: React.FC = () => {
         </div>
       )}
     </div>
+    </DigitMarksProvider>
   );
 };
 

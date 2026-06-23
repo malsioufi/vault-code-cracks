@@ -1,65 +1,38 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GuessEntry } from '@/game/engine';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-
-type Mark = 'neutral' | 'present' | 'confirmed' | 'ruled-out';
+import { useDigitMarks, Mark, MARK_ORDER, markStyles, markSymbol } from '@/contexts/DigitMarksContext';
+import { sfx } from '@/lib/sfx';
 
 interface DigitTrackerProps {
   history: GuessEntry[];
   resetKey?: string | number;
 }
 
-const order: Mark[] = ['neutral', 'present', 'confirmed', 'ruled-out'];
-
-const styles: Record<Mark, string> = {
-  neutral: 'bg-card text-muted-foreground border-border',
-  present: 'bg-warning/20 text-warning border-warning/60',
-  confirmed: 'bg-primary/20 text-primary border-primary/60',
-  'ruled-out': 'bg-destructive/15 text-destructive border-destructive/50 line-through opacity-70',
-};
-
-const symbol: Record<Mark, string> = {
-  neutral: '',
-  present: '?',
-  confirmed: '✓',
-  'ruled-out': '✕',
-};
-
-/**
- * Digit tracker is purely manual — players cycle through marks themselves.
- * No auto-derivation from feedback to keep the deduction challenge intact.
- */
-function deriveAuto(_history: GuessEntry[]): Record<number, Mark> {
-  return {};
-}
-
-const DigitTracker: React.FC<DigitTrackerProps> = ({ history, resetKey }) => {
+const DigitTracker: React.FC<DigitTrackerProps> = ({ resetKey }) => {
   const { t } = useLanguage();
-  const [manual, setManual] = useState<Record<number, Mark>>({});
+  const ctx = useDigitMarks();
+
+  // Fallback local state if rendered outside a DigitMarksProvider
+  const [localMarks, setLocalMarks] = useState<Record<number, Mark>>({});
+  useEffect(() => {
+    if (!ctx) setLocalMarks({});
+  }, [resetKey, ctx]);
+
   const [isOpen, setIsOpen] = useState(true);
 
-  useEffect(() => {
-    setManual({});
-  }, [resetKey]);
-
-  const auto = useMemo(() => deriveAuto(history), [history]);
-
-  const getMark = (d: number): Mark => {
-    if (manual[d]) return manual[d];
-    return auto[d] ?? 'neutral';
-  };
+  const getMark = (d: number): Mark =>
+    ctx ? ctx.getMark(d) : (localMarks[d] ?? 'neutral');
 
   const cycle = (d: number) => {
-    setManual((prev) => {
-      const current = prev[d] ?? auto[d] ?? 'neutral';
-      const next = order[(order.indexOf(current) + 1) % order.length];
+    sfx.tap();
+    if (ctx) { ctx.cycle(d); return; }
+    setLocalMarks((prev) => {
+      const current = prev[d] ?? 'neutral';
+      const next = MARK_ORDER[(MARK_ORDER.indexOf(current) + 1) % MARK_ORDER.length];
       const copy = { ...prev };
-      if (next === 'neutral' && !manual[d]) {
-        delete copy[d];
-      } else {
-        copy[d] = next;
-      }
+      if (next === 'neutral') delete copy[d]; else copy[d] = next;
       return copy;
     });
   };
@@ -96,13 +69,13 @@ const DigitTracker: React.FC<DigitTrackerProps> = ({ history, resetKey }) => {
                 key={d}
                 type="button"
                 onClick={() => cycle(d)}
-                className={`relative h-8 rounded font-mono text-sm font-bold border transition-all ${styles[mark]}`}
+                className={`relative h-8 rounded font-mono text-sm font-bold border transition-all ${markStyles[mark]}`}
                 aria-label={`digit ${d} ${mark}`}
               >
                 {d}
-                {symbol[mark] && (
+                {markSymbol[mark] && (
                   <span className="absolute -top-1 -end-1 text-[9px] leading-none">
-                    {symbol[mark]}
+                    {markSymbol[mark]}
                   </span>
                 )}
               </button>

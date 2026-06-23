@@ -6,7 +6,8 @@ import DailyLeaderboard from '@/components/game/DailyLeaderboard';
 import MatrixRain from '@/components/MatrixRain';
 import { useAuth } from '@/hooks/useAuth';
 import { dailyDateString } from '@/game/dailyPuzzle';
-import { ChevronDown, Trophy, BarChart3, LogIn, LogOut, Globe, Dumbbell, Award, User as UserIcon } from 'lucide-react';
+import { ChevronDown, Trophy, BarChart3, LogIn, LogOut, Globe, Dumbbell, Award, User as UserIcon, Volume2, VolumeX } from 'lucide-react';
+import { isSoundEnabled, setSoundEnabled, isHapticsEnabled, setHapticsEnabled, sfx } from '@/lib/sfx';
 
 interface MainMenuProps {
   onStartSolo: (config: GameConfig) => void;
@@ -18,6 +19,21 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
   const { user, profile, signOut } = useAuth();
 
   const [showLeaderboard, setShowLeaderboard] = React.useState(false);
+  const [soundOn, setSoundOn] = React.useState<boolean>(() => isSoundEnabled());
+  const [hapticsOn, setHapticsOn] = React.useState<boolean>(() => isHapticsEnabled());
+
+  const toggleSound = () => {
+    const next = !soundOn;
+    setSoundEnabled(next);
+    setSoundOn(next);
+    if (next) sfx.tap();
+  };
+  const toggleHaptics = () => {
+    const next = !hapticsOn;
+    setHapticsEnabled(next);
+    setHapticsOn(next);
+    if (next) sfx.tap();
+  };
 
   // Typewriter slogan
   const fullSlogan = 'Crack the Code. Break the Vault.';
@@ -56,14 +72,32 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
       <div className="relative z-10 h-full flex flex-col">
         {/* Top utility bar */}
         <header className="w-full px-4 py-2 flex items-center justify-between shrink-0">
-          <button
-            onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
-            className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md text-muted-foreground hover:text-primary font-mono text-xs transition-colors"
-            aria-label="Toggle language"
-          >
-            <Globe className="w-3.5 h-3.5" />
-            {lang === 'en' ? 'AR' : 'EN'}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
+              className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md text-muted-foreground hover:text-primary font-mono text-xs transition-colors"
+              aria-label="Toggle language"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              {lang === 'en' ? 'AR' : 'EN'}
+            </button>
+            <button
+              onClick={toggleSound}
+              className={`inline-flex items-center px-2 py-1.5 rounded-md font-mono text-xs transition-colors ${soundOn ? 'text-primary hover:text-primary/80' : 'text-muted-foreground hover:text-foreground'}`}
+              aria-label={soundOn ? 'Mute sound' : 'Unmute sound'}
+              title={soundOn ? 'Sound on' : 'Sound off'}
+            >
+              {soundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              onClick={toggleHaptics}
+              className={`inline-flex items-center px-2 py-1.5 rounded-md font-mono text-[11px] transition-colors ${hapticsOn ? 'text-primary hover:text-primary/80' : 'text-muted-foreground hover:text-foreground'}`}
+              aria-label={hapticsOn ? 'Disable haptics' : 'Enable haptics'}
+              title={hapticsOn ? 'Haptics on' : 'Haptics off'}
+            >
+              📳
+            </button>
+          </div>
 
           {!user ? (
             <button

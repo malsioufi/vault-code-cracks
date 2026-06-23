@@ -14,6 +14,8 @@ import GuessHistory from './GuessHistory';
 import DigitTracker from './DigitTracker';
 import { getDifficultyScore, getDifficultyScoreColor } from '@/game/difficulty';
 import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
+import { DigitMarksProvider } from '@/contexts/DigitMarksContext';
+import { sfx } from '@/lib/sfx';
 
 interface GameBoardProps {
   config: GameConfig;
@@ -40,6 +42,19 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isPassive = config.botMode === 'passive';
   const bottomPanel = useBottomPanelSpacing({ active: !gameOver });
+
+  // Win / lose sounds
+  useEffect(() => {
+    if (!result) return;
+    if (result === 'win') sfx.win();
+    else sfx.lose();
+  }, [result]);
+
+  // Timer-warning ticks in active mode (countdown <= 5s on the player's turn)
+  useEffect(() => {
+    if (isPassive || gameOver || settingSecret || !isPlayerTurn) return;
+    if (timer > 0 && timer <= 5) sfx.tick();
+  }, [timer, isPassive, gameOver, settingSecret, isPlayerTurn]);
 
   const handlePlayAgain = useCallback(() => {
     setSecret(generateSecret(config.codeLength, config.allowDuplicates));
@@ -190,6 +205,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   }
 
   return (
+    <DigitMarksProvider resetKey={gameId}>
     <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
       {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-3 shrink-0">
@@ -352,6 +368,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
         </div>
       )}
     </div>
+    </DigitMarksProvider>
   );
 };
 
