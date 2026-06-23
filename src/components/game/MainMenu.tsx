@@ -219,8 +219,16 @@ const MainMenu: React.FC<MainMenuProps> = ({ onStartSolo }) => {
               className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 rounded-md font-mono text-[11px] text-muted-foreground hover:text-primary transition-colors"
               aria-label="All-time leaderboard"
             >
+              <Trophy className="w-3.5 h-3.5" />
+              All-Time
+            </button>
+            <button
+              onClick={() => navigate('/achievements')}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 rounded-md font-mono text-[11px] text-muted-foreground hover:text-primary transition-colors"
+              aria-label="Achievements"
+            >
               <Award className="w-3.5 h-3.5" />
-              Ranks
+              Badges
             </button>
             <button
               onClick={() => navigate('/stats')}
