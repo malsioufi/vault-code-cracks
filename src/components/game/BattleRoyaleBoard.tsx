@@ -3,6 +3,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { Participant } from '@/hooks/useRoom';
 import DigitInput from './DigitInput';
 import GuessHistory from './GuessHistory';
+import DigitTracker from './DigitTracker';
 import { GuessEntry } from '@/game/engine';
 import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
 
@@ -92,6 +93,7 @@ const BattleRoyaleBoard: React.FC<Props> = ({
               <span>{t('attempt')} {myGuesses.length + 1}{maxTries !== null ? `/${maxTries}` : ''}</span>
               {triesLeft !== null && <span className="text-warning">{triesLeft} {t('turnsLeft')}</span>}
             </div>
+            <DigitTracker history={myGuesses} resetKey={myId} />
             <DigitInput
               codeLength={codeLength}
               allowDuplicates={allowDuplicates}

@@ -3,6 +3,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import DigitInput from './DigitInput';
 import GuessHistory from './GuessHistory';
+import DigitTracker from './DigitTracker';
 import { GuessEntry } from '@/game/engine';
 import { Participant } from '@/hooks/useRoom';
 import { TeamRow } from './RelaySetting';
@@ -129,6 +130,7 @@ const RelayBoard: React.FC<Props> = ({
               <span>{t('yourTurn')} · {t('attempt')} {(myTeamRow?.guesses_count ?? 0) + 1}{maxTries ? `/${maxTries}` : ''}</span>
               <span className={secsLeft <= 10 ? 'text-destructive' : 'text-primary'}>{secsLeft}s</span>
             </div>
+            <DigitTracker history={myTeamGuesses} resetKey={roomId} />
             <DigitInput
               codeLength={codeLength}
               allowDuplicates={allowDuplicates}
