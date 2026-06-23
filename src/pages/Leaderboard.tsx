@@ -50,7 +50,7 @@ const Leaderboard: React.FC = () => {
             </h1>
           </div>
           <p className="font-mono text-[10px] text-muted-foreground leading-relaxed">
-            Score = Daily wins × 10 + Online wins × 15 + Best daily streak × 2
+            Score = Daily wins × 20 + Best daily streak × 10 + Online wins × 5
           </p>
         </div>
 
