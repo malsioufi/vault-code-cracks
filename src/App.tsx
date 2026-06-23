@@ -13,6 +13,7 @@ import Auth from "./pages/Auth.tsx";
 import Daily from "./pages/Daily.tsx";
 import Stats from "./pages/Stats.tsx";
 import Achievements from "./pages/Achievements.tsx";
+import Leaderboard from "./pages/Leaderboard.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import PublicProfile from "./pages/PublicProfile.tsx";
 import Account from "./pages/Account.tsx";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/daily" element={<Daily />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/achievements" element={<Achievements />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/room/:code" element={<Room />} />
             <Route path="/profile/:userId" element={<PublicProfile />} />
             <Route path="/account" element={<Account />} />
