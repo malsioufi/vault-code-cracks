@@ -205,6 +205,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
   }
 
   return (
+    <DigitMarksProvider resetKey={gameId}>
     <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
       {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-3 shrink-0">
@@ -367,6 +368,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ config, onBack }) => {
         </div>
       )}
     </div>
+    </DigitMarksProvider>
   );
 };
 
