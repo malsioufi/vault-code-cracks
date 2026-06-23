@@ -17,6 +17,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { getDifficultyScore, getDifficultyScoreColor } from '@/game/difficulty';
 import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
+import { DigitMarksProvider } from '@/contexts/DigitMarksContext';
+import { sfx } from '@/lib/sfx';
 
 function formatCountdown(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -167,6 +169,7 @@ const Daily: React.FC = () => {
   }
 
   return (
+    <DigitMarksProvider resetKey={config.secret.join('')}>
     <div className="h-screen flex flex-col items-center px-4 pt-4 pb-2 overflow-hidden">
 
       <PageHeader center={`${config.date} • Damascus`} />
@@ -301,6 +304,7 @@ const Daily: React.FC = () => {
         </div>
       )}
     </div>
+    </DigitMarksProvider>
   );
 };
 

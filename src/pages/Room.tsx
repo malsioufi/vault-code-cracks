@@ -18,6 +18,8 @@ import RelayBoard from '@/components/game/RelayBoard';
 import RelayResults from '@/components/game/RelayResults';
 import { GuessEntry } from '@/game/engine';
 import { useBottomPanelSpacing } from '@/hooks/useBottomPanelSpacing';
+import { DigitMarksProvider } from '@/contexts/DigitMarksContext';
+import { sfx } from '@/lib/sfx';
 
 const TURN_TIME = 30;
 
@@ -518,6 +520,7 @@ const Room: React.FC = () => {
   const opponentName = opponentId ? (profiles[opponentId] ?? t('opponentLabel')) : t('opponentLabel');
 
   return (
+    <DigitMarksProvider resetKey={room.code}>
     <div className="h-screen flex flex-col items-center px-4 pt-3 pb-2 overflow-hidden">
       {/* Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-2 shrink-0">
@@ -715,6 +718,7 @@ const Room: React.FC = () => {
         </div>
       )}
     </div>
+    </DigitMarksProvider>
   );
 };
 
