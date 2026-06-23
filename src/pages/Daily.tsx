@@ -110,6 +110,13 @@ const Daily: React.FC = () => {
     }
   };
 
+  // Win / lose sound for the daily puzzle
+  useEffect(() => {
+    if (!gameOver) return;
+    if (won) sfx.win(); else sfx.lose();
+  }, [gameOver, won]);
+
+
   // Live closeness for the UI (mirrors the same formula).
   const closeness = useMemo(
     () => computeCloseness(history, won, config.codeLength),
